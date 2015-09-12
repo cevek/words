@@ -1,0 +1,19 @@
+{
+  "name": "words",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cevek/words.git"
+  },
+  "author": "cevek <x.cevek@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cevek/words/issues"
+  },
+  "homepage": "https://github.com/cevek/words"
+}
