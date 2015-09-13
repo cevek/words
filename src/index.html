@@ -60,5 +60,38 @@
 
 <script type="text/javascript" src="lis.js"></script>
 <script type="text/javascript" src="index.js"></script>
+
+<script src="http://vk.com/js/api/openapi.js" type="text/javascript"></script>
+
+<div id="login_button" onclick="VK.Auth.login(authInfo);">asdfasfsa</div>
+
+<script language="javascript">
+    VK.init({
+        apiId: 5068850
+    });
+    function authInfo(response) {
+        if (response.session) {
+            VK.Api.call('users.get', {user_ids: 6492}, function(r) {
+                if(r.response) {
+                    console.log(r);
+                }
+            });
+/*
+            VK.Api.call('storage.set', {key: "123", value: Math.random()}, function(r) {
+                console.log(r);
+            });
+*/
+            VK.Api.call('storage.get', {key: "123"}, function(r) {
+                console.log(r);
+            });
+        } else {
+            alert('not auth');
+        }
+    }
+
+    VK.Auth.getLoginStatus(authInfo);
+//    VK.UI.button('login_button');
+</script>
+
 </body>
 </html>
