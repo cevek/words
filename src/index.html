@@ -8,6 +8,9 @@
             margin: 0 50px;
         }
         .line{margin: 20px 0;}
+        .token{
+            padding: 0px 3px;
+        }
         .removed {
             background: coral;
             text-decoration: line-through;
@@ -15,8 +18,11 @@
         .added {
             background: lightgreen;
         }
-        .moved {
+        .moved-from, .moved-to {
             background: yellow;
+        }
+        .moved-from{
+            text-decoration: line-through;
         }
         .move-line {
             position: absolute;
@@ -24,6 +30,11 @@
             height: 10px;
             margin-top: -5px;
             border-bottom: none;
+        }
+        .replaced{
+            background: greenyellow;
+            position: absolute;
+            margin: -18px 0 0 0;
         }
         #text{
             font-size: 20px;

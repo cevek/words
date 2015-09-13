@@ -17,7 +17,7 @@ function update(node) {
     //console.log("update", node);
 }
 
-function sync(a, b) {
+function sync(a, b, compare) {
     var aStart = 0;
     var bStart = 0;
     var aEnd = a.length - 1;
@@ -31,7 +31,7 @@ function sync(a, b) {
     var node;
     var nextPos;
     var next;
-    var ret = {added: [], removed: [], moved: []};
+    var ret = [];
 
 
     // Algorithm that works on simple cases with basic list transformations.
@@ -58,60 +58,29 @@ function sync(a, b) {
     var moved = false;
     var removeOffset = 0;
 
-    // When lists a and b are small, we are using naive O(M*N) algorithm to find removed children.
-    if (aLength * bLength <= 16) {
-        for (i = aStart; i <= aEnd; i++) {
-            var removed = true;
-            aNode = a[i];
-            for (j = bStart; j <= bEnd; j++) {
-                bNode = b[j];
-                if (aNode.key === bNode.key) {
-                    sources[j - bStart] = i;
-
-                    if (lastTarget > j) {
-                        moved = true;
-                    } else {
-                        lastTarget = j;
-                    }
-                    //update(bNode);
-                    removed = false;
-                    break;
-                }
-            }
-            if (removed) {
-                //remove(aNode);
-                ret.removed.push({node: aNode});
-
-                removeOffset++;
-            }
-        }
-    } else {
-        var keyIndex = {};
-
-        for (i = bStart; i <= bEnd; i++) {
-            node = b[i];
-            keyIndex[node.key] = i;
-        }
-
-        for (i = aStart; i <= aEnd; i++) {
-            aNode = a[i];
-            j = keyIndex[aNode.key];
-
-            if (j !== void 0) {
-                bNode = b[j];
+    for (i = aStart; i <= aEnd; i++) {
+        var removed = true;
+        aNode = a[i];
+        for (j = bStart; j <= bEnd; j++) {
+            bNode = b[j];
+            if (compare(aNode,  bNode)) {
                 sources[j - bStart] = i;
+
                 if (lastTarget > j) {
                     moved = true;
                 } else {
                     lastTarget = j;
                 }
                 //update(bNode);
-            } else {
-                //remove(aNode);
-                ret.removed.push({node: aNode});
-
-                removeOffset++;
+                removed = false;
+                break;
             }
+        }
+        if (removed) {
+            //remove(aNode);
+            ret.push({node: aNode, type: 'removed'});
+
+            removeOffset++;
         }
     }
 
@@ -128,7 +97,7 @@ function sync(a, b) {
                 nextPos = pos + 1;
                 next = nextPos < b.length ? b[nextPos] : null;
                 //add(node, next);
-                ret.added.push({node: node, next: next});
+                ret.push({node: node, next: next, type: 'added'});
 
             } else {
                 if (j < 0 || i !== seq[j]) {
@@ -137,7 +106,7 @@ function sync(a, b) {
                     nextPos = pos + 1;
                     next = nextPos < b.length ? b[nextPos] : null;
                     //move(node, next);
-                    ret.moved.push({node: node, next: next});
+                    ret.push({node: node, next: next, type: 'moved'});
                 } else {
                     j--;
                 }
@@ -151,7 +120,7 @@ function sync(a, b) {
                 nextPos = pos + 1;
                 next = nextPos < b.length ? b[nextPos] : null;
                 //add(node, next);
-                ret.added.push({node: node, next: next});
+                ret.push({node: node, next: next, type: 'added'});
             }
         }
     }
