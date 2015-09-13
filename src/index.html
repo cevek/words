@@ -4,24 +4,27 @@
     <meta charset="UTF-8">
     <title></title>
     <style type="text/css">
-        #app{
+        .app{
             margin: 0 50px;
         }
         .line{margin: 20px 0;}
         .token{
-            padding: 0px 3px;
         }
         .removed {
-            background: coral;
+            color: coral;
             text-decoration: line-through;
         }
+
         .added {
+            padding: 0 3px;
             background: lightgreen;
         }
-        .moved-from, .moved-to {
+        .moved-to {
+            padding: 0 3px;
             background: yellow;
         }
         .moved-from{
+            color: olive;
             text-decoration: line-through;
         }
         .move-line {
@@ -31,12 +34,22 @@
             margin-top: -5px;
             border-bottom: none;
         }
-        .replaced{
-            background: greenyellow;
+        .replaced, .correct{
+            font-size: 12px;
             position: absolute;
-            margin: -18px 0 0 0;
+            margin: -12px 0 0 0;
         }
-        #text{
+        .replaced{
+            padding: 0 3px;
+            background: greenyellow;
+        }
+        .correct{
+            color: blue;
+        }
+        .misspelling{
+            border-bottom: 1px solid red;
+        }
+        .text{
             font-size: 20px;
             width: 100%;
             padding: 5px 10px;
@@ -44,13 +57,7 @@
     </style>
 </head>
 <body>
-<div id="app">
-    Алиса покупает книгу на ее деньги
-    <div id="items"></div>
-    <div><form id="form"><input required autocomplete="off" id="text" type="text"/></form></div>
-</div>
 
-<!--<script type="text/javascript" src="../node_modules/diff/dist/diff.js"></script>-->
 <script type="text/javascript" src="lis.js"></script>
 <script type="text/javascript" src="index.js"></script>
 </body>

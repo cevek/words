@@ -1,87 +1,91 @@
 'use strict';
-//let diff = JsDiff.diffWordsWithSpace(oldStr, newStr, {});
-var items = document.getElementById('items');
-var form = document.getElementById('form');
-var text = document.getElementById('text');
-form.onsubmit = function submit() {
-    doit(text.value);
-    return false;
+
+let TOKEN = {
+    token: 'token',
+    removed: 'removed',
+    replaced: 'replaced',
+    added: 'added',
+    moved: 'moved',
+    movedTo: 'moved-to',
+    movedFrom: 'moved-from',
+    correct: 'correct',
+    misspelling: 'misspelling'
 };
-//doit('He think, to calls me 1 me y 1 John');
-//doit('the owner has giving the little money each month');
 
+class Word {
+    constructor(text, keyMap) {
+        this.text = text;
+        this.setKey(keyMap);
+    }
 
-function doit(oldStr) {
-    let newStr = "Alisa buys a book with her money";
-
-    let words = parseWords(oldStr);
-    let words2 = parseWords(newStr);
-
-    let result = sync(words, words2);
-    var div = document.createElement('div');
-    div.classList.add('line');
-    items.appendChild(div);
-    render(div, words, words2);
-    showAdded(div, result);
-    showRemoved(div, result);
-    showMoved(div, result);
-
-}
-
-class WordBlock {
-
+    setKey(keyMap) {
+        let key = this.text.toLocaleLowerCase().replace(/[^\w\d]+/, '');
+        while (keyMap[key]) {
+            key += '*';
+        }
+        this.key = key;
+        keyMap[key] = this;
+    }
 }
 
 class Words {
     constructor() {
         this.sync = null;
         this.words = null;
-        this.userWords = null;
-        this.origWords = null;
-
-        this.items = document.getElementById('items');
-        this.form = document.getElementById('form');
-        this.text = document.getElementById('text');
-        this.form.onsubmit = ()=>this.onSubmit();
-
+        this.render();
     }
 
-    onSubmit() {
-        this.doit(this.text.value);
-        return false;
-    }
+    doit(userText) {
+        let originText = "Alisa buys a book with her money";
 
+        this.words = this.parseWords(userText);
+        let originWords = this.parseWords(originText);
 
-    doit(oldStr) {
-        let newStr = "Alisa buys a book with her money";
-
-
-        this.words = parseWords(oldStr);
-        let words2 = parseWords(newStr);
-
-        this.sync = sync(this.words, words2, (a, b)=>a.key === b.key);
-
+        this.sync = sync(this.words, originWords, (a, b)=>a.key === b.key);
 
         this.modify();
 
         this.merge();
         this.fixOrder();
 
-
-        var div = document.createElement('div');
-        div.classList.add('line');
-        this.items.appendChild(div);
-
-        this.render(div);
+        this.renderLine();
         console.log(this.words, this.sync);
     }
 
-    modify(){
+    parseWords(str) {
+        let keyMap = {};
+        let wordChunks = this.prepareStr(str).split(/\b(?=\w)/);
+        let words = [];
+        for (let i = 0; i < wordChunks.length; i++) {
+            words.push(new Word(wordChunks[i], keyMap));
+        }
+        words.keyMap = keyMap;
+        return words;
+    }
+
+    prepareStr(str) {
+        str = str.replace(/\b(are|did|do|does|can|could|had|have|has|is|might|may|must|was|were|would) ?not\b/i, "$1n’t");
+        str = str.replace(/\b(I|he|she|they|we|you) (had)\b/i, "$1’d");
+        str = str.replace(/\b(I|they|we|you) have\b/i, "$1’ve");
+        str = str.replace(/\b(he|she|here|that|there|what) is\b/i, "$1’s");
+        str = str.replace(/\bI\b/i, "I");
+        str = str.replace(/\b(I) am\b/i, "$1’m");
+        str = str.replace(/\b(W)ill not\b/i, "$1on’t");
+        str = str.replace(/\b(let) us\b/i, "$1’s");
+        str = str.replace(/\b(I|you|he|she|it|we|they|that) will\b/i, "$1’ll");
+        str = str.replace(/'/i, "’");
+        str = str.replace(/\s+/, " ");
+        str = str[0].toUpperCase() + str.slice(1);
+        return str;
+    }
+
+
+    modify() {
         for (let i = 0; i < this.sync.length; i++) {
             let block = this.sync[i];
-            if (block.type == 'added'){
+            if (block.type == TOKEN.added) {
                 let word = block.node;
-                word.type = 'added';
+                word.type = TOKEN.added;
                 if (block.next) {
                     let pos = this.words.findIndex(word => word.key == block.next.key);
                     this.words.splice(pos, 0, word);
@@ -90,18 +94,22 @@ class Words {
                     this.words.push(word);
                 }
             }
-            if (block.type == 'removed'){
+            if (block.type == TOKEN.removed) {
                 let word = block.node;
-                word.type = 'removed';
+                word.type = TOKEN.removed;
             }
-            if (block.type == 'moved'){
+            if (block.type == TOKEN.moved) {
                 let word = this.words.find(word => word.key == block.node.key);
+                let pos = this.words.length;
                 if (block.next) {
-                    let pos = this.words.findIndex(word => word.key == block.next.key);
-                    this.words.splice(pos, 0, {word: word.word, key: word.key, type: 'moved-to'});
-                    word.key = null;
+                    pos = this.words.findIndex(word => word.key == block.next.key);
                 }
-                word.type = 'moved-from';
+                var newWord = new Word(word.text, this.words.keyMap);
+                newWord.type = TOKEN.movedTo;
+                newWord.key = word.key;
+                this.words.splice(pos, 0, newWord);
+                word.key = null;
+                word.type = TOKEN.movedFrom;
             }
         }
     }
@@ -110,9 +118,9 @@ class Words {
         for (var i = 0; i < this.words.length - 1; i++) {
             var word = this.words[i];
             var nextWord = this.words[i + 1];
-            if (word.type == nextWord.type) {
+            if (word.type == nextWord.type/* && word.type !== TOKEN.movedFrom && word.type !== TOKEN.movedTo*/) {
                 this.words.splice(i, 1);
-                nextWord.word = word.word + nextWord.word;
+                nextWord.text = word.text + nextWord.text;
                 i--;
             }
         }
@@ -122,166 +130,71 @@ class Words {
         for (var i = 0; i < this.words.length - 1; i++) {
             var word = this.words[i];
             var nextWord = this.words[i + 1];
-            if (word.type == 'removed' && nextWord.type == 'added') {
-                nextWord.type = 'replaced';
-                this.words.splice(i, 0, nextWord);
-                this.words.splice(i + 2, 1);
+            if (word.type == TOKEN.removed && nextWord.type == TOKEN.added) {
+                if ((word.text.length - nextWord.text.length) > -5) {
+                    var dist = levenshtein(nextWord.key, word.key);
+                    if (dist <= 2 && nextWord.text.length > 3) {
+                        nextWord.type = TOKEN.correct;
+                        word.type = TOKEN.misspelling;
+                    }
+                    else {
+                        nextWord.type = TOKEN.replaced;
+                    }
+                    this.words.splice(i, 0, nextWord);
+                    this.words.splice(i + 2, 1);
+                }
             }
         }
     }
 
-
-    added() {
-        for (let i = 0; i < this.sync.added.length; i++) {
-            let block = this.sync.added[i];
-            let word = block.node;
-            word.type = 'added';
-            if (block.next) {
-                let pos = this.words.findIndex(word => word.key == block.next.key);
-                this.words.splice(pos, 0, word);
-            }
-            else {
-                this.words.push(word);
-            }
-        }
-
+    onSubmit() {
+        this.doit(this.text.value);
+        return false;
     }
 
-    removed() {
-        for (let i = 0; i < this.sync.removed.length; i++) {
-            let block = this.sync.removed[i];
-            let word = block.node;
-            word.type = 'removed';
-        }
+    render() {
+        this.app = document.createElement('div');
+        this.app.classList.add('app');
+        document.body.appendChild(this.app);
+
+        this.items = document.createElement('div');
+        this.items.classList.add('items');
+        this.app.appendChild(this.items);
+
+        this.form = document.createElement('form');
+        this.form.classList.add('form');
+        this.form.onsubmit = ()=>this.onSubmit();
+        this.app.appendChild(this.form);
+
+        this.text = document.createElement('input');
+        this.text.classList.add('text');
+        this.text.setAttribute('type', 'text');
+        this.text.setAttribute('required', true);
+        this.form.appendChild(this.text);
     }
 
-    moved() {
-        for (let i = 0; i < this.sync.moved.length; i++) {
-            let block = this.sync.moved[i];
-            let word = this.words.find(word => word.key == block.node.key);
-            if (block.next) {
-                let pos = this.words.findIndex(word => word.key == block.next.key);
-                this.words.splice(pos, 0, {word: word.word, key: word.key, type: 'moved-to'});
-                word.key = null;
-            }
-            word.type = 'moved-from';
-        }
-    }
+    renderLine() {
+        var node = document.createElement('div');
+        node.classList.add('line');
+        this.items.appendChild(node);
 
-    render(node) {
+
         for (let i = 0; i < this.words.length; i++) {
             let word = this.words[i];
             let span = document.createElement('span');
             node.appendChild(span);
             if (word.type) {
-                span.classList.add('token');
+                span.classList.add(TOKEN.token);
                 span.classList.add(word.type);
             }
-            word.node = span;
-            span.textContent = word.word.trim();
+            word.dom = span;
+            span.textContent = word.text.trim();
             node.appendChild(document.createTextNode(' '));
         }
     }
 }
 
+
 var w = new Words();
-w.doit('alise buys the book for own her money');
+w.doit('for her money alisa buys the book');
 
-
-function getKey(keyMap, key) {
-    key = key.toLocaleLowerCase().replace(/[^\w\d]+/, '');
-    while (keyMap[key]) {
-        key += '*';
-    }
-    return key;
-}
-
-function parseWords(str) {
-    let keyMap = {};
-    let words = str.split(/\b(?=\w)/);
-    let items = [];
-    for (let i = 0; i < words.length; i++) {
-        let word = words[i];
-        let key = getKey(keyMap, word);
-        let block = {key: key, word: word};
-        keyMap[key] = block;
-        items.push(block);
-    }
-    items.keyMap = keyMap;
-    return items;
-}
-
-function showAdded(node, sync) {
-    //sync.added = sync.added.reverse();
-    let prevNode = null;
-    for (let i = 0; i < sync.added.length; i++) {
-        let block = sync.added[i];
-        let word = block.node;
-        let span = document.createElement('span');
-        span.textContent = word.word;
-        span.classList.add('added');
-        console.log(block, block.next ? block.next.node : null);
-        word.node = span;
-        node.insertBefore(span, block.next ? block.next.node : null);
-        if (prevNode == block.next) {
-            span.textContent = word.word + prevNode.word;
-            node.removeChild(prevNode.node);
-        }
-        prevNode = word;
-    }
-}
-function showRemoved(node, sync) {
-    //sync.added = sync.added.reverse();
-    let prevNode = null;
-    for (let i = 0; i < sync.removed.length; i++) {
-        let block = sync.removed[i];
-        let word = block.node;
-        word.node.classList.add('removed');
-    }
-    for (let i = 0; i < node.childNodes.length; i++) {
-        let wordNode = node.childNodes[i];
-        var next = node.childNodes[i + 1];
-        if (wordNode.classList.contains('removed') && next && next.classList.contains('removed')) {
-            wordNode.textContent = wordNode.textContent + next.textContent;
-            node.removeChild(next);
-        }
-    }
-}
-
-function showMoved(node, sync) {
-    //sync.added = sync.added.reverse();
-    let prevNode = null;
-    for (let i = 0; i < sync.moved.length; i++) {
-        let span = document.createElement('span');
-        let block = sync.moved[i];
-        var fromNode = block.node.node;
-        var toNode = block.next.node;
-        var rectFrom = fromNode.getBoundingClientRect();
-        var rectTo = toNode.getBoundingClientRect();
-        var x1 = rectTo.left - 2;
-        var x2 = rectFrom.left + rectFrom.width / 2 - 2;
-
-        var left = Math.min(x1, x2);
-        span.style.left = left + 'px';
-        span.style.width = Math.abs(x2 - x1) + 'px';
-
-        span.classList.add('move-line');
-        node.appendChild(span);
-
-        fromNode.classList.add('moved');
-    }
-}
-
-
-function render(node, words, words2) {
-    for (let i = 0; i < words.length; i++) {
-        let word = words[i];
-        let span = document.createElement('span');
-        node.appendChild(span);
-        word.node = span;
-        span.textContent = word.word;
-        if (words2.keyMap[word.key]) {
-            words2.keyMap[word.key].node = span;
-        }
-    }
-}
