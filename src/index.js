@@ -12,6 +12,10 @@ let TOKEN = {
     misspelling: 'misspelling'
 };
 
+//todo: the same keys => ..s, his-him-her, at-to-into, 1 sym mistake,
+//todo: last the a is must be separatly
+
+
 class Word {
     constructor(text, keyMap) {
         this.text = text;
@@ -21,6 +25,7 @@ class Word {
     setKey(keyMap) {
         let key = this.text.toLocaleLowerCase().replace(/[^\w\d]+/g, '');
         //console.log(this.text, key);
+        this.cleanText = key;
 
         while (keyMap[key]) {
             key += '*';
@@ -43,10 +48,11 @@ class Words {
     }
 
     doit(userText) {
-        let originText = this.postData.data[this.currentLine][0];
+        this.originText = this.postData.data[this.currentLine][0];
+        this.userText = userText;
 
         this.words = this.parseWords(userText);
-        let originWords = this.parseWords(originText);
+        let originWords = this.parseWords(this.originText);
 
         this.sync = sync(this.words, originWords, (a, b)=>a.key === b.key);
 
@@ -54,13 +60,15 @@ class Words {
 
         this.fixOrder();
         this.merge();
+        this.fixMovings();
+        this.removeSameInsertRemoves();
 
         this.renderLine();
 
         this.currentLine++;
         this.setNextSentence();
 
-        console.log(this.words, this.sync);
+        //console.log(this.words, this.sync);
     }
 
     getData() {
@@ -97,6 +105,7 @@ class Words {
         data.lines.push(this.text.value);
         localStorage[this.postId] = JSON.stringify(data);
         this.text.value = '';
+        window.scrollTo(0, 100000);
     }
 
     parseWords(str) {
@@ -111,8 +120,8 @@ class Words {
     }
 
     prepareStr(str) {
-        str = str.replace(/(-|–|—) +/ig, "$1\u00A0");
         str = str.replace(/\b(are|did|do|does|can|could|had|have|has|is|might|may|must|was|were|would) ?not\b/ig, "$1n’t");
+        str = str.replace(/\b(You|we|they) (are)\b/ig, "$1’re");
         str = str.replace(/\b(I|he|she|they|we|you) (had)\b/ig, "$1’d");
         str = str.replace(/\b(I|they|we|you) have\b/ig, "$1’ve");
         str = str.replace(/\b(he|she|here|that|there|what) is\b/ig, "$1’s");
@@ -123,6 +132,7 @@ class Words {
         str = str.replace(/\b(I|you|he|she|it|we|they|that) will\b/ig, "$1’ll");
         str = str.replace(/'/ig, "’");
         str = str.replace(/\s+/g, " ");
+        str = str.replace(/(-|–|—) +/ig, "$1\u00A0");
         //str = str[0].toUpperCase() + str.slice(1);
         return str;
     }
@@ -147,21 +157,37 @@ class Words {
                 word.type = TOKEN.removed;
             }
             if (block.type == TOKEN.moved) {
-                let word = this.words.find(word => word.key == block.node.key);
-                let pos = this.words.length;
-                if (block.next) {
-                    pos = this.words.findIndex(word => word.key == block.next.key);
-                }
-                var newWord = new Word(word.text, this.words.keyMap);
-                newWord.movedFrom = word;
-                newWord.type = TOKEN.movedTo;
-                newWord.key = word.key;
-                this.words.splice(pos, 0, newWord);
-                word.key = null;
-                word.type = TOKEN.movedFrom;
-                word.movedTo = newWord;
+                this.move(block, i);
             }
         }
+    }
+
+    canMove(word) {
+        return !word.cleanText.match(/^(a|the|and|to)$/);
+    }
+
+    move(block, blockPos) {
+        let prevBlock = this.sync[blockPos - 1];
+        let nextBlock = this.sync[blockPos + 1];
+        if ((!prevBlock || prevBlock.type != TOKEN.moved) && (!nextBlock || nextBlock.type != TOKEN.moved)) {
+            var isSingle = true;
+        }
+
+        let word = this.words.find(word => word.key == block.node.key);
+        let pos = this.words.length;
+        if (block.next) {
+            pos = this.words.findIndex(word => word.key == block.next.key);
+        }
+        var newWord = new Word(block.node.text, this.words.keyMap);
+        newWord.movedFrom = word;
+
+        newWord.type = TOKEN.movedTo;
+        newWord.key = word.key;
+        this.words.splice(pos, 0, newWord);
+        word.key = null;
+        word.type = TOKEN.movedFrom;
+        word.movedTo = newWord;
+        return {word: word, pos: pos, newWord: newWord};
     }
 
     merge() {
@@ -202,7 +228,63 @@ class Words {
         this.words = newWords;
     }
 
+
     fixOrder() {
+        for (var i = this.words.length - 1; i >= 1; i--) {
+            var nextWord = this.words[i];
+            var word = this.words[i - 1];
+            if (word.type == TOKEN.removed && nextWord.type == TOKEN.added) {
+                if (Math.abs(nextWord.text.length - word.text.length) < 5) {
+
+                    var dist = levenshtein(word.cleanText, nextWord.cleanText);
+                    if (dist <= 2 && word.text.length > 3) {
+                        nextWord.type = TOKEN.correct;
+                        word.type = TOKEN.misspelling;
+
+                        this.words.splice(i - 1, 0, nextWord);
+                        this.words.splice(i + 1, 1);
+
+                    }
+                    else {
+                        //word.type = TOKEN.replaced;
+                    }
+                    //this.words.splice(i, 0, word);
+                    //this.words.splice(i + 1, 1);
+                }
+            }
+        }
+    }
+
+    fixMovings() {
+        for (var i = 0; i < this.words.length; i++) {
+            var word = this.words[i];
+            var nextWord = this.words[i + 1];
+            if (word.type == TOKEN.movedFrom && !this.canMove(word)) {
+                if (nextWord && word.cleanText == nextWord.cleanText && nextWord.type == TOKEN.added) {
+                    nextWord.type = null;
+                    i--;
+                }
+                else {
+                    word.type = TOKEN.removed;
+                }
+                word.movedTo.type = TOKEN.added;
+            }
+        }
+    }
+
+    removeSameInsertRemoves(){
+        for (var i = 0; i < this.words.length - 1; i++) {
+            var word = this.words[i];
+            var nextWord = this.words[i + 1];
+            if (word.cleanText == nextWord.cleanText && word.type == TOKEN.removed && (nextWord.type == TOKEN.added || !nextWord.type)) {
+                this.words.splice(i, 1);
+                nextWord.type = null;
+                i--;
+            }
+        }
+    }
+
+    fixOrder1() {
         for (var i = 0; i < this.words.length - 1; i++) {
             var word = this.words[i];
             var nextWord = this.words[i + 1];
@@ -285,7 +367,8 @@ class Words {
             var arrow = arrows[i];
             var fromBounds = arrow.from.dom.getBoundingClientRect();
             var toBounds = arrow.to.dom.getBoundingClientRect();
-            var paths = this.generateArrowPath(fromBounds.top, fromBounds.left + fromBounds.width / 2 | 0, toBounds.left + toBounds.width / 2 | 0);
+
+            var paths = this.generateArrowPath(fromBounds.top + window.scrollY, fromBounds.left + fromBounds.width / 2 | 0, toBounds.left + toBounds.width / 2 | 0);
 
             var pathNode = document.createElementNS(xmlns, 'path');
             pathNode.setAttribute('d', paths[1]);
@@ -305,6 +388,8 @@ class Words {
         var node = document.createElement('div');
         node.classList.add('line');
         this.items.appendChild(node);
+        //console.log(this.originText, " ******** ", this.userText, this.words);
+
 
         var arrows = [];
         for (let i = 0; i < this.words.length; i++) {
