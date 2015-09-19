@@ -167,12 +167,6 @@ class Words {
     }
 
     move(block, blockPos) {
-        let prevBlock = this.sync[blockPos - 1];
-        let nextBlock = this.sync[blockPos + 1];
-        if ((!prevBlock || prevBlock.type != TOKEN.moved) && (!nextBlock || nextBlock.type != TOKEN.moved)) {
-            var isSingle = true;
-        }
-
         let word = this.words.find(word => word.key == block.node.key);
         let pos = this.words.length;
         if (block.next) {
@@ -219,6 +213,7 @@ class Words {
 
             if (merge) {
                 lastWord.text = lastWord.text + ' ' + thisWord.text;
+                lastWord.cleanText = lastWord.cleanText + ' ' + thisWord.cleanText;
             }
             else {
                 newWords.push(thisWord);
@@ -272,7 +267,7 @@ class Words {
         }
     }
 
-    removeSameInsertRemoves(){
+    removeSameInsertRemoves() {
         for (var i = 0; i < this.words.length - 1; i++) {
             var word = this.words[i];
             var nextWord = this.words[i + 1];
