@@ -4,17 +4,19 @@
     <meta charset="UTF-8">
     <title></title>
     <style type="text/css">
-        .app{
+        .app {
             margin: 0 50px;
         }
-        .line{margin: 20px 0;}
-        .token{
+        .line { margin: 20px 0; }
+        .token {
         }
         .removed {
-            color: coral;
+            color: gray;
+            background: #EEE;
+            padding: 0 3px;
+            border-radius: 3px;
             text-decoration: line-through;
         }
-
         .added {
             padding: 0 3px;
             background: lightgreen;
@@ -23,9 +25,12 @@
             padding: 0 3px;
             background: yellow;
         }
-        .moved-from{
-            color: olive;
-            text-decoration: line-through;
+        .moved-from {
+            color: silver;
+            background: #EEE;
+            padding: 0 3px;
+            border-radius: 3px;
+            /*text-decoration: line-through;*/
         }
         .move-line {
             position: absolute;
@@ -34,63 +39,155 @@
             margin-top: -5px;
             border-bottom: none;
         }
-        .replaced, .correct{
+        .replaced, .correct {
             font-size: 12px;
             position: absolute;
             margin: -12px 0 0 0;
         }
-        .replaced{
+        .replaced {
             padding: 0 3px;
             background: greenyellow;
         }
-        .correct{
+        .correct {
             color: blue;
         }
-        .misspelling{
+        .misspelling {
             border-bottom: 1px solid red;
         }
-        .text{
+        .text {
             font-size: 20px;
             width: 100%;
             padding: 5px 10px;
         }
+
+        .translate{
+            font-size: 20px;
+        }
+        svg {
+            position: absolute;
+            /*margin: -30px 0 0 0;*/
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        svg .line {
+            stroke-width: 1.5;
+            fill: none;
+            stroke: silver;
+        }
+        svg .arrow {
+            fill: silver;
+        }
     </style>
 </head>
 <body>
-
+<script type="text/javascript" src="posts/alisa/1.js"></script>
 <script type="text/javascript" src="lis.js"></script>
 <script type="text/javascript" src="index.js"></script>
 
 <script src="http://vk.com/js/api/openapi.js" type="text/javascript"></script>
 
-<div id="login_button" onclick="VK.Auth.login(authInfo);">asdfasfsa</div>
+
+<!--<div id="login_button" onclick="VK.Auth.login(authInfo);">Login</div>-->
+<!--<script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>-->
 
 <script language="javascript">
     VK.init({
         apiId: 5068850
     });
+
+
+    //    var ref = new Firebase("https://wordss.firebaseio.com");
+
+
+    function reg(email, pwd) {
+        /*
+                ref.createUser({
+                    email: email,
+                    password: pwd
+                }, function (error, userData) {
+                    if (error) {
+                        console.log("Error creating user:", error);
+                    } else {
+                        login(email, pwd);
+                        console.log("Successfully created user account with uid:", userData.uid);
+                    }
+                });
+        */
+    }
+
+    function login(email, pwd) {
+        /*
+                ref.authWithPassword({
+                    email: email,
+                    password: pwd
+                }, function (error, authData) {
+                    if (error) {
+                        console.log("Login Failed!", error);
+                    } else {
+                        console.log("Authenticated successfully with payload:", authData);
+                    }
+                });
+        */
+    }
+
+
     function authInfo(response) {
         if (response.session) {
-            VK.Api.call('users.get', {user_ids: 6492}, function(r) {
-                if(r.response) {
+            /*VK.Api.call('users.get', {user_ids: 6492}, function (r) {
+                if (r.response) {
                     console.log(r);
                 }
             });
-/*
-            VK.Api.call('storage.set', {key: "123", value: Math.random()}, function(r) {
+            VK.Api.call('storage.set', {key: "111", value: "Привет"}, function (r) {
                 console.log(r);
             });
 */
-            VK.Api.call('storage.get', {key: "123"}, function(r) {
+
+            var rnd = 1;
+            var email = response.session.mid + '@vk' + rnd + '.com';
+            var password;
+            console.log(response);
+
+            VK.Api.call('storage.get', {key: "pwd"}, function (r) {
                 console.log(r);
+                if (r.response) {
+                    password = r.response;
+                    login(email, password);
+                }
+                else {
+                    password = Math.random().toString(33).substr(2, 20);
+                    VK.Api.call('storage.set', {key: "pwd", value: password}, function (r) {
+
+                        ref.child("web").child("data").child("users").child("booom").set({hey: true});
+
+                        console.log(r);
+                        if (r.response == 1) {
+                            reg(email, password);
+                        }
+                    });
+
+                }
             });
+
+            /*
+                        for (var i = 0; i < 9; i++) {
+                            VK.Api.call('storage.get', {key: "111"}, function (r) {
+                                console.log(r);
+                            });
+                        }
+            */
+
         } else {
-            alert('not auth');
+//            alert('not auth');
         }
     }
 
     VK.Auth.getLoginStatus(authInfo);
-//    VK.UI.button('login_button');
+
+    //    VK.UI.button('login_button');
 </script>
 
 </body>

@@ -2,9 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="45ff104e-8fca-4e89-ba09-c0c492a628b4" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/posts/alisa/1.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/tools/index.html" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/posts/index.json" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/index.html" afterPath="$PROJECT_DIR$/src/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/words.iml" afterPath="$PROJECT_DIR$/.idea/words.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/index.js" afterPath="$PROJECT_DIR$/src/index.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="words.iws" />
@@ -26,11 +28,31 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="index.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="1.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/posts/alisa/1.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="11" column="24" selection-start-line="11" selection-start-column="24" selection-end-line="11" selection-end-column="24" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="index.js" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/index.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.17349398">
+              <caret line="11" column="30" selection-start-line="11" selection-start-column="30" selection-end-line="11" selection-end-column="30" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.7032374">
-              <caret line="78" column="50" selection-start-line="78" selection-start-column="2" selection-end-line="78" selection-end-column="2" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="63" column="28" selection-start-line="63" selection-start-column="28" selection-end-line="63" selection-end-column="28" />
               <folding />
             </state>
           </provider>
@@ -41,8 +63,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Html5" />
         <option value="JavaScript File" />
+        <option value="Html5" />
       </list>
     </option>
   </component>
@@ -68,6 +90,10 @@
         <option value="$PROJECT_DIR$/src/levenstein.js" />
         <option value="$PROJECT_DIR$/src/levenshtein.js" />
         <option value="$PROJECT_DIR$/src/lis.js" />
+        <option value="$PROJECT_DIR$/src/posts/index.json" />
+        <option value="$PROJECT_DIR$/src/tools/index.html" />
+        <option value="$PROJECT_DIR$/src/posts/alisa/1.json" />
+        <option value="$PROJECT_DIR$/src/posts/alisa/1.js" />
         <option value="$PROJECT_DIR$/src/index.js" />
         <option value="$PROJECT_DIR$/src/index.html" />
       </list>
@@ -140,6 +166,64 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="words" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="words" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tools" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="words" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="words" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="posts" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="words" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="words" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="posts" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="alisa" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
       <pane id="Scratches" />
@@ -168,8 +252,11 @@
     <option name="AUTOSCROLL_TO_SOURCE" value="false" />
     <option name="AUTOSCROLL_FROM_SOURCE" value="false" />
   </component>
-  <component name="RunManager" selected="JavaScript Debug.index.html">
+  <component name="RunManager" selected="JavaScript Debug.index.html (1)">
     <configuration default="false" name="index.html" type="JavascriptDebugType" factoryName="JavaScript Debug" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/words/src/index.html">
+      <method />
+    </configuration>
+    <configuration default="false" name="index.html (1)" type="JavascriptDebugType" factoryName="JavaScript Debug" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/words/src/tools/index.html">
       <method />
     </configuration>
     <configuration default="true" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application">
@@ -204,12 +291,14 @@
     <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
       <method />
     </configuration>
-    <list size="1">
+    <list size="2">
       <item index="0" class="java.lang.String" itemvalue="JavaScript Debug.index.html" />
+      <item index="1" class="java.lang.String" itemvalue="JavaScript Debug.index.html (1)" />
     </list>
     <recent_temporary>
-      <list size="1">
-        <item index="0" class="java.lang.String" itemvalue="JavaScript Debug.index.html" />
+      <list size="2">
+        <item index="0" class="java.lang.String" itemvalue="JavaScript Debug.index.html (1)" />
+        <item index="1" class="java.lang.String" itemvalue="JavaScript Debug.index.html" />
       </list>
     </recent_temporary>
   </component>
@@ -248,14 +337,20 @@
       <option name="project" value="LOCAL" />
       <updated>1442158092027</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="added vk auth, get, set storage">
+      <created>1442173906578</created>
+      <option name="number" value="00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1442173906578</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33012047" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33012047" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32891566" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -266,7 +361,7 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24964234" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24964234" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -318,7 +413,8 @@
     <MESSAGE value="works version" />
     <MESSAGE value="refactored, added new tokens: token, added, removed, moved-from, moved-to, replaced" />
     <MESSAGE value="refactored, added new tokens: moved-to, moved-from, correct, misspelling; added calc levenshtein dist, autocorrect words" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactored, added new tokens: moved-to, moved-from, correct, misspelling; added calc levenshtein dist, autocorrect words" />
+    <MESSAGE value="added vk auth, get, set storage" />
+    <option name="LAST_COMMIT_MESSAGE" value="added vk auth, get, set storage" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -359,10 +455,50 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/adf.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tools/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="48" column="21" selection-start-line="48" selection-start-column="21" selection-end-line="48" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/posts/index.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.14457831">
+          <caret line="8" column="7" selection-start-line="8" selection-start-column="7" selection-end-line="8" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/posts/alisa/1.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="11" column="24" selection-start-line="11" selection-start-column="24" selection-end-line="11" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.7032374">
-          <caret line="78" column="50" selection-start-line="78" selection-start-column="2" selection-end-line="78" selection-end-column="2" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="63" column="28" selection-start-line="63" selection-start-column="28" selection-end-line="63" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.17349398">
+          <caret line="11" column="30" selection-start-line="11" selection-start-column="30" selection-end-line="11" selection-end-column="30" />
           <folding />
         </state>
       </provider>
