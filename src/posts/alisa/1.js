@@ -114,7 +114,7 @@ var alisaData = {
     ],
     [
       "But she must obey her father.",
-      "Но она должна подчиняться отцу."
+      "Но она должна подчиняться своему отцу."
     ],
     [
       "Alissa and the fat man arrive in the city.",
@@ -122,11 +122,11 @@ var alisaData = {
     ],
     [
       "They drive to a house.",
-      "Они подъезжают к какому-то дому."
+      "Они подъезжают к дому."
     ],
     [
       "A thin man comes to the door.",
-      "Худой мужчина выходит из двери."
+      "Худой мужчина подходит к двери."
     ],
     [
       "The two men talk.",
@@ -174,11 +174,11 @@ var alisaData = {
     ],
     [
       "‘You aren’t going to read here,’ she shouts.",
-      "- Ты не будешь читать здесь, - она кричит."
+      "- Ты не будешь(собираешься) читать здесь, - она кричит."
     ],
     [
       "‘You’re going to cook and clean and wash.’",
-      "- Ты будешь готовить, убирать и мыть."
+      "- Ты будешь(собираешься) готовить и убирать и мыть."
     ],
     [
       "Alissa works fifteen hours a day.",
@@ -218,7 +218,7 @@ var alisaData = {
     ],
     [
       "She gives the man some money.",
-      "Она дает мужчине деньги."
+      "Она дает мужчине немного денег"
     ],
     [
       "He goes away.",
@@ -262,7 +262,7 @@ var alisaData = {
     ],
     [
       "Each month, the shop owner gives the girls a little money.",
-      "Каждый месяц владелица магазина дает девушкам немного денег."
+      "Каждый месяц владелица магазина дает девушкам небольшие деньги"
     ],
     [
       "Alissa buys a book with her money.",
@@ -294,7 +294,7 @@ var alisaData = {
     ],
     [
       "‘You are going to work in the shop.’",
-      "- Ты будешь работать в магазине."
+      "- Ты будешь(собираешься) работать в магазине."
     ],
     [
       "Alissa likes working in the shop.",
@@ -322,7 +322,7 @@ var alisaData = {
     ],
     [
       "She gives Alissa small presents.",
-      "Она дает Алисе небольшие подарки."
+      "Она дает Алисе маленькие подарки."
     ],
     [
       "One day, the tall lady leaves her purse in the shop.",
@@ -346,7 +346,7 @@ var alisaData = {
     ],
     [
       "She takes some money from the purse.",
-      "Она берет деньги из своего кошелька."
+      "Она берет немного денег из кошелька."
     ],
     [
       "‘Thank you,’ she says to Alissa.",
@@ -406,7 +406,7 @@ var alisaData = {
     ],
     [
       "‘You have a bed and food and money.",
-      "- У тебя есть и кровать, и питание, и деньги."
+      "- У тебя есть кровать, и питание, и деньги."
     ],
     [
       "Do you want more?’",
@@ -450,7 +450,7 @@ var alisaData = {
     ],
     [
       "Alissa says, ‘I want to go to school.’",
-      "Алиса говорит:"
+      "Алиса говорит: Я хочу ходить в школу"
     ],
     [
       "The tall lady turns to the shop owner.",
@@ -482,15 +482,15 @@ var alisaData = {
     ],
     [
       "Alissa goes with the tall lady.",
-      "Алиса уходит с высокой дамой."
+      "Алиса уходит(идет) с высокой дамой."
     ],
     [
       "She is going to a new home.",
-      "Она направляется в новый дом."
+      "Она собирается в новый дом."
     ],
     [
       "She is going to be happy.",
       "Она будет счастлива."
     ]
   ]
-}
+};
