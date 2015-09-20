@@ -5,8 +5,7 @@
 
 class App {
     constructor() {
-        this.postId = 'alisa2';
-        this.oldPostId = 'alisa';
+        this.postId = 'alissa';
         this.postData = alisaData;
         this.currentLine = 0;
         this.render();
@@ -20,23 +19,25 @@ class App {
             if (item) {
                 var dt = JSON.parse(item);
             }
-            else {
-                dt = {lines: []};
-            }
         }
         catch (e) {
             console.error(e);
-            dt = {lines: []};
+        }
+        if (!dt){
+            dt = {currentLine: 0, lines: []};
         }
         return dt;
     }
 
     saveLine() {
         var data = this.getUserData(this.postId);
-        data.lines.push(this.text.value);
+        var line = data.lines[this.currentLine] || (data.lines[this.currentLine] = []);
+        data.currentLine += 1;
+        line.push(this.text.value);
         localStorage[this.postId] = JSON.stringify(data);
         this.text.value = '';
         window.scrollTo(0, 100000);
+        return data;
     }
 
     getCurrentOrigin(){
@@ -53,23 +54,12 @@ class App {
 
     fill() {
         var data = this.getUserData(this.postId);
-        var oldData = this.getUserData(this.oldPostId);
-        for (var i = 0; i < data.lines.length; i++) {
+        for (var i = 0; i < data.currentLine; i++) {
             var line = data.lines[i];
-            var oldLine = oldData.lines[i];
-            this.createSentence(oldLine, line);
+            new SentenceBlock(this.items, this.svg, this.getCurrentOrigin(), line);
             this.setNextSentence();
         }
         this.updateTranslateSentence();
-    }
-
-    createSentence(oldLine, line){
-        new Sentence(this, this.getCurrentOrigin(), oldLine);
-        new Sentence(this, this.getCurrentOrigin(), line);
-        var div = document.createElement('div');
-        div.classList.add('hr');
-        this.items.appendChild(div);
-
     }
 
     setNextSentence() {
@@ -78,9 +68,8 @@ class App {
 
 
     onSubmit() {
-        var oldData = this.getUserData(this.oldPostId);
-        this.createSentence(oldData.lines[this.currentLine], this.text.value);
-        this.saveLine();
+        var data = this.saveLine();
+        new SentenceBlock(this.items, this.svg, this.getCurrentOrigin(), data.lines[this.currentLine]);
         this.setNextSentence();
         this.updateTranslateSentence();
         return false;

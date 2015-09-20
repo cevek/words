@@ -18,10 +18,24 @@ class Word {
     }
 }
 
+class SentenceBlock {
+    constructor(parentNode, svgNode, originText, userTextLines) {
+        var div = document.createElement('div');
+        div.classList.add('sentence-block');
+        parentNode.appendChild(div);
+        for (var i = 0; i < userTextLines.length; i++) {
+            var userText = userTextLines[i];
+            new Sentence(div, svgNode, originText, userText);
+        }
+    }
+}
+
+var arrowRenderQueue = [];
 class Sentence {
-    constructor(app, originText, userText) {
-        this.app = app;
+    constructor(parentNode, svgNode, originText, userText) {
         this.originText = originText;
+        this.parentNode = parentNode;
+        this.svgNode = svgNode;
         this.userText = userText;
         this.words = new WordProcessor(originText, userText).words;
         this.renderLine();
@@ -54,25 +68,25 @@ class Sentence {
         var fromBounds = arrow.from.dom.getBoundingClientRect();
         var toBounds = arrow.to.dom.getBoundingClientRect();
 
-        requestAnimationFrame(() => {
+        //requestAnimationFrame(() => {
             var paths = this.generateArrowPath(fromBounds.top + window.scrollY, fromBounds.left + fromBounds.width / 2 | 0, toBounds.left + toBounds.width / 2 | 0);
             var pathNode = document.createElementNS(xmlns, 'path');
             pathNode.setAttribute('d', paths[1]);
             pathNode.setAttribute('class', 'line');
-            this.app.svg.appendChild(pathNode);
+            this.svgNode.appendChild(pathNode);
 
             var arrowNode = document.createElementNS(xmlns, 'path');
             arrowNode.setAttribute('d', paths[0]);
             arrowNode.setAttribute('class', 'arrow');
-            this.app.svg.appendChild(arrowNode);
-        });
+            this.svgNode.appendChild(arrowNode);
+        //});
     }
 
 
     renderLine() {
         var node = document.createElement('div');
         node.classList.add('line');
-        this.app.items.appendChild(node);
+        this.parentNode.appendChild(node);
         //console.log(this.originText, " ******** ", this.userText, this.words);
 
         var arrows = [];
@@ -91,11 +105,13 @@ class Sentence {
             span.textContent = word.text.trim();
             node.appendChild(document.createTextNode(' '));
         }
-        requestAnimationFrame(() => {
-            for (var i = 0; i < arrows.length; i++) {
-                this.renderArrow(arrows[i]);
-            }
-        });
+        if (arrows.length) {
+            requestAnimationFrame(() => {
+                for (var i = 0; i < arrows.length; i++) {
+                    this.renderArrow(arrows[i]);
+                }
+            });
+        }
     }
 }
 
