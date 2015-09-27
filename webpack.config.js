@@ -25,11 +25,13 @@ if (isProd) {
             }
         }),
         new AssetsPlugin({path: assetsPath}),
+/*
         new HtmlWebpackPlugin({
             title: 'Betpub',
             template: './index.html',
             inject: 'body',
         }),
+*/
     ];
 }
 else {
@@ -38,13 +40,13 @@ else {
     styleBundleName = 'css/style.css';
 
     plugins = [
-        new webpack.optimize.CommonsChunkPlugin("vendor", vendorBundleName),
-        new ExtractTextPlugin(styleBundleName),
-        new HtmlWebpackPlugin({
+        //new webpack.optimize.CommonsChunkPlugin("vendor", vendorBundleName),
+        //new ExtractTextPlugin(styleBundleName),
+        /*new HtmlWebpackPlugin({
             title: 'Betpub',
             template: 'src/index.html',
             inject: 'body',
-        }),
+        }),*/
     ];
 }
 

@@ -27,7 +27,7 @@ export class App extends React.Component {
     static resolve(params){
         const postId = params.id;
         const http = new HTTP();
-        return http.get('../src/posts/' + postId.replace('-', '/') + '.json');
+        return http.get('src/posts/' + postId.replace('-', '/') + '.json');
     }
 
     load() {
