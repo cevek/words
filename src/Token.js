@@ -1,5 +1,5 @@
 'use strict';
-let TOKEN = {
+export const TOKEN = {
     token: 'token',
     removed: 'removed',
     replaced: 'replaced',

@@ -1,13 +1,17 @@
 'use strict';
 
+import {TOKEN} from './Token.js';
+import {sync, levenshtein} from './lis.js';
+import {Word} from './Sentence.js';
+
 //todo: the same keys => ..s, his-him-her, at-to-into, 1 sym mistake,
 //todo: last the a is must be separatly
 
 
-class WordProcessor {
+export class WordProcessor {
     constructor(originText, userText) {
         this.words = this.parseWords(userText);
-        let originWords = this.parseWords(originText);
+        const originWords = this.parseWords(originText);
 
         this.sync = sync(this.words, originWords, (a, b)=>a.key === b.key);
         this.modify();
@@ -18,9 +22,9 @@ class WordProcessor {
     }
 
     parseWords(str) {
-        let keyMap = {};
-        let wordChunks = this.prepareStr(str).split(/ /);
-        let words = [];
+        const keyMap = {};
+        const wordChunks = this.prepareStr(str).split(/ /);
+        const words = [];
         for (let i = 0; i < wordChunks.length; i++) {
             words.push(new Word(wordChunks[i], keyMap));
         }
@@ -28,20 +32,21 @@ class WordProcessor {
         return words;
     }
 
-    prepareStr(str) {
-        str = str.replace(/\b(are|did|do|does|can|could|had|have|has|is|might|may|must|was|were|would) ?not\b/ig, "$1n’t");
-        str = str.replace(/\b(You|we|they) (are)\b/ig, "$1’re");
-        str = str.replace(/\b(I|he|she|they|we|you) (had)\b/ig, "$1’d");
-        str = str.replace(/\b(I|they|we|you) have\b/ig, "$1’ve");
-        str = str.replace(/\b(he|she|here|that|there|what) is\b/ig, "$1’s");
-        str = str.replace(/\bI\b/ig, "I");
-        str = str.replace(/\b(I) am\b/ig, "$1’m");
-        str = str.replace(/\b(W)ill not\b/ig, "$1on’t");
-        str = str.replace(/\b(let) us\b/ig, "$1’s");
-        str = str.replace(/\b(I|you|he|she|it|we|they|that) will\b/ig, "$1’ll");
-        str = str.replace(/'/ig, "’");
-        str = str.replace(/\s+/g, " ");
-        str = str.replace(/(-|–|—) +/ig, "$1\u00A0");
+    prepareStr(s) {
+        let str = s;
+        str = str.replace(/\b(are|did|do|does|can|could|had|have|has|is|might|may|must|was|were|would) ?not\b/ig, '$1n’t');
+        str = str.replace(/\b(You|we|they) (are)\b/ig, '$1’re');
+        str = str.replace(/\b(I|he|she|they|we|you) (had)\b/ig, '$1’d');
+        str = str.replace(/\b(I|they|we|you) have\b/ig, '$1’ve');
+        str = str.replace(/\b(it|he|she|here|that|there|what) is\b/ig, '$1’s');
+        str = str.replace(/\bI\b/ig, 'I');
+        str = str.replace(/\b(I) am\b/ig, '$1’m');
+        str = str.replace(/\b(W)ill not\b/ig, '$1on’t');
+        str = str.replace(/\b(let) us\b/ig, '$1’s');
+        str = str.replace(/\b(I|you|he|she|it|we|they|that) will\b/ig, '$1’ll');
+        str = str.replace(/'/ig, '’');
+        str = str.replace(/\s+/g, ' ');
+        str = str.replace(/(-|–|—) +/ig, '$1\u00A0');
         //str = str[0].toUpperCase() + str.slice(1);
         return str;
     }
@@ -49,12 +54,12 @@ class WordProcessor {
 
     modify() {
         for (let i = 0; i < this.sync.length; i++) {
-            let block = this.sync[i];
+            const block = this.sync[i];
             if (block.type == TOKEN.added) {
-                let word = block.node;
+                const word = block.node;
                 word.type = TOKEN.added;
                 if (block.next) {
-                    let pos = this.words.findIndex(word => word.key == block.next.key);
+                    const pos = this.words.findIndex(w => w.key == block.next.key);
                     this.words.splice(pos, 0, word);
                 }
                 else {
@@ -62,7 +67,7 @@ class WordProcessor {
                 }
             }
             if (block.type == TOKEN.removed) {
-                let word = block.node;
+                const word = block.node;
                 word.type = TOKEN.removed;
             }
             if (block.type == TOKEN.moved) {
@@ -76,12 +81,12 @@ class WordProcessor {
     }
 
     move(block, blockPos) {
-        let word = this.words.find(word => word.key == block.node.key);
+        const word = this.words.find(w => w.key == block.node.key);
         let pos = this.words.length;
         if (block.next) {
-            pos = this.words.findIndex(word => word.key == block.next.key);
+            pos = this.words.findIndex(w => w.key == block.next.key);
         }
-        var newWord = new Word(block.node.text, this.words.keyMap);
+        const newWord = new Word(block.node.text, this.words.keyMap);
         newWord.movedFrom = word;
 
         newWord.type = TOKEN.movedTo;
@@ -94,24 +99,24 @@ class WordProcessor {
     }
 
     merge() {
-        var lastWord = this.words[0];
-        var newWords = [];
+        let lastWord = this.words[0];
+        const newWords = [];
         newWords.push(lastWord);
-        for (var i = 1; i < this.words.length; i++) {
-            var prevWord = this.words[i - 1];
-            var thisWord = this.words[i];
-            var merge = false;
+        for (let i = 1; i < this.words.length; i++) {
+            const prevWord = this.words[i - 1];
+            const thisWord = this.words[i];
+            let merge = false;
 
             if (prevWord.type == TOKEN.movedFrom && thisWord.type == TOKEN.movedFrom) {
-                var to1Pos = this.words.indexOf(prevWord.movedTo);
-                var to2Pos = this.words.indexOf(thisWord.movedTo);
+                const to1Pos = this.words.indexOf(prevWord.movedTo);
+                const to2Pos = this.words.indexOf(thisWord.movedTo);
                 if (to1Pos == to2Pos - 1) {
                     merge = true;
                 }
             }
             else if (prevWord.type == TOKEN.movedTo && thisWord.type == TOKEN.movedTo) {
-                var from1Pos = this.words.indexOf(prevWord.movedFrom);
-                var from2Pos = this.words.indexOf(thisWord.movedFrom);
+                const from1Pos = this.words.indexOf(prevWord.movedFrom);
+                const from2Pos = this.words.indexOf(thisWord.movedFrom);
                 if (from1Pos == from2Pos - 1) {
                     merge = true;
                 }
@@ -134,20 +139,19 @@ class WordProcessor {
 
 
     fixOrder() {
-        for (var i = this.words.length - 1; i >= 1; i--) {
-            var nextWord = this.words[i];
-            var word = this.words[i - 1];
+        for (let i = this.words.length - 1; i >= 1; i--) {
+            const nextWord = this.words[i];
+            const word = this.words[i - 1];
             if (word.type == TOKEN.removed && nextWord.type == TOKEN.added) {
                 if (Math.abs(nextWord.text.length - word.text.length) < 5) {
 
-                    var dist = levenshtein(word.cleanText, nextWord.cleanText);
+                    const dist = levenshtein(word.cleanText, nextWord.cleanText);
                     if (dist <= 2 && word.text.length > 3) {
                         nextWord.type = TOKEN.correct;
                         word.type = TOKEN.misspelling;
 
                         this.words.splice(i - 1, 0, nextWord);
                         this.words.splice(i + 1, 1);
-
                     }
                     else {
                         //word.type = TOKEN.replaced;
@@ -160,9 +164,9 @@ class WordProcessor {
     }
 
     fixMovings() {
-        for (var i = 0; i < this.words.length; i++) {
-            var word = this.words[i];
-            var nextWord = this.words[i + 1];
+        for (let i = 0; i < this.words.length; i++) {
+            const word = this.words[i];
+            const nextWord = this.words[i + 1];
             if (word.type == TOKEN.movedFrom && !this.canMove(word)) {
                 if (nextWord && word.cleanText == nextWord.cleanText && nextWord.type == TOKEN.added) {
                     nextWord.type = null;
@@ -177,9 +181,9 @@ class WordProcessor {
     }
 
     removeSameInsertRemoves() {
-        for (var i = 0; i < this.words.length - 1; i++) {
-            var word = this.words[i];
-            var nextWord = this.words[i + 1];
+        for (let i = 0; i < this.words.length - 1; i++) {
+            const word = this.words[i];
+            const nextWord = this.words[i + 1];
             if (word.cleanText == nextWord.cleanText && word.type == TOKEN.removed && (nextWord.type == TOKEN.added || !nextWord.type)) {
                 this.words.splice(i, 1);
                 nextWord.type = null;
@@ -189,12 +193,12 @@ class WordProcessor {
     }
 
     fixOrder1() {
-        for (var i = 0; i < this.words.length - 1; i++) {
-            var word = this.words[i];
-            var nextWord = this.words[i + 1];
+        for (let i = 0; i < this.words.length - 1; i++) {
+            const word = this.words[i];
+            const nextWord = this.words[i + 1];
             if (word.type == TOKEN.removed && nextWord.type == TOKEN.added) {
                 if ((word.text.length - nextWord.text.length) > -5) {
-                    var dist = levenshtein(nextWord.key, word.key);
+                    const dist = levenshtein(nextWord.key, word.key);
                     if (dist <= 2 && nextWord.text.length > 3) {
                         nextWord.type = TOKEN.correct;
                         word.type = TOKEN.misspelling;

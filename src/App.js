@@ -1,108 +1,157 @@
 'use strict';
+import React from 'react';
+import {HTTP} from './http.js';
+import {Sentence} from './Sentence.js';
 
-//todo: the same keys => ..s, his-him-her, at-to-into, 1 sym mistake,
-//todo: last the a is must be separatly
+// todo: the same keys => ..s, his-him-her, at-to-into, 1 sym mistake,
+// todo: last the a is must be separatly
 
-class App {
-    constructor() {
+export class App extends React.Component {
+    constructor(props) {
+        super(props);
         this.postId = 'alissa';
-        this.postData = alisaData;
+        this.sentences = [];
         this.currentLine = 0;
+        this.isDone = false;
+        this.translate = '';
         this.render();
-        this.updateTranslateSentence();
+
+        this.postId = this.props.id;
+        this.postData = this.props.resolved;
         this.fill();
+        this.translate = this.getCurrentTranslate();
+
+        this.load();
+    }
+
+    static resolve(params){
+        const postId = params.id;
+        const http = new HTTP();
+        return http.get('../src/posts/' + postId.replace('-', '/') + '.json');
+    }
+
+    load() {
+        const postId = (location.hash.match(/\/post\/([\w\d\-]+)$/) || ['', ''])[1];
+        this.postId = postId;
+
+        this.http = new HTTP();
+        this.http.get('../src/posts/' + postId.replace('-', '/') + '.json').then(data => {
+            this.postData = data;
+            this.fill();
+            this.translate = this.getCurrentTranslate();
+            this.forceUpdate();
+        });
     }
 
     getUserData(postId) {
+        let dt;
         try {
-            var item = localStorage[postId];
+            const item = localStorage[postId];
             if (item) {
-                var dt = JSON.parse(item);
+                dt = JSON.parse(item);
             }
         }
         catch (e) {
             console.error(e);
         }
-        if (!dt){
+        if (!dt) {
             dt = {currentLine: 0, lines: []};
         }
         return dt;
     }
 
     saveLine() {
-        var data = this.getUserData(this.postId);
-        var line = data.lines[this.currentLine] || (data.lines[this.currentLine] = []);
+        const data = this.getUserData(this.postId);
+        const line = data.lines[this.currentLine] || (data.lines[this.currentLine] = []);
         data.currentLine += 1;
-        line.push(this.text.value);
+        const input = React.findDOMNode(this.refs.userText);;
+        line.push(input.value);
         localStorage[this.postId] = JSON.stringify(data);
-        this.text.value = '';
+        input.value = '';
         window.scrollTo(0, 100000);
         return data;
     }
 
-    getCurrentOrigin(){
+    getCurrentOrigin() {
         return this.postData.data[this.currentLine][0];
     }
 
-    getCurrentTranslate(){
+    getCurrentTranslate() {
         return this.postData.data[this.currentLine][1];
     }
 
-    updateTranslateSentence(){
-        this.translate.textContent = this.getCurrentTranslate();
-    }
-
     fill() {
-        var data = this.getUserData(this.postId);
-        for (var i = 0; i < data.currentLine; i++) {
-            var line = data.lines[i];
-            new SentenceBlock(this.items, this.svg, this.getCurrentOrigin(), line);
+        const data = this.getUserData(this.postId);
+        for (let i = 0; i < data.currentLine; i++) {
+            const line = data.lines[i];
+            this.sentences.push({origin: this.getCurrentOrigin(), userTranslate: line});
             this.setNextSentence();
         }
-        this.updateTranslateSentence();
     }
 
     setNextSentence() {
-        this.currentLine++;
+        if (this.postData.data.length - 1 == this.currentLine) {
+            this.isDone = true;
+        }
+        else {
+            this.currentLine++;
+        }
     }
 
-
-    onSubmit() {
-        var data = this.saveLine();
-        new SentenceBlock(this.items, this.svg, this.getCurrentOrigin(), data.lines[this.currentLine]);
+    onSubmit = () => {
+        const data = this.saveLine();
+        //new SentenceBlock(this.items, this.svg, this.getCurrentOrigin(), data.lines[this.currentLine]);
+        this.sentences.push({origin: this.getCurrentOrigin(), userTranslate: data.lines[this.currentLine]});
         this.setNextSentence();
-        this.updateTranslateSentence();
+        this.translate = this.getCurrentTranslate();
+        this.forceUpdate();
         return false;
-    }
+    };
+
+    onRestart = () => {
+        this.currentLine = 0;
+        const data = this.getUserData(this.postId);
+        data.currentLine = 0;
+        localStorage[this.postId] = JSON.stringify(data);
+        this.sentences = [];
+        this.isDone = false;
+        this.translate = this.getCurrentTranslate();
+        this.forceUpdate();
+    };
 
     render() {
-        this.app = document.createElement('div');
-        this.app.classList.add('app');
-        document.body.appendChild(this.app);
+        console.log(this.sentences);
 
-        this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        this.app.appendChild(this.svg);
-
-        this.items = document.createElement('div');
-        this.items.classList.add('items');
-        this.app.appendChild(this.items);
-
-        this.form = document.createElement('form');
-        this.form.classList.add('form');
-        this.form.onsubmit = ()=>this.onSubmit();
-        this.app.appendChild(this.form);
-
-        this.translate = document.createElement('div');
-        this.translate.classList.add('translate');
-        this.form.appendChild(this.translate);
-
-        this.text = document.createElement('input');
-        this.text.classList.add('text');
-        this.text.setAttribute('type', 'text');
-        this.text.setAttribute('required', true);
-        this.form.appendChild(this.text);
+        return <div className="app">
+            <a href="#/">To main page</a>
+            <svg/>
+            <div className="items">
+                {this.sentences.map(sentence =>
+                    <SentenceBlock origin={sentence.origin} userTranslate={sentence.userTranslate}/>)}
+            </div>
+            {
+                this.isDone ?
+                    <div className="done">
+                        <h1>Well Done!</h1>
+                        <button onClick={this.onRestart}>Restart</button>
+                    </div>
+                    :
+                    <form onSubmit={this.onSubmit}>
+                        <div className="translate">{this.translate}</div>
+                        <input ref="userText" className="text" type="text" required="true"/>
+                    </form>
+            }
+        </div>
     }
 }
 
-new App();
+class SentenceBlock extends React.Component {
+    render() {
+        return <div className="sentence-block">
+            {this.props.userTranslate.map(userText =>
+                <Sentence origin={this.props.origin} userText={userText}/>)}
+        </div>
+    }
+}
+
 

@@ -1,37 +1,37 @@
 function remove(node) {
     node.removed = true;
-    console.log("remove", node);
+    console.log('remove', node);
 }
 
 function add(node, next) {
     node.added = next;
-    console.log("add", node, next);
+    console.log('add', node, next);
 }
 
 function move(node, next) {
     node.moved = next;
-    console.log("move", node, next);
+    console.log('move', node, next);
 }
 
 function update(node) {
-    //console.log("update", node);
+    //console.log('update', node);
 }
 
-function sync(a, b, compare) {
-    var aStart = 0;
-    var bStart = 0;
-    var aEnd = a.length - 1;
-    var bEnd = b.length - 1;
-    var i;
-    var j;
-    var aNode;
-    var bNode;
-    var lastTarget = 0;
-    var pos;
-    var node;
-    var nextPos;
-    var next;
-    var ret = [];
+export function sync(a, b, compare) {
+    const aStart = 0;
+    const bStart = 0;
+    const aEnd = a.length - 1;
+    const bEnd = b.length - 1;
+    let i;
+    let j;
+    let aNode;
+    let bNode;
+    let lastTarget = 0;
+    let pos;
+    let node;
+    let nextPos;
+    let next;
+    const ret = [];
 
 
     // Algorithm that works on simple cases with basic list transformations.
@@ -42,24 +42,24 @@ function sync(a, b, compare) {
     // problem.
 
     // We start by marking all nodes from b as inserted, then we try to find all removed nodes and
-    // simultaneously perform syncs on the nodes that exists in both lists and replacing "inserted"
+    // simultaneously perform syncs on the nodes that exists in both lists and replacing 'inserted'
     // marks with the position of the node from the list b in list a. Then we just need to perform
-    // slightly modified LIS algorithm, that ignores "inserted" marks and find common subsequence and
-    // move all nodes that doesn't belong to this subsequence, or insert if they have "inserted" mark.
-    var aLength = aEnd - aStart + 1;
-    var bLength = bEnd - bStart + 1;
-    var sources = new Array(bLength);
+    // slightly modified LIS algorithm, that ignores 'inserted' marks and find common subsequence and
+    // move all nodes that doesn't belong to this subsequence, or insert if they have 'inserted' mark.
+    const aLength = aEnd - aStart + 1;
+    const bLength = bEnd - bStart + 1;
+    const sources = new Array(bLength);
 
     // Mark all nodes as inserted.
     for (i = 0; i < bLength; i++) {
         sources[i] = -1;
     }
 
-    var moved = false;
-    var removeOffset = 0;
+    let moved = false;
+    let removeOffset = 0;
 
     for (i = aStart; i <= aEnd; i++) {
-        var removed = true;
+        let removed = true;
         aNode = a[i];
         for (j = bStart; j <= bEnd; j++) {
             bNode = b[j];
@@ -85,7 +85,7 @@ function sync(a, b, compare) {
     }
 
     if (moved) {
-        var seq = lis(sources);
+        const seq = lis(sources);
         // All modifications are performed from the right to left, so we can use insertBefore method and use
         // reference to the html element from the next VNode. All Nodes from the right side should always be
         // in the correct state.
@@ -98,8 +98,8 @@ function sync(a, b, compare) {
                 next = nextPos < b.length ? b[nextPos] : null;
                 //add(node, next);
                 ret.push({node: node, next: next, type: 'added'});
-
-            } else {
+            }
+            else {
                 if (j < 0 || i !== seq[j]) {
                     pos = i + bStart;
                     node = b[pos];
@@ -141,15 +141,15 @@ function sync(a, b, compare) {
  * @package
  */
 function lis(a) {
-    var p = a.slice(0);
-    var result = [];
+    const p = a.slice(0);
+    const result = [];
     result.push(0);
-    var i;
-    var il;
-    var j;
-    var u;
-    var v;
-    var c;
+    let i;
+    let il;
+    let j;
+    let u;
+    let v;
+    let c;
 
     for (i = 0, il = a.length; i < il; i++) {
         if (a[i] === -1) {
@@ -194,31 +194,33 @@ function lis(a) {
     return result;
 }
 
-function levenshtein(a, b) {
-    var cost;
-    var m = a.length;
-    var n = b.length;
+export function levenshtein(aStr, bStr) {
+    let cost;
+    let a = aStr;
+    let b = bStr;
+    let m = a.length;
+    let n = b.length;
 
     // make sure a.length >= b.length to use O(min(n,m)) space, whatever that is
     if (m < n) {
-        var c = a;
+        const c = a;
         a = b;
         b = c;
-        var o = m;
+        const o = m;
         m = n;
         n = o;
     }
 
-    var r = [];
+    const r = [];
     r[0] = [];
-    for (var c = 0; c < n + 1; ++c) {
+    for (let c = 0; c < n + 1; ++c) {
         r[0][c] = c;
     }
 
-    for (var i = 1; i < m + 1; ++i) {
+    for (let i = 1; i < m + 1; ++i) {
         r[i] = [];
         r[i][0] = i;
-        for (var j = 1; j < n + 1; ++j) {
+        for (let j = 1; j < n + 1; ++j) {
             cost = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
             r[i][j] = Math.min(r[i - 1][j] + 1, r[i][j - 1] + 1, r[i - 1][j - 1] + cost);
         }
