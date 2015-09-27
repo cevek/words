@@ -20,27 +20,12 @@ export class App extends React.Component {
         this.postData = this.props.resolved;
         this.fill();
         this.translate = this.getCurrentTranslate();
-
-        this.load();
     }
 
     static resolve(params) {
         const postId = params.id;
         const http = new HTTP();
         return http.get('src/posts/' + postId.replace('-', '/') + '.json');
-    }
-
-    load() {
-        const postId = (location.hash.match(/\/post\/([\w\d\-]+)$/) || ['', ''])[1];
-        this.postId = postId;
-
-        this.http = new HTTP();
-        this.http.get('../src/posts/' + postId.replace('-', '/') + '.json').then(data => {
-            this.postData = data;
-            this.fill();
-            this.translate = this.getCurrentTranslate();
-            this.forceUpdate();
-        });
     }
 
     getUserData(postId) {
@@ -65,7 +50,6 @@ export class App extends React.Component {
         const line = data.lines[this.currentLine] || (data.lines[this.currentLine] = []);
         data.currentLine += 1;
         const input = React.findDOMNode(this.refs.userText);
-        ;
         line.push(input.value);
         localStorage[this.postId] = JSON.stringify(data);
         input.value = '';

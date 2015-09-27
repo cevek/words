@@ -22294,32 +22294,17 @@
 	        this.render();
 	
 	        this.postId = this.props.id;
+	        console.log(this.props);
+	
 	        this.postData = this.props.resolved;
 	        this.fill();
 	        this.translate = this.getCurrentTranslate();
-	
-	        this.load();
 	    }
 	
 	    App.resolve = function resolve(params) {
 	        var postId = params.id;
 	        var http = new _httpJs.HTTP();
 	        return http.get('src/posts/' + postId.replace('-', '/') + '.json');
-	    };
-	
-	    App.prototype.load = function load() {
-	        var _this2 = this;
-	
-	        var postId = (location.hash.match(/\/post\/([\w\d\-]+)$/) || ['', ''])[1];
-	        this.postId = postId;
-	
-	        this.http = new _httpJs.HTTP();
-	        this.http.get('../src/posts/' + postId.replace('-', '/') + '.json').then(function (data) {
-	            _this2.postData = data;
-	            _this2.fill();
-	            _this2.translate = _this2.getCurrentTranslate();
-	            _this2.forceUpdate();
-	        });
 	    };
 	
 	    App.prototype.getUserData = function getUserData(postId) {
@@ -22343,7 +22328,6 @@
 	        var line = data.lines[this.currentLine] || (data.lines[this.currentLine] = []);
 	        data.currentLine += 1;
 	        var input = _react2['default'].findDOMNode(this.refs.userText);
-	        ;
 	        line.push(input.value);
 	        localStorage[this.postId] = JSON.stringify(data);
 	        input.value = '';
@@ -22440,13 +22424,13 @@
 	    }
 	
 	    SentenceBlock.prototype.render = function render() {
-	        var _this3 = this;
+	        var _this2 = this;
 	
 	        return _react2['default'].createElement(
 	            'div',
 	            { className: 'sentence-block' },
 	            this.props.userTranslate.map(function (userText) {
-	                return _react2['default'].createElement(_SentenceJs.Sentence, { origin: _this3.props.origin, originTranslate: _this3.props.originTranslate, userText: userText });
+	                return _react2['default'].createElement(_SentenceJs.Sentence, { origin: _this2.props.origin, originTranslate: _this2.props.originTranslate, userText: userText });
 	            })
 	        );
 	    };
