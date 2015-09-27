@@ -22294,8 +22294,6 @@
 	        this.render();
 	
 	        this.postId = this.props.id;
-	        console.log(this.props);
-	
 	        this.postData = this.props.resolved;
 	        this.fill();
 	        this.translate = this.getCurrentTranslate();
