@@ -22264,7 +22264,11 @@
 	        this.onSubmit = function () {
 	            var data = _this.saveLine();
 	            //new SentenceBlock(this.items, this.svg, this.getCurrentOrigin(), data.lines[this.currentLine]);
-	            _this.sentences.push({ origin: _this.getCurrentOrigin(), userTranslate: data.lines[_this.currentLine] });
+	            _this.sentences.push({
+	                origin: _this.getCurrentOrigin(),
+	                originTranslate: _this.getCurrentTranslate(),
+	                userTranslate: data.lines[_this.currentLine]
+	            });
 	            _this.setNextSentence();
 	            _this.translate = _this.getCurrentTranslate();
 	            _this.forceUpdate();
@@ -22338,7 +22342,8 @@
 	        var data = this.getUserData(this.postId);
 	        var line = data.lines[this.currentLine] || (data.lines[this.currentLine] = []);
 	        data.currentLine += 1;
-	        var input = _react2['default'].findDOMNode(this.refs.userText);;
+	        var input = _react2['default'].findDOMNode(this.refs.userText);
+	        ;
 	        line.push(input.value);
 	        localStorage[this.postId] = JSON.stringify(data);
 	        input.value = '';
@@ -22358,7 +22363,11 @@
 	        var data = this.getUserData(this.postId);
 	        for (var i = 0; i < data.currentLine; i++) {
 	            var line = data.lines[i];
-	            this.sentences.push({ origin: this.getCurrentOrigin(), userTranslate: line });
+	            this.sentences.push({
+	                origin: this.getCurrentOrigin(),
+	                originTranslate: this.getCurrentTranslate(),
+	                userTranslate: line
+	            });
 	            this.setNextSentence();
 	        }
 	    };
@@ -22387,7 +22396,7 @@
 	                'div',
 	                { className: 'items' },
 	                this.sentences.map(function (sentence) {
-	                    return _react2['default'].createElement(SentenceBlock, { origin: sentence.origin, userTranslate: sentence.userTranslate });
+	                    return _react2['default'].createElement(SentenceBlock, { origin: sentence.origin, originTranslate: sentence.originTranslate, userTranslate: sentence.userTranslate });
 	                })
 	            ),
 	            this.isDone ? _react2['default'].createElement(
@@ -22437,7 +22446,7 @@
 	            'div',
 	            { className: 'sentence-block' },
 	            this.props.userTranslate.map(function (userText) {
-	                return _react2['default'].createElement(_SentenceJs.Sentence, { origin: _this3.props.origin, userText: userText });
+	                return _react2['default'].createElement(_SentenceJs.Sentence, { origin: _this3.props.origin, originTranslate: _this3.props.originTranslate, userText: userText });
 	            })
 	        );
 	    };
@@ -22690,9 +22699,16 @@
 	    Sentence.prototype.render = function render() {
 	        this.words = new _WordProcessorJs.WordProcessor(this.props.origin, this.props.userText).words;
 	
+	        console.log(this.props);
+	
 	        return _react2['default'].createElement(
 	            'div',
 	            { className: 'line' },
+	            _react2['default'].createElement(
+	                'div',
+	                { className: 'origin-translate' },
+	                this.props.originTranslate
+	            ),
 	            this.words.map(function (word) {
 	                return [_react2['default'].createElement(
 	                    'span',

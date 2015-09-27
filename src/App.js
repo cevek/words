@@ -24,7 +24,7 @@ export class App extends React.Component {
         this.load();
     }
 
-    static resolve(params){
+    static resolve(params) {
         const postId = params.id;
         const http = new HTTP();
         return http.get('src/posts/' + postId.replace('-', '/') + '.json');
@@ -64,7 +64,8 @@ export class App extends React.Component {
         const data = this.getUserData(this.postId);
         const line = data.lines[this.currentLine] || (data.lines[this.currentLine] = []);
         data.currentLine += 1;
-        const input = React.findDOMNode(this.refs.userText);;
+        const input = React.findDOMNode(this.refs.userText);
+        ;
         line.push(input.value);
         localStorage[this.postId] = JSON.stringify(data);
         input.value = '';
@@ -84,7 +85,11 @@ export class App extends React.Component {
         const data = this.getUserData(this.postId);
         for (let i = 0; i < data.currentLine; i++) {
             const line = data.lines[i];
-            this.sentences.push({origin: this.getCurrentOrigin(), userTranslate: line});
+            this.sentences.push({
+                origin: this.getCurrentOrigin(),
+                originTranslate: this.getCurrentTranslate(),
+                userTranslate: line
+            });
             this.setNextSentence();
         }
     }
@@ -101,7 +106,11 @@ export class App extends React.Component {
     onSubmit = () => {
         const data = this.saveLine();
         //new SentenceBlock(this.items, this.svg, this.getCurrentOrigin(), data.lines[this.currentLine]);
-        this.sentences.push({origin: this.getCurrentOrigin(), userTranslate: data.lines[this.currentLine]});
+        this.sentences.push({
+            origin: this.getCurrentOrigin(),
+            originTranslate: this.getCurrentTranslate(),
+            userTranslate: data.lines[this.currentLine]
+        });
         this.setNextSentence();
         this.translate = this.getCurrentTranslate();
         this.forceUpdate();
@@ -127,7 +136,7 @@ export class App extends React.Component {
             <svg/>
             <div className="items">
                 {this.sentences.map(sentence =>
-                    <SentenceBlock origin={sentence.origin} userTranslate={sentence.userTranslate}/>)}
+                    <SentenceBlock origin={sentence.origin} originTranslate={sentence.originTranslate} userTranslate={sentence.userTranslate}/>)}
             </div>
             {
                 this.isDone ?
@@ -149,7 +158,7 @@ class SentenceBlock extends React.Component {
     render() {
         return <div className="sentence-block">
             {this.props.userTranslate.map(userText =>
-                <Sentence origin={this.props.origin} userText={userText}/>)}
+                <Sentence origin={this.props.origin} originTranslate={this.props.originTranslate} userText={userText}/>)}
         </div>
     }
 }
