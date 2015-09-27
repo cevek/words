@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style type="text/css">
+        html, body { padding: 0; margin: 0 }
+        textarea {
+            position: absolute;
+            box-sizing: border-box;
+            width: 50%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            outline: none;
+            border: none;
+            padding: 5px 10px;
+        }
+        textarea#result {
+            border-left: 1px solid silver;
+            left: 50%;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <textarea id="text"></textarea>
+    <textarea id="result"></textarea>
+</div>
+
+
+<script type="text/javascript">
+
+    function prepare(s) {
+        var ss = s.trim().replace(/\n\s*\n+\s*/, '\n\n').trim();
+
+        var blocks = ss.split(/\n\s*\n/);
+        var lines = [];
+        for (var i = 0; i < blocks.length; i += 2) {
+            var originLines = blocks[i].split(/\n/);
+            var translateLines = blocks[i + 1].split(/\n/);
+            for (var j = 0; j < originLines.length; j++) {
+                if (!translateLines[j]) {
+                    throw new Error('translateLines not found: ' + originLines[j]);
+                }
+                lines.push([originLines[j], translateLines[j]]);
+            }
+        }
+        return lines;
+    }
+
+    var textTextarea = document.getElementById('text');
+    var resultTextarea = document.getElementById('result');
+
+    textTextarea.oninput = function () {
+        var s = textTextarea.value;
+        var res = '';
+        try {
+            res = JSON.stringify({data: prepare(s)}, null, 2);
+        }
+        catch (e) {
+            res = e.toString();
+        }
+        resultTextarea.value = res;
+    }
+
+
+</script>
+
+</body>
+</html>
