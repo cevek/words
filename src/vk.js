@@ -29,13 +29,6 @@ export class VKManager {
     }
 
     setKey(key, value) {
-        const http = new HTTP();
-        http.put('https://wordss.firebaseio.com/web/data/users/' + this.userId + '/.json', null, JSON.stringify({
-            user: {
-                vkId: this.vkUserId
-            },
-            data: value
-        }));
         return this.apiCall('storage.set', {key: key, value: JSON.stringify(value)});
     }
 
@@ -54,7 +47,7 @@ export class VKManager {
         return this.getKeys(key).then(obj => obj[key]);
     }
 
-    prepareAuth(data){
+    prepareAuth(data) {
         this.userId = data.userId;
         this.vkUserId = data.vkUserId;
         return data;
@@ -64,6 +57,10 @@ export class VKManager {
         return new Promise(function (resolve, reject) {
             VK.Auth.login(VKManager.authInfo(resolve, reject));
         }).then(data=>this.prepareAuth(data))
+    }
+
+    withoutAuth() {
+
     }
 
     getAuth() {
@@ -84,7 +81,7 @@ export class VKManager {
                         resolve({userId, vkUserId});
                     }
                     else {
-                        userId = Math.random().toString(33).substr(2, 20);
+                        userId = localStorage.userId;
                         VK.Api.call('storage.set', {key: key, value: userId}, function (r) {
                             if (r.response == 1) {
                                 resolve({userId, vkUserId});

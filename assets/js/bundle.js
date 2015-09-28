@@ -62,12 +62,39 @@
 	
 	var _vkJs = __webpack_require__(241);
 	
+	var _configJs = __webpack_require__(242);
+	
 	window.log = function () {
 	    console.log.apply(console, arguments);
 	};
 	
-	_vkJs.vk.getAuth().then(function () {
-	    _react2['default'].render(_react2['default'].createElement(_RouterJs.Router, { routes: [{ path: _routesJs.routes.index, handler: _ListJs.List }, { path: _routesJs.routes.post, handler: _AppJs.App, resolve: _AppJs.App.resolve }] }), document.getElementById('app'));
+	if (!localStorage.userId) {
+	    localStorage.userId = Math.random().toString(33).substr(2, 20);
+	}
+	
+	_vkJs.vk.getAuth().then(function (user) {
+	    _configJs.config.useAuth = true;
+	    _configJs.config.user = user;
+	    localStorage.userId = user.userId;
+	}, function () {
+	    _configJs.config.user.userId = localStorage.userId;
+	}).then(function () {
+	    _react2['default'].render(_react2['default'].createElement(
+	        'div',
+	        null,
+	        _configJs.config.useAuth ? _react2['default'].createElement('div', null) : _react2['default'].createElement(
+	            'button',
+	            { onClick: function () {
+	                    return _vkJs.vk.login().then(function (user) {
+	                        _configJs.config.useAuth = true;
+	                        _configJs.config.user = user;
+	                        localStorage.userId = user.userId;
+	                    });
+	                } },
+	            'Login'
+	        ),
+	        _react2['default'].createElement(_RouterJs.Router, { routes: [{ path: _routesJs.routes.index, handler: _ListJs.List }, { path: _routesJs.routes.post, handler: _AppJs.App, resolve: _AppJs.App.resolve }] })
+	    ), document.getElementById('app'));
 	});
 
 /***/ },
@@ -22254,11 +22281,21 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
+	var _configJs = __webpack_require__(242);
+	
 	var _httpJs = __webpack_require__(229);
 	
 	var _SentenceJs = __webpack_require__(234);
 	
 	var _vkJs = __webpack_require__(241);
+	
+	function saveToFirebase(postId, value) {
+	    var http = new _httpJs.HTTP();
+	    http.put('https://wordss.firebaseio.com/web/data/users/' + _configJs.config.user.userId + '/' + postId + '.json', null, JSON.stringify({
+	        user: _configJs.config.user,
+	        data: value
+	    }));
+	}
 	
 	// todo: the same keys => ..s, his-him-her, at-to-into, 1 sym mistake,
 	// todo: last the a is must be separatly
@@ -22340,17 +22377,30 @@
 	        if (!dt) {
 	            dt = { currentLine: 0, lines: [] };
 	        }
-	        return _vkJs.vk.getKey(postId).then(function (data) {
-	            if (!data) {
-	                return { currentLine: 0, lines: [] };
-	            }
-	            return data;
-	        });
+	        if (_configJs.config.useAuth) {
+	            return _vkJs.vk.getKey(postId).then(function (data) {
+	                if (!data) {
+	                    return { currentLine: 0, lines: [] };
+	                }
+	                if (dt.lines.length > data.lines.length) {
+	                    return dt;
+	                } else {
+	                    return data;
+	                }
+	            });
+	        } else {
+	            return dt;
+	        }
 	    };
 	
 	    App.prototype.saveUserData = function saveUserData() {
 	        localStorage[this.postId] = JSON.stringify(this.userData);
-	        return _vkJs.vk.setKey(this.postId, this.userData);
+	        saveToFirebase(this.postId, this.userData);
+	        if (_configJs.config.useAuth) {
+	            return _vkJs.vk.setKey(this.postId, this.userData);
+	        } else {
+	            return _Promise.resolve();
+	        }
 	    };
 	
 	    App.prototype.getCurrentOrigin = function getCurrentOrigin() {
@@ -23400,13 +23450,6 @@
 	    };
 	
 	    VKManager.prototype.setKey = function setKey(key, value) {
-	        var http = new _httpJs.HTTP();
-	        http.put('https://wordss.firebaseio.com/web/data/users/' + this.userId + '/.json', null, JSON.stringify({
-	            user: {
-	                vkId: this.vkUserId
-	            },
-	            data: value
-	        }));
 	        return this.apiCall('storage.set', { key: key, value: JSON.stringify(value) });
 	    };
 	
@@ -23443,6 +23486,8 @@
 	        });
 	    };
 	
+	    VKManager.prototype.withoutAuth = function withoutAuth() {};
+	
 	    VKManager.prototype.getAuth = function getAuth() {
 	        var _this3 = this;
 	
@@ -23465,7 +23510,7 @@
 	                            userId = r.response;
 	                            resolve({ userId: userId, vkUserId: vkUserId });
 	                        } else {
-	                            userId = Math.random().toString(33).substr(2, 20);
+	                            userId = localStorage.userId;
 	                            VK.Api.call('storage.set', { key: key, value: userId }, function (r) {
 	                                if (r.response == 1) {
 	                                    resolve({ userId: userId, vkUserId: vkUserId });
@@ -23488,6 +23533,19 @@
 	
 	exports.vk = vk;
 	window.vk = vk;
+
+/***/ },
+/* 242 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	exports.__esModule = true;
+	var config = {
+	    user: {},
+	    useAuth: false
+	};
+	exports.config = config;
 
 /***/ }
 /******/ ]);

@@ -1,8 +1,19 @@
 'use strict';
 import React from 'react';
+import {config} from './config.js';
 import {HTTP} from './http.js';
 import {Sentence} from './Sentence.js';
 import {vk} from './vk.js';
+
+
+function saveToFirebase(postId, value) {
+    const http = new HTTP();
+    http.put('https://wordss.firebaseio.com/web/data/users/' + config.user.userId + '/' + postId + '.json', null, JSON.stringify({
+        user: config.user,
+        data: value
+    }));
+}
+
 
 // todo: the same keys => ..s, his-him-her, at-to-into, 1 sym mistake,
 // todo: last the a is must be separatly
@@ -47,17 +58,33 @@ export class App extends React.Component {
         if (!dt) {
             dt = {currentLine: 0, lines: []};
         }
-        return vk.getKey(postId).then(data => {
-            if (!data){
-                return {currentLine: 0, lines: []};
-            }
-            return data;
-        });
+        if (config.useAuth) {
+            return vk.getKey(postId).then(data => {
+                if (!data) {
+                    return {currentLine: 0, lines: []};
+                }
+                if (dt.lines.length > data.lines.length) {
+                    return dt;
+                }
+                else {
+                    return data;
+                }
+            });
+        }
+        else {
+            return dt;
+        }
     }
 
     saveUserData() {
         localStorage[this.postId] = JSON.stringify(this.userData);
-        return vk.setKey(this.postId, this.userData);
+        saveToFirebase(this.postId, this.userData);
+        if (config.useAuth) {
+            return vk.setKey(this.postId, this.userData);
+        }
+        else {
+            return Promise.resolve();
+        }
     }
 
     getCurrentOrigin() {
