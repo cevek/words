@@ -47,6 +47,10 @@ export class VKManager {
         return this.getKeys(key).then(obj => obj[key]);
     }
 
+    getAllData() {
+        return this.apiCall('storage.getKeys', {count: 1000}).then(keys => this.getKeys(keys));
+    }
+
     prepareAuth(data) {
         this.userId = data.userId;
         this.vkUserId = data.vkUserId;
@@ -82,7 +86,7 @@ export class VKManager {
                     }
                     else {
                         userId = localStorage.userId;
-                        VK.Api.call('storage.set', {key: key, value: userId}, function (r) {
+                        VK.Api.call('storage.set', {key: key, value: JSON.stringify(userId)}, function (r) {
                             if (r.response == 1) {
                                 resolve({userId, vkUserId});
                             }

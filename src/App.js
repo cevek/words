@@ -3,7 +3,7 @@ import React from 'react';
 import {config} from './config.js';
 import {HTTP} from './http.js';
 import {Sentence} from './Sentence.js';
-import {vk} from './vk.js';
+import {storage} from './storage.js';
 
 
 function saveToFirebase(postId, value) {
@@ -40,51 +40,12 @@ export class App extends React.Component {
         const http = new HTTP();
         return Promise.all([
             http.get('src/posts/' + postId.replace('-', '/') + '.json'),
-            App.getUserData(postId)
+            storage.get(postId)
         ]).then(([postData, userData]) => ({postData, userData}));
     }
 
-    static getUserData(postId) {
-        let dt;
-        try {
-            const item = localStorage[postId];
-            if (item) {
-                dt = JSON.parse(item);
-            }
-        }
-        catch (e) {
-            console.error(e);
-        }
-        if (!dt) {
-            dt = {currentLine: 0, lines: []};
-        }
-        if (config.useAuth) {
-            return vk.getKey(postId).then(data => {
-                if (!data) {
-                    return {currentLine: 0, lines: []};
-                }
-                if (dt.lines.length > data.lines.length) {
-                    return dt;
-                }
-                else {
-                    return data;
-                }
-            });
-        }
-        else {
-            return dt;
-        }
-    }
-
     saveUserData() {
-        localStorage[this.postId] = JSON.stringify(this.userData);
-        saveToFirebase(this.postId, this.userData);
-        if (config.useAuth) {
-            return vk.setKey(this.postId, this.userData);
-        }
-        else {
-            return Promise.resolve();
-        }
+        return storage.set(this.postId, this.userData);
     }
 
     getCurrentOrigin() {

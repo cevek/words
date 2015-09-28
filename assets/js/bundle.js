@@ -62,6 +62,8 @@
 	
 	var _vkJs = __webpack_require__(241);
 	
+	var _storageJs = __webpack_require__(243);
+	
 	var _configJs = __webpack_require__(242);
 	
 	window.log = function () {
@@ -79,22 +81,24 @@
 	}, function () {
 	    _configJs.config.user.userId = localStorage.userId;
 	}).then(function () {
-	    _react2['default'].render(_react2['default'].createElement(
-	        'div',
-	        null,
-	        _configJs.config.useAuth ? _react2['default'].createElement('div', null) : _react2['default'].createElement(
-	            'button',
-	            { onClick: function () {
-	                    return _vkJs.vk.login().then(function (user) {
-	                        _configJs.config.useAuth = true;
-	                        _configJs.config.user = user;
-	                        localStorage.userId = user.userId;
-	                    });
-	                } },
-	            'Login'
-	        ),
-	        _react2['default'].createElement(_RouterJs.Router, { routes: [{ path: _routesJs.routes.index, handler: _ListJs.List }, { path: _routesJs.routes.post, handler: _AppJs.App, resolve: _AppJs.App.resolve }] })
-	    ), document.getElementById('app'));
+	    _storageJs.storage.fetchAll().then(function () {
+	        _react2['default'].render(_react2['default'].createElement(
+	            'div',
+	            null,
+	            _configJs.config.useAuth ? _react2['default'].createElement('div', null) : _react2['default'].createElement(
+	                'button',
+	                { onClick: function () {
+	                        return _vkJs.vk.login().then(function (user) {
+	                            _configJs.config.useAuth = true;
+	                            _configJs.config.user = user;
+	                            localStorage.userId = user.userId;
+	                        });
+	                    } },
+	                'Login'
+	            ),
+	            _react2['default'].createElement(_RouterJs.Router, { routes: [{ path: _routesJs.routes.index, handler: _ListJs.List }, { path: _routesJs.routes.post, handler: _AppJs.App, resolve: _AppJs.App.resolve }] })
+	        ), document.getElementById('app'));
+	    });
 	});
 
 /***/ },
@@ -22287,7 +22291,7 @@
 	
 	var _SentenceJs = __webpack_require__(234);
 	
-	var _vkJs = __webpack_require__(241);
+	var _storageJs = __webpack_require__(243);
 	
 	function saveToFirebase(postId, value) {
 	    var http = new _httpJs.HTTP();
@@ -22357,50 +22361,15 @@
 	    App.resolve = function resolve(params) {
 	        var postId = params.id;
 	        var http = new _httpJs.HTTP();
-	        return _Promise.all([http.get('src/posts/' + postId.replace('-', '/') + '.json'), App.getUserData(postId)]).then(function (_ref) {
+	        return _Promise.all([http.get('src/posts/' + postId.replace('-', '/') + '.json'), _storageJs.storage.get(postId)]).then(function (_ref) {
 	            var postData = _ref[0];
 	            var userData = _ref[1];
 	            return { postData: postData, userData: userData };
 	        });
 	    };
 	
-	    App.getUserData = function getUserData(postId) {
-	        var dt = undefined;
-	        try {
-	            var item = localStorage[postId];
-	            if (item) {
-	                dt = JSON.parse(item);
-	            }
-	        } catch (e) {
-	            console.error(e);
-	        }
-	        if (!dt) {
-	            dt = { currentLine: 0, lines: [] };
-	        }
-	        if (_configJs.config.useAuth) {
-	            return _vkJs.vk.getKey(postId).then(function (data) {
-	                if (!data) {
-	                    return { currentLine: 0, lines: [] };
-	                }
-	                if (dt.lines.length > data.lines.length) {
-	                    return dt;
-	                } else {
-	                    return data;
-	                }
-	            });
-	        } else {
-	            return dt;
-	        }
-	    };
-	
 	    App.prototype.saveUserData = function saveUserData() {
-	        localStorage[this.postId] = JSON.stringify(this.userData);
-	        saveToFirebase(this.postId, this.userData);
-	        if (_configJs.config.useAuth) {
-	            return _vkJs.vk.setKey(this.postId, this.userData);
-	        } else {
-	            return _Promise.resolve();
-	        }
+	        return _storageJs.storage.set(this.postId, this.userData);
 	    };
 	
 	    App.prototype.getCurrentOrigin = function getCurrentOrigin() {
@@ -23470,6 +23439,14 @@
 	        });
 	    };
 	
+	    VKManager.prototype.getAllData = function getAllData() {
+	        var _this2 = this;
+	
+	        return this.apiCall('storage.getKeys', { count: 1000 }).then(function (keys) {
+	            return _this2.getKeys(keys);
+	        });
+	    };
+	
 	    VKManager.prototype.prepareAuth = function prepareAuth(data) {
 	        this.userId = data.userId;
 	        this.vkUserId = data.vkUserId;
@@ -23477,24 +23454,24 @@
 	    };
 	
 	    VKManager.prototype.login = function login() {
-	        var _this2 = this;
+	        var _this3 = this;
 	
 	        return new _Promise(function (resolve, reject) {
 	            VK.Auth.login(VKManager.authInfo(resolve, reject));
 	        }).then(function (data) {
-	            return _this2.prepareAuth(data);
+	            return _this3.prepareAuth(data);
 	        });
 	    };
 	
 	    VKManager.prototype.withoutAuth = function withoutAuth() {};
 	
 	    VKManager.prototype.getAuth = function getAuth() {
-	        var _this3 = this;
+	        var _this4 = this;
 	
 	        return new _Promise(function (resolve, reject) {
 	            VK.Auth.getLoginStatus(VKManager.authInfo(resolve, reject));
 	        }).then(function (data) {
-	            return _this3.prepareAuth(data);
+	            return _this4.prepareAuth(data);
 	        });
 	    };
 	
@@ -23511,7 +23488,7 @@
 	                            resolve({ userId: userId, vkUserId: vkUserId });
 	                        } else {
 	                            userId = localStorage.userId;
-	                            VK.Api.call('storage.set', { key: key, value: userId }, function (r) {
+	                            VK.Api.call('storage.set', { key: key, value: JSON.stringify(userId) }, function (r) {
 	                                if (r.response == 1) {
 	                                    resolve({ userId: userId, vkUserId: vkUserId });
 	                                }
@@ -23546,6 +23523,133 @@
 	    useAuth: false
 	};
 	exports.config = config;
+
+/***/ },
+/* 243 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _classCallCheck = __webpack_require__(174)['default'];
+	
+	var _Promise = __webpack_require__(187)['default'];
+	
+	exports.__esModule = true;
+	
+	var _httpJs = __webpack_require__(229);
+	
+	var _vkJs = __webpack_require__(241);
+	
+	var _configJs = __webpack_require__(242);
+	
+	var prefix = 'post-';
+	
+	var Storage = (function () {
+	    function Storage() {
+	        _classCallCheck(this, Storage);
+	
+	        this.data = {};
+	        this.commitData = {};
+	    }
+	
+	    Storage.prototype.set = function set(postId, data) {
+	        var key = prefix + postId;
+	        this.data[key] = data;
+	        this.saveToLocalStorage(key, data);
+	        this.saveToFirebase(key, data);
+	        this.saveAll();
+	    };
+	
+	    Storage.prototype.get = function get(postId) {
+	        var key = prefix + postId;
+	        var data = this.data[key];
+	        if (!data) {
+	            this.data[key] = data = { currentLine: 0, lines: [] };
+	        }
+	        return _Promise.resolve(data);
+	    };
+	
+	    Storage.prototype.save = function save(key, data) {
+	        var _this = this;
+	
+	        if (_configJs.config.useAuth) {
+	            console.log("Save", key, data);
+	            return _vkJs.vk.setKey(key, data).then(function () {
+	                _this.commit(key, data.lines.length);
+	            });
+	        } else {
+	            return _Promise.resolve();
+	        }
+	    };
+	
+	    Storage.prototype.saveAll = function saveAll() {
+	        console.log("SaveAll");
+	
+	        for (var key in this.data) {
+	            if (this.checkKey(key)) {
+	                var userPostData = this.data[key];
+	                if (!this.commitData[key] || this.commitData[key] < userPostData.lines.length) {
+	                    this.save(key, userPostData);
+	                }
+	            }
+	        }
+	    };
+	
+	    Storage.prototype.commit = function commit(key, length) {
+	        this.commitData[key] = length;
+	        localStorage.commitData = JSON.stringify(this.commitData);
+	    };
+	
+	    Storage.prototype.saveToFirebase = function saveToFirebase(key, value) {
+	        var http = new _httpJs.HTTP();
+	        http.put('https://wordss.firebaseio.com/web/data/users/' + _configJs.config.user.userId + '/' + key + '.json', null, JSON.stringify(value));
+	    };
+	
+	    Storage.prototype.saveToLocalStorage = function saveToLocalStorage(key, data) {
+	        localStorage[key] = JSON.stringify(data);
+	    };
+	
+	    Storage.prototype.checkKey = function checkKey(key) {
+	        return key.substr(0, prefix.length) == prefix;
+	    };
+	
+	    Storage.prototype.fetchAll = function fetchAll() {
+	        var _this2 = this;
+	
+	        this.data = {};
+	        this.commitData = JSON.parse(localStorage.commitData || "{}");
+	        for (var key in localStorage) {
+	            if (this.checkKey(key)) {
+	                this.data[key] = JSON.parse(localStorage[key] || "{}");
+	            }
+	        }
+	        if (_configJs.config.useAuth) {
+	            return _vkJs.vk.getAllData().then(function (vkData) {
+	                for (var key in vkData) {
+	                    if (_this2.checkKey(key)) {
+	                        var localData = _this2.data[key];
+	                        var newData = vkData[key];
+	                        if (!localData || !localData.lines || localData.lines.length < newData.lines.length) {
+	                            _this2.data[key] = newData;
+	                            console.log("New data from vk", localData, newData);
+	                            _this2.saveToLocalStorage(key, newData);
+	                            _this2.commit(key, newData.lines.length);
+	                        }
+	                    }
+	                }
+	            });
+	        }
+	        return _Promise.resolve(this.data);
+	    };
+	
+	    return Storage;
+	})();
+	
+	var storage = window.storage = new Storage();
+	exports.storage = storage;
+	setInterval(function () {
+	    storage.saveAll();
+	}, 10000);
 
 /***/ }
 /******/ ]);
