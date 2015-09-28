@@ -18,7 +18,7 @@ export class HTTP {
                 const req = new XMLHttpRequest();
                 req.open(method, pUrl, true);
                 req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-                req.withCredentials = true;
+                //req.withCredentials = true;
                 req.onreadystatechange = () => {
                     if (req.readyState == 4) {
                         let responseData = req.responseText;
@@ -59,6 +59,9 @@ export class HTTP {
 
     post(url, params, data) {
         return this.request('POST', url, params, data);
+    }
+    put(url, params, data) {
+        return this.request('PUT', url, params, data);
     }
 
     paramsToUrl(obj) {

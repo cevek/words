@@ -76,11 +76,7 @@ export class Sentence extends React.Component {
 
     render() {
         this.words = new WordProcessor(this.props.origin, this.props.userText).words;
-
-        console.log(this.props);
-
         return <div className="line">
-            <div className="origin-translate">{this.props.originTranslate}</div>
             {this.words.map(word =>
                 [<span className={classNames(word.type ? [TOKEN.token, word.type] : null)}>
                     {word.text.trim()}

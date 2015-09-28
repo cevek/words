@@ -60,7 +60,15 @@
 	
 	var _routesJs = __webpack_require__(240);
 	
-	_react2['default'].render(_react2['default'].createElement(_RouterJs.Router, { routes: [{ path: _routesJs.routes.index, handler: _ListJs.List }, { path: _routesJs.routes.post, handler: _AppJs.App, resolve: _AppJs.App.resolve }] }), document.body);
+	var _vkJs = __webpack_require__(241);
+	
+	window.log = function () {
+	    console.log.apply(console, arguments);
+	};
+	
+	_vkJs.vk.getAuth().then(function () {
+	    _react2['default'].render(_react2['default'].createElement(_RouterJs.Router, { routes: [{ path: _routesJs.routes.index, handler: _ListJs.List }, { path: _routesJs.routes.post, handler: _AppJs.App, resolve: _AppJs.App.resolve }] }), document.getElementById('app'));
+	});
 
 /***/ },
 /* 1 */
@@ -22236,6 +22244,8 @@
 	
 	var _classCallCheck = __webpack_require__(174)['default'];
 	
+	var _Promise = __webpack_require__(187)['default'];
+	
 	var _interopRequireDefault = __webpack_require__(1)['default'];
 	
 	exports.__esModule = true;
@@ -22247,6 +22257,8 @@
 	var _httpJs = __webpack_require__(229);
 	
 	var _SentenceJs = __webpack_require__(234);
+	
+	var _vkJs = __webpack_require__(241);
 	
 	// todo: the same keys => ..s, his-him-her, at-to-into, 1 sym mistake,
 	// todo: last the a is must be separatly
@@ -22262,12 +22274,18 @@
 	        _React$Component.call(this, props);
 	
 	        this.onSubmit = function () {
-	            var data = _this.saveLine();
-	            //new SentenceBlock(this.items, this.svg, this.getCurrentOrigin(), data.lines[this.currentLine]);
+	            var line = _this.userData.lines[_this.currentLine] || (_this.userData.lines[_this.currentLine] = []);
+	            _this.userData.currentLine += 1;
+	            var input = _react2['default'].findDOMNode(_this.refs.userText);
+	            line.push(input.value);
+	            input.value = '';
+	            window.scrollTo(0, 100000);
+	            _this.saveUserData();
+	
 	            _this.sentences.push({
 	                origin: _this.getCurrentOrigin(),
 	                originTranslate: _this.getCurrentTranslate(),
-	                userTranslate: data.lines[_this.currentLine]
+	                userTranslate: _this.userData.lines[_this.currentLine]
 	            });
 	            _this.setNextSentence();
 	            _this.translate = _this.getCurrentTranslate();
@@ -22277,9 +22295,8 @@
 	
 	        this.onRestart = function () {
 	            _this.currentLine = 0;
-	            var data = _this.getUserData(_this.postId);
-	            data.currentLine = 0;
-	            localStorage[_this.postId] = JSON.stringify(data);
+	            _this.userData.currentLine = 0;
+	            _this.saveUserData();
 	            _this.sentences = [];
 	            _this.isDone = false;
 	            _this.translate = _this.getCurrentTranslate();
@@ -22294,7 +22311,8 @@
 	        this.render();
 	
 	        this.postId = this.props.id;
-	        this.postData = this.props.resolved;
+	        this.postData = this.props.resolved.postData;
+	        this.userData = this.props.resolved.userData;
 	        this.fill();
 	        this.translate = this.getCurrentTranslate();
 	    }
@@ -22302,10 +22320,14 @@
 	    App.resolve = function resolve(params) {
 	        var postId = params.id;
 	        var http = new _httpJs.HTTP();
-	        return http.get('src/posts/' + postId.replace('-', '/') + '.json');
+	        return _Promise.all([http.get('src/posts/' + postId.replace('-', '/') + '.json'), App.getUserData(postId)]).then(function (_ref) {
+	            var postData = _ref[0];
+	            var userData = _ref[1];
+	            return { postData: postData, userData: userData };
+	        });
 	    };
 	
-	    App.prototype.getUserData = function getUserData(postId) {
+	    App.getUserData = function getUserData(postId) {
 	        var dt = undefined;
 	        try {
 	            var item = localStorage[postId];
@@ -22318,19 +22340,17 @@
 	        if (!dt) {
 	            dt = { currentLine: 0, lines: [] };
 	        }
-	        return dt;
+	        return _vkJs.vk.getKey(postId).then(function (data) {
+	            if (!data) {
+	                return { currentLine: 0, lines: [] };
+	            }
+	            return data;
+	        });
 	    };
 	
-	    App.prototype.saveLine = function saveLine() {
-	        var data = this.getUserData(this.postId);
-	        var line = data.lines[this.currentLine] || (data.lines[this.currentLine] = []);
-	        data.currentLine += 1;
-	        var input = _react2['default'].findDOMNode(this.refs.userText);
-	        line.push(input.value);
-	        localStorage[this.postId] = JSON.stringify(data);
-	        input.value = '';
-	        window.scrollTo(0, 100000);
-	        return data;
+	    App.prototype.saveUserData = function saveUserData() {
+	        localStorage[this.postId] = JSON.stringify(this.userData);
+	        return _vkJs.vk.setKey(this.postId, this.userData);
 	    };
 	
 	    App.prototype.getCurrentOrigin = function getCurrentOrigin() {
@@ -22342,9 +22362,8 @@
 	    };
 	
 	    App.prototype.fill = function fill() {
-	        var data = this.getUserData(this.postId);
-	        for (var i = 0; i < data.currentLine; i++) {
-	            var line = data.lines[i];
+	        for (var i = 0; i < this.userData.currentLine; i++) {
+	            var line = this.userData.lines[i];
 	            this.sentences.push({
 	                origin: this.getCurrentOrigin(),
 	                originTranslate: this.getCurrentTranslate(),
@@ -22363,8 +22382,6 @@
 	    };
 	
 	    App.prototype.render = function render() {
-	        console.log(this.sentences);
-	
 	        return _react2['default'].createElement(
 	            'div',
 	            { className: 'app' },
@@ -22378,7 +22395,8 @@
 	                'div',
 	                { className: 'items' },
 	                this.sentences.map(function (sentence) {
-	                    return _react2['default'].createElement(SentenceBlock, { origin: sentence.origin, originTranslate: sentence.originTranslate, userTranslate: sentence.userTranslate });
+	                    return _react2['default'].createElement(SentenceBlock, { origin: sentence.origin, originTranslate: sentence.originTranslate,
+	                        userTranslate: sentence.userTranslate });
 	                })
 	            ),
 	            this.isDone ? _react2['default'].createElement(
@@ -22427,8 +22445,14 @@
 	        return _react2['default'].createElement(
 	            'div',
 	            { className: 'sentence-block' },
+	            _react2['default'].createElement(
+	                'div',
+	                { className: 'origin-translate' },
+	                this.props.originTranslate
+	            ),
 	            this.props.userTranslate.map(function (userText) {
-	                return _react2['default'].createElement(_SentenceJs.Sentence, { origin: _this2.props.origin, originTranslate: _this2.props.originTranslate, userText: userText });
+	                return _react2['default'].createElement(_SentenceJs.Sentence, { origin: _this2.props.origin, originTranslate: _this2.props.originTranslate,
+	                    userText: userText });
 	            })
 	        );
 	    };
@@ -22474,7 +22498,7 @@
 	                    var req = new XMLHttpRequest();
 	                    req.open(method, pUrl, true);
 	                    req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-	                    req.withCredentials = true;
+	                    //req.withCredentials = true;
 	                    req.onreadystatechange = function () {
 	                        if (req.readyState == 4) {
 	                            (function () {
@@ -22515,6 +22539,10 @@
 	
 	    HTTP.prototype.post = function post(url, params, data) {
 	        return this.request('POST', url, params, data);
+	    };
+	
+	    HTTP.prototype.put = function put(url, params, data) {
+	        return this.request('PUT', url, params, data);
 	    };
 	
 	    HTTP.prototype.paramsToUrl = function paramsToUrl(obj) {
@@ -22680,17 +22708,9 @@
 	
 	    Sentence.prototype.render = function render() {
 	        this.words = new _WordProcessorJs.WordProcessor(this.props.origin, this.props.userText).words;
-	
-	        console.log(this.props);
-	
 	        return _react2['default'].createElement(
 	            'div',
 	            { className: 'line' },
-	            _react2['default'].createElement(
-	                'div',
-	                { className: 'origin-translate' },
-	                this.props.originTranslate
-	            ),
 	            this.words.map(function (word) {
 	                return [_react2['default'].createElement(
 	                    'span',
@@ -23332,6 +23352,142 @@
 	    post: new _RouterJs.Route('/post/:id')
 	};
 	exports.routes = routes;
+
+/***/ },
+/* 241 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _classCallCheck = __webpack_require__(174)['default'];
+	
+	var _Promise = __webpack_require__(187)['default'];
+	
+	exports.__esModule = true;
+	
+	var _httpJs = __webpack_require__(229);
+	
+	VK.init({
+	    apiId: 5068850
+	});
+	
+	var VKManager = (function () {
+	    function VKManager() {
+	        _classCallCheck(this, VKManager);
+	    }
+	
+	    VKManager.prototype.apiCall = function apiCall(method, params) {
+	        var _this = this;
+	
+	        var timeout = arguments.length <= 2 || arguments[2] === undefined ? 100 : arguments[2];
+	
+	        return new _Promise(function (resolve, reject) {
+	            VK.Api.call(method, params, function (r) {
+	                console.log(r);
+	                if (r.error && r.error_code == 6) {
+	                    setTimeout(function () {
+	                        resolve(_this.apiCall(method, params, timeout * 1.5));
+	                    }, timeout);
+	                } else if (r.error) {
+	                    reject(r.error);
+	                } else if (r.response) {
+	                    resolve(r.response);
+	                } else {
+	                    reject(new Error(r));
+	                }
+	            });
+	        });
+	    };
+	
+	    VKManager.prototype.setKey = function setKey(key, value) {
+	        var http = new _httpJs.HTTP();
+	        http.put('https://wordss.firebaseio.com/web/data/users/' + this.userId + '/.json', null, JSON.stringify({
+	            user: {
+	                vkId: this.vkUserId
+	            },
+	            data: value
+	        }));
+	        return this.apiCall('storage.set', { key: key, value: JSON.stringify(value) });
+	    };
+	
+	    VKManager.prototype.getKeys = function getKeys(keys) {
+	        return this.apiCall('storage.get', { keys: keys }).then(function (items) {
+	            var obj = {};
+	            for (var i = 0; i < items.length; i++) {
+	                var item = items[i];
+	                obj[item.key] = item.value ? JSON.parse(item.value) : '';
+	            }
+	            return obj;
+	        });
+	    };
+	
+	    VKManager.prototype.getKey = function getKey(key) {
+	        return this.getKeys(key).then(function (obj) {
+	            return obj[key];
+	        });
+	    };
+	
+	    VKManager.prototype.prepareAuth = function prepareAuth(data) {
+	        this.userId = data.userId;
+	        this.vkUserId = data.vkUserId;
+	        return data;
+	    };
+	
+	    VKManager.prototype.login = function login() {
+	        var _this2 = this;
+	
+	        return new _Promise(function (resolve, reject) {
+	            VK.Auth.login(VKManager.authInfo(resolve, reject));
+	        }).then(function (data) {
+	            return _this2.prepareAuth(data);
+	        });
+	    };
+	
+	    VKManager.prototype.getAuth = function getAuth() {
+	        var _this3 = this;
+	
+	        return new _Promise(function (resolve, reject) {
+	            VK.Auth.getLoginStatus(VKManager.authInfo(resolve, reject));
+	        }).then(function (data) {
+	            return _this3.prepareAuth(data);
+	        });
+	    };
+	
+	    VKManager.authInfo = function authInfo(resolve, reject) {
+	        return function (response) {
+	            if (response.session) {
+	                (function () {
+	                    var vkUserId = response.session.mid;
+	                    var key = 'userId';
+	                    VK.Api.call('storage.get', { key: key }, function (r) {
+	                        var userId = undefined;
+	                        if (r.response) {
+	                            userId = r.response;
+	                            resolve({ userId: userId, vkUserId: vkUserId });
+	                        } else {
+	                            userId = Math.random().toString(33).substr(2, 20);
+	                            VK.Api.call('storage.set', { key: key, value: userId }, function (r) {
+	                                if (r.response == 1) {
+	                                    resolve({ userId: userId, vkUserId: vkUserId });
+	                                }
+	                            });
+	                        }
+	                    });
+	                })();
+	            } else {
+	                reject(response);
+	            }
+	        };
+	    };
+	
+	    return VKManager;
+	})();
+	
+	exports.VKManager = VKManager;
+	var vk = new VKManager();
+	
+	exports.vk = vk;
+	window.vk = vk;
 
 /***/ }
 /******/ ]);

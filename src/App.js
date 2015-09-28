@@ -2,6 +2,7 @@
 import React from 'react';
 import {HTTP} from './http.js';
 import {Sentence} from './Sentence.js';
+import {vk} from './vk.js';
 
 // todo: the same keys => ..s, his-him-her, at-to-into, 1 sym mistake,
 // todo: last the a is must be separatly
@@ -17,7 +18,8 @@ export class App extends React.Component {
         this.render();
 
         this.postId = this.props.id;
-        this.postData = this.props.resolved;
+        this.postData = this.props.resolved.postData;
+        this.userData = this.props.resolved.userData;
         this.fill();
         this.translate = this.getCurrentTranslate();
     }
@@ -25,10 +27,13 @@ export class App extends React.Component {
     static resolve(params) {
         const postId = params.id;
         const http = new HTTP();
-        return http.get('src/posts/' + postId.replace('-', '/') + '.json');
+        return Promise.all([
+            http.get('src/posts/' + postId.replace('-', '/') + '.json'),
+            App.getUserData(postId)
+        ]).then(([postData, userData]) => ({postData, userData}));
     }
 
-    getUserData(postId) {
+    static getUserData(postId) {
         let dt;
         try {
             const item = localStorage[postId];
@@ -42,19 +47,17 @@ export class App extends React.Component {
         if (!dt) {
             dt = {currentLine: 0, lines: []};
         }
-        return dt;
+        return vk.getKey(postId).then(data => {
+            if (!data){
+                return {currentLine: 0, lines: []};
+            }
+            return data;
+        });
     }
 
-    saveLine() {
-        const data = this.getUserData(this.postId);
-        const line = data.lines[this.currentLine] || (data.lines[this.currentLine] = []);
-        data.currentLine += 1;
-        const input = React.findDOMNode(this.refs.userText);
-        line.push(input.value);
-        localStorage[this.postId] = JSON.stringify(data);
-        input.value = '';
-        window.scrollTo(0, 100000);
-        return data;
+    saveUserData() {
+        localStorage[this.postId] = JSON.stringify(this.userData);
+        return vk.setKey(this.postId, this.userData);
     }
 
     getCurrentOrigin() {
@@ -66,9 +69,8 @@ export class App extends React.Component {
     }
 
     fill() {
-        const data = this.getUserData(this.postId);
-        for (let i = 0; i < data.currentLine; i++) {
-            const line = data.lines[i];
+        for (let i = 0; i < this.userData.currentLine; i++) {
+            const line = this.userData.lines[i];
             this.sentences.push({
                 origin: this.getCurrentOrigin(),
                 originTranslate: this.getCurrentTranslate(),
@@ -88,12 +90,18 @@ export class App extends React.Component {
     }
 
     onSubmit = () => {
-        const data = this.saveLine();
-        //new SentenceBlock(this.items, this.svg, this.getCurrentOrigin(), data.lines[this.currentLine]);
+        const line = this.userData.lines[this.currentLine] || (this.userData.lines[this.currentLine] = []);
+        this.userData.currentLine += 1;
+        const input = React.findDOMNode(this.refs.userText);
+        line.push(input.value);
+        input.value = '';
+        window.scrollTo(0, 100000);
+        this.saveUserData();
+
         this.sentences.push({
             origin: this.getCurrentOrigin(),
             originTranslate: this.getCurrentTranslate(),
-            userTranslate: data.lines[this.currentLine]
+            userTranslate: this.userData.lines[this.currentLine]
         });
         this.setNextSentence();
         this.translate = this.getCurrentTranslate();
@@ -103,9 +111,8 @@ export class App extends React.Component {
 
     onRestart = () => {
         this.currentLine = 0;
-        const data = this.getUserData(this.postId);
-        data.currentLine = 0;
-        localStorage[this.postId] = JSON.stringify(data);
+        this.userData.currentLine = 0;
+        this.saveUserData();
         this.sentences = [];
         this.isDone = false;
         this.translate = this.getCurrentTranslate();
@@ -113,14 +120,13 @@ export class App extends React.Component {
     };
 
     render() {
-        console.log(this.sentences);
-
         return <div className="app">
             <a href="#/">To main page</a>
             <svg/>
             <div className="items">
                 {this.sentences.map(sentence =>
-                    <SentenceBlock origin={sentence.origin} originTranslate={sentence.originTranslate} userTranslate={sentence.userTranslate}/>)}
+                    <SentenceBlock origin={sentence.origin} originTranslate={sentence.originTranslate}
+                                   userTranslate={sentence.userTranslate}/>)}
             </div>
             {
                 this.isDone ?
@@ -141,8 +147,10 @@ export class App extends React.Component {
 class SentenceBlock extends React.Component {
     render() {
         return <div className="sentence-block">
+            <div className="origin-translate">{this.props.originTranslate}</div>
             {this.props.userTranslate.map(userText =>
-                <Sentence origin={this.props.origin} originTranslate={this.props.originTranslate} userText={userText}/>)}
+                <Sentence origin={this.props.origin} originTranslate={this.props.originTranslate}
+                          userText={userText}/>)}
         </div>
     }
 }

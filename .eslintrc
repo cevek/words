@@ -67,13 +67,6 @@
     "no-use-before-define": 0,
     "padded-blocks": 0,
     "space-before-blocks": 0,
-    "missing-semicolon": 0,
-    "new-cap": [
-      2,
-      {
-        "newIsCap": true,
-        "properties": false
-      }
-    ]
+    "missing-semicolon": 0
   }
 }
