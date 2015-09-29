@@ -1,18 +1,8 @@
 'use strict';
 import React from 'react';
-import {config} from './config.js';
 import {HTTP} from './http.js';
 import {Sentence} from './Sentence.js';
 import {storage} from './storage.js';
-
-
-function saveToFirebase(postId, value) {
-    const http = new HTTP();
-    http.put('https://wordss.firebaseio.com/web/data/users/' + config.user.userId + '/' + postId + '.json', null, JSON.stringify({
-        user: config.user,
-        data: value
-    }));
-}
 
 
 // todo: the same keys => ..s, his-him-her, at-to-into, 1 sym mistake,

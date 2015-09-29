@@ -46,6 +46,10 @@
 
 	'use strict';
 	
+	var _inherits = __webpack_require__(159)['default'];
+	
+	var _classCallCheck = __webpack_require__(174)['default'];
+	
 	var _interopRequireDefault = __webpack_require__(1)['default'];
 	
 	var _react = __webpack_require__(2);
@@ -60,45 +64,53 @@
 	
 	var _routesJs = __webpack_require__(240);
 	
-	var _vkJs = __webpack_require__(241);
-	
-	var _storageJs = __webpack_require__(243);
-	
 	var _configJs = __webpack_require__(242);
+	
+	var _accountJs = __webpack_require__(245);
 	
 	window.log = function () {
 	    console.log.apply(console, arguments);
 	};
 	
-	if (!localStorage.userId) {
-	    localStorage.userId = Math.random().toString(33).substr(2, 20);
-	}
+	var Main = (function (_React$Component) {
+	    _inherits(Main, _React$Component);
 	
-	_vkJs.vk.getAuth().then(function (user) {
-	    _configJs.config.useAuth = true;
-	    _configJs.config.user = user;
-	    localStorage.userId = user.userId;
-	}, function () {
-	    _configJs.config.user.userId = localStorage.userId;
-	}).then(function () {
-	    _storageJs.storage.fetchAll().then(function () {
-	        _react2['default'].render(_react2['default'].createElement(
+	    function Main() {
+	        _classCallCheck(this, Main);
+	
+	        _React$Component.apply(this, arguments);
+	    }
+	
+	    Main.prototype.login = function login() {
+	        _accountJs.account.login().then(function () {
+	            //todo
+	            location.reload();
+	            //this.forceUpdate();
+	        });
+	    };
+	
+	    Main.prototype.render = function render() {
+	        var _this = this;
+	
+	        return _react2['default'].createElement(
 	            'div',
 	            null,
-	            _configJs.config.useAuth ? _react2['default'].createElement('div', null) : _react2['default'].createElement(
+	            _accountJs.account.isAuthorized ? _react2['default'].createElement('div', null) : _react2['default'].createElement(
 	                'button',
 	                { onClick: function () {
-	                        return _vkJs.vk.login().then(function (user) {
-	                            _configJs.config.useAuth = true;
-	                            _configJs.config.user = user;
-	                            localStorage.userId = user.userId;
-	                        });
+	                        return _this.login();
 	                    } },
 	                'Login'
 	            ),
 	            _react2['default'].createElement(_RouterJs.Router, { routes: [{ path: _routesJs.routes.index, handler: _ListJs.List }, { path: _routesJs.routes.post, handler: _AppJs.App, resolve: _AppJs.App.resolve }] })
-	        ), document.getElementById('app'));
-	    });
+	        );
+	    };
+	
+	    return Main;
+	})(_react2['default'].Component);
+	
+	_accountJs.account.fetch().then(function () {
+	    _react2['default'].render(_react2['default'].createElement(Main, null), document.getElementById('app'));
 	});
 
 /***/ },
@@ -22285,21 +22297,11 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _configJs = __webpack_require__(242);
-	
 	var _httpJs = __webpack_require__(229);
 	
 	var _SentenceJs = __webpack_require__(234);
 	
 	var _storageJs = __webpack_require__(243);
-	
-	function saveToFirebase(postId, value) {
-	    var http = new _httpJs.HTTP();
-	    http.put('https://wordss.firebaseio.com/web/data/users/' + _configJs.config.user.userId + '/' + postId + '.json', null, JSON.stringify({
-	        user: _configJs.config.user,
-	        data: value
-	    }));
-	}
 	
 	// todo: the same keys => ..s, his-him-her, at-to-into, 1 sym mistake,
 	// todo: last the a is must be separatly
@@ -23384,7 +23386,9 @@
 	
 	exports.__esModule = true;
 	
-	var _httpJs = __webpack_require__(229);
+	var _configJs = __webpack_require__(242);
+	
+	var _AccountJs = __webpack_require__(244);
 	
 	VK.init({
 	    apiId: 5068850
@@ -23447,69 +23451,39 @@
 	        });
 	    };
 	
-	    VKManager.prototype.prepareAuth = function prepareAuth(data) {
-	        this.userId = data.userId;
-	        this.vkUserId = data.vkUserId;
-	        return data;
+	    VKManager.prototype.login = function login(hidden) {
+	        var vkMethod = hidden ? VK.Auth.getLoginStatus : VK.Auth.login;
+	        return new _Promise(function (resolve, reject) {
+	            vkMethod(function (response) {
+	                if (response.session) {
+	                    resolve(response.session.mid);
+	                } else {
+	                    reject(response);
+	                }
+	            });
+	        });
 	    };
 	
-	    VKManager.prototype.login = function login() {
+	    VKManager.prototype.fetchUserId = function fetchUserId(defaultUserId) {
 	        var _this3 = this;
 	
-	        return new _Promise(function (resolve, reject) {
-	            VK.Auth.login(VKManager.authInfo(resolve, reject));
-	        }).then(function (data) {
-	            return _this3.prepareAuth(data);
-	        });
-	    };
-	
-	    VKManager.prototype.withoutAuth = function withoutAuth() {};
-	
-	    VKManager.prototype.getAuth = function getAuth() {
-	        var _this4 = this;
-	
-	        return new _Promise(function (resolve, reject) {
-	            VK.Auth.getLoginStatus(VKManager.authInfo(resolve, reject));
-	        }).then(function (data) {
-	            return _this4.prepareAuth(data);
-	        });
-	    };
-	
-	    VKManager.authInfo = function authInfo(resolve, reject) {
-	        return function (response) {
-	            if (response.session) {
-	                (function () {
-	                    var vkUserId = response.session.mid;
-	                    var key = 'userId';
-	                    VK.Api.call('storage.get', { key: key }, function (r) {
-	                        var userId = undefined;
-	                        if (r.response) {
-	                            userId = r.response;
-	                            resolve({ userId: userId, vkUserId: vkUserId });
-	                        } else {
-	                            userId = localStorage.userId;
-	                            VK.Api.call('storage.set', { key: key, value: JSON.stringify(userId) }, function (r) {
-	                                if (r.response == 1) {
-	                                    resolve({ userId: userId, vkUserId: vkUserId });
-	                                }
-	                            });
-	                        }
-	                    });
-	                })();
-	            } else {
-	                reject(response);
+	        var userIdKey = 'userId';
+	        return this.getKey(userIdKey).then(function (userId) {
+	            if (!userId) {
+	                return _this3.setKey(userIdKey, defaultUserId).then(function () {
+	                    return defaultUserId;
+	                });
 	            }
-	        };
+	            return userId;
+	        });
 	    };
 	
 	    return VKManager;
 	})();
 	
 	exports.VKManager = VKManager;
-	var vk = new VKManager();
-	
+	var vk = window.vk = new VKManager();
 	exports.vk = vk;
-	window.vk = vk;
 
 /***/ },
 /* 242 */
@@ -23518,10 +23492,7 @@
 	"use strict";
 	
 	exports.__esModule = true;
-	var config = {
-	    user: {},
-	    useAuth: false
-	};
+	var config = {};
 	exports.config = config;
 
 /***/ },
@@ -23540,7 +23511,7 @@
 	
 	var _vkJs = __webpack_require__(241);
 	
-	var _configJs = __webpack_require__(242);
+	var _accountJs = __webpack_require__(245);
 	
 	var prefix = 'post-';
 	
@@ -23572,7 +23543,7 @@
 	    Storage.prototype.save = function save(key, data) {
 	        var _this = this;
 	
-	        if (_configJs.config.useAuth) {
+	        if (_accountJs.account.isAuthorized) {
 	            console.log("Save", key, data);
 	            return _vkJs.vk.setKey(key, data).then(function () {
 	                _this.commit(key, data.lines.length);
@@ -23602,7 +23573,7 @@
 	
 	    Storage.prototype.saveToFirebase = function saveToFirebase(key, value) {
 	        var http = new _httpJs.HTTP();
-	        http.put('https://wordss.firebaseio.com/web/data/users/' + _configJs.config.user.userId + '/' + key + '.json', null, JSON.stringify(value));
+	        http.put('https://wordss.firebaseio.com/web/data/users/' + _accountJs.account.userId + '/' + key + '.json', null, JSON.stringify(value));
 	    };
 	
 	    Storage.prototype.saveToLocalStorage = function saveToLocalStorage(key, data) {
@@ -23616,6 +23587,8 @@
 	    Storage.prototype.fetchAll = function fetchAll() {
 	        var _this2 = this;
 	
+	        console.log("FetchAll");
+	
 	        this.data = {};
 	        this.commitData = JSON.parse(localStorage.commitData || "{}");
 	        for (var key in localStorage) {
@@ -23623,7 +23596,7 @@
 	                this.data[key] = JSON.parse(localStorage[key] || "{}");
 	            }
 	        }
-	        if (_configJs.config.useAuth) {
+	        if (_accountJs.account.isAuthorized) {
 	            return _vkJs.vk.getAllData().then(function (vkData) {
 	                for (var key in vkData) {
 	                    if (_this2.checkKey(key)) {
@@ -23650,6 +23623,140 @@
 	setInterval(function () {
 	    storage.saveAll();
 	}, 10000);
+
+/***/ },
+/* 244 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _classCallCheck = __webpack_require__(174)['default'];
+	
+	exports.__esModule = true;
+	
+	var _vkJs = __webpack_require__(241);
+	
+	var _storageJs = __webpack_require__(243);
+	
+	if (!localStorage.userId) {
+	    localStorage.userId = Math.random().toString(33).substr(2, 20);
+	}
+	
+	var Account = (function () {
+	    function Account() {
+	        _classCallCheck(this, Account);
+	
+	        this.userId = localStorage.userId;
+	        this.isAuthorized = false;
+	    }
+	
+	    Account.prototype.onAuth = function onAuth(vkUserId) {
+	        var _this = this;
+	
+	        this.vkUserId = vkUserId;
+	        return _vkJs.vk.fetchUserId(this.userId).then(function (userId) {
+	            _this.isAuthorized = true;
+	            localStorage.userId = _this.userId = userId;
+	        });
+	    };
+	
+	    Account.prototype.fetch = function fetch() {
+	        var _this2 = this;
+	
+	        return _vkJs.vk.login(true).then(function (vkUserId) {
+	            return _this2.onAuth(vkUserId);
+	        }, function () {
+	            return null;
+	        }).then(function () {
+	            return _storageJs.storage.fetchAll();
+	        });
+	    };
+	
+	    Account.prototype.login = function login() {
+	        var _this3 = this;
+	
+	        return _vkJs.vk.login().then(function (vkUserId) {
+	            return _this3.onAuth(vkUserId);
+	        }, function () {
+	            return null;
+	        }).then(function () {
+	            return _storageJs.storage.fetchAll();
+	        });
+	    };
+	
+	    return Account;
+	})();
+	
+	exports.Account = Account;
+	var account = window.account = new Account();
+	exports.account = account;
+
+/***/ },
+/* 245 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _classCallCheck = __webpack_require__(174)['default'];
+	
+	exports.__esModule = true;
+	
+	var _vkJs = __webpack_require__(241);
+	
+	var _storageJs = __webpack_require__(243);
+	
+	if (!localStorage.userId) {
+	    localStorage.userId = Math.random().toString(33).substr(2, 20);
+	}
+	
+	var Account = (function () {
+	    function Account() {
+	        _classCallCheck(this, Account);
+	
+	        this.userId = localStorage.userId;
+	        this.isAuthorized = false;
+	    }
+	
+	    Account.prototype.onAuth = function onAuth(vkUserId) {
+	        var _this = this;
+	
+	        this.vkUserId = vkUserId;
+	        return _vkJs.vk.fetchUserId(this.userId).then(function (userId) {
+	            _this.isAuthorized = true;
+	            localStorage.userId = _this.userId = userId;
+	        });
+	    };
+	
+	    Account.prototype.fetch = function fetch() {
+	        var _this2 = this;
+	
+	        return _vkJs.vk.login(true).then(function (vkUserId) {
+	            return _this2.onAuth(vkUserId);
+	        }, function () {
+	            return null;
+	        }).then(function () {
+	            return _storageJs.storage.fetchAll();
+	        });
+	    };
+	
+	    Account.prototype.login = function login() {
+	        var _this3 = this;
+	
+	        return _vkJs.vk.login().then(function (vkUserId) {
+	            return _this3.onAuth(vkUserId);
+	        }, function () {
+	            return null;
+	        }).then(function () {
+	            return _storageJs.storage.fetchAll();
+	        });
+	    };
+	
+	    return Account;
+	})();
+	
+	exports.Account = Account;
+	var account = window.account = new Account();
+	exports.account = account;
 
 /***/ }
 /******/ ]);

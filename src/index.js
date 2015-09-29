@@ -3,43 +3,36 @@ import {Router, Route} from './Router.js';
 import {App} from './App.js';
 import {List} from './List.js';
 import {routes} from './routes.js';
-import {vk} from './vk.js';
-import {storage} from './storage.js';
-import {config} from './config.js';
+import {account} from './account.js';
 
 
 window.log = function () {
     console.log.apply(console, arguments);
 };
 
-if (!localStorage.userId) {
-    localStorage.userId = Math.random().toString(33).substr(2, 20);
-}
+class Main extends React.Component {
+    login() {
+        account.login().then(()=> {
+            //todo
+            location.reload();
+            //this.forceUpdate();
+        });
+    }
 
-
-vk.getAuth().then(user=> {
-    config.useAuth = true;
-    config.user = user;
-    localStorage.userId = user.userId;
-}, ()=> {
-    config.user.userId = localStorage.userId;
-}).then(()=> {
-    storage.fetchAll().then(()=> {
-        React.render(<div>
-            {
-                config.useAuth
-                    ? <div></div>
-                    : <button onClick={()=>vk.login().then(user=>{
-                    config.useAuth = true;
-                    config.user = user;
-                    localStorage.userId = user.userId;
-                })}>Login</button>
+    render() {
+        return <div>
+            {account.isAuthorized
+                ? <div></div>
+                : <button onClick={()=>this.login()}>Login</button>
             }
             <Router routes={[
                         {path: routes.index, handler: List},
-                        {path: routes.post, handler: App, resolve: App.resolve},
+                        {path: routes.post, handler: App, resolve: App.resolve}
                     ]}/>
+        </div>
+    }
+}
 
-        </div>, document.getElementById('app'));
-    });
+account.fetch().then(()=> {
+    React.render(<Main/>, document.getElementById('app'));
 });

@@ -1,9 +1,9 @@
-import {HTTP} from './http.js';
+import {config} from './config.js';
+import {account} from './Account.js';
 
 VK.init({
     apiId: 5068850
 });
-
 
 export class VKManager {
     apiCall(method, params, timeout = 100) {
@@ -51,57 +51,31 @@ export class VKManager {
         return this.apiCall('storage.getKeys', {count: 1000}).then(keys => this.getKeys(keys));
     }
 
-    prepareAuth(data) {
-        this.userId = data.userId;
-        this.vkUserId = data.vkUserId;
-        return data;
+
+    login(hidden) {
+        let vkMethod = hidden ? VK.Auth.getLoginStatus : VK.Auth.login;
+        return new Promise((resolve, reject)=> {
+            vkMethod(response=> {
+                if (response.session) {
+                    resolve(response.session.mid);
+                }
+                else {
+                    reject(response);
+                }
+            });
+        });
     }
 
-    login() {
-        return new Promise(function (resolve, reject) {
-            VK.Auth.login(VKManager.authInfo(resolve, reject));
-        }).then(data=>this.prepareAuth(data))
-    }
-
-    withoutAuth() {
-
-    }
-
-    getAuth() {
-        return new Promise(function (resolve, reject) {
-            VK.Auth.getLoginStatus(VKManager.authInfo(resolve, reject));
-        }).then(data=>this.prepareAuth(data));
-    }
-
-    static authInfo(resolve, reject) {
-        return function (response) {
-            if (response.session) {
-                const vkUserId = response.session.mid;
-                const key = 'userId';
-                VK.Api.call('storage.get', {key: key}, function (r) {
-                    let userId;
-                    if (r.response) {
-                        userId = r.response;
-                        resolve({userId, vkUserId});
-                    }
-                    else {
-                        userId = localStorage.userId;
-                        VK.Api.call('storage.set', {key: key, value: JSON.stringify(userId)}, function (r) {
-                            if (r.response == 1) {
-                                resolve({userId, vkUserId});
-                            }
-                        });
-                    }
-                });
-            } else {
-                reject(response);
+    fetchUserId(defaultUserId) {
+        const userIdKey = 'userId';
+        return this.getKey(userIdKey).then(userId => {
+            if (!userId) {
+                return this.setKey(userIdKey, defaultUserId).then(()=>defaultUserId);
             }
-        }
+            return userId;
+        });
     }
 }
 
-
-export const vk = new VKManager();
-
-window.vk = vk;
+export const vk = window.vk = new VKManager();
 

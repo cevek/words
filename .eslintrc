@@ -24,6 +24,7 @@
     "localStorage": true,
     "sessionStorage": true,
     "io": true,
+    "VK": true,
     "console": true,
     "React": true,
     "module": true,

@@ -1,9 +1,6 @@
 import {HTTP} from './http.js';
 import {vk} from './vk.js';
-import {config} from './config.js';
-
-
-
+import {account} from './account.js';
 
 const prefix = 'post-';
 class Storage {
@@ -28,7 +25,7 @@ class Storage {
     }
 
     save(key, data) {
-        if (config.useAuth) {
+        if (account.isAuthorized) {
             console.log("Save", key, data);
             return vk.setKey(key, data).then(()=> {
                 this.commit(key, data.lines.length);
@@ -59,7 +56,7 @@ class Storage {
 
     saveToFirebase(key, value) {
         const http = new HTTP();
-        http.put('https://wordss.firebaseio.com/web/data/users/' + config.user.userId + '/' + key + '.json', null, JSON.stringify(value));
+        http.put('https://wordss.firebaseio.com/web/data/users/' + account.userId + '/' + key + '.json', null, JSON.stringify(value));
     }
 
 
@@ -72,6 +69,8 @@ class Storage {
     }
 
     fetchAll() {
+        console.log("FetchAll");
+
         this.data = {};
         this.commitData = JSON.parse(localStorage.commitData || "{}");
         for (let key in localStorage) {
@@ -79,7 +78,7 @@ class Storage {
                 this.data[key] = JSON.parse(localStorage[key] || "{}");
             }
         }
-        if (config.useAuth) {
+        if (account.isAuthorized) {
             return vk.getAllData().then(vkData => {
                 for (let key in vkData) {
                     if (this.checkKey(key)) {
