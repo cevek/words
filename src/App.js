@@ -20,18 +20,21 @@ export class App extends React.Component {
 
         this.postId = this.props.id;
         this.postData = this.props.resolved.postData;
-        this.userData = this.props.resolved.userData;
+        this.userData = storage.get(this.postId);
         this.fill();
-        this.translate = this.getCurrentTranslate();
     }
 
     static resolve(params) {
         const postId = params.id;
         const http = new HTTP();
         return Promise.all([
-            http.get('src/posts/' + postId.replace('-', '/') + '.json'),
-            storage.get(postId)
+            http.get('src/posts/' + postId.replace('-', '/') + '.json')
         ]).then(([postData, userData]) => ({postData, userData}));
+    }
+
+    componentWillReceiveProps() {
+        this.userData = storage.get(this.postId);
+        this.fill();
     }
 
     saveUserData() {
@@ -47,6 +50,8 @@ export class App extends React.Component {
     }
 
     fill() {
+        this.sentences = [];
+        this.currentLine = 0;
         for (let i = 0; i < this.userData.currentLine; i++) {
             const line = this.userData.lines[i];
             this.sentences.push({
@@ -56,6 +61,7 @@ export class App extends React.Component {
             });
             this.setNextSentence();
         }
+        this.translate = this.getCurrentTranslate();
     }
 
     setNextSentence() {
