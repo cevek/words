@@ -36,6 +36,8 @@ const rules = prepareRules('a,the|are,is|dinner,lunch|every,each|his,her,him|big
 
 export class WordProcessor {
     constructor(originText, userText) {
+        this.originText = originText;
+        this.userText = userText;
         this.words = this.parseWords(userText);
         const originWords = this.parseWords(originText);
 
@@ -47,19 +49,13 @@ export class WordProcessor {
         //this.removeSameInsertRemoves();
     }
 
-    tryToReplace(removed, added) {
-        if (rules[removed.cleanText] && rules[removed.cleanText] === rules[added.cleanText]
+    tryToReplace(added, removed) {
+        if (rules[added.cleanText] && rules[removed.cleanText] === rules[added.cleanText]
             || levenshtein(added.cleanText, removed.cleanText) <= 2) {
-            removed.key = added.key;
-            //removed.type = TOKEN.replaced;
-            //todo: bug
-            //if (added.cleanText !== removed.cleanText) {
-                removed.replacedWith = added;
-                //removed.type = null;
-            //}
-            added.key = Math.random();
-            added.excluded = true;
-            return true;
+            //console.log('replace', added, removed);
+            added.replaced = removed;
+            removed.excluded = true;
+            return false;
         }
         return false;
     }
@@ -119,7 +115,6 @@ export class WordProcessor {
 
     prepareSync(userWords, originWords) {
         const newWords = this.modify(sync(userWords, originWords, this.compareWords), userWords);
-
         let mergedCount = 0;
         let removedAddedPartStartPos = -1;
 
@@ -134,7 +129,7 @@ export class WordProcessor {
                 removedAddedPartStartPos = -1;
             }
 
-            if (word.type == TOKEN.removed && !word.replacedWith) {
+            if (word.type == TOKEN.added && !word.replaced) {
                 //console.log('removed', word);
                 let j = removedAddedPartStartPos;
                 while (true) {
@@ -142,10 +137,10 @@ export class WordProcessor {
                     if (!nextWord) {
                         break;
                     }
-                    if (nextWord.type == TOKEN.removed) {
+                    if (nextWord.type == TOKEN.added) {
                         continue;
                     }
-                    if (nextWord.type == TOKEN.added) {
+                    if (nextWord.type == TOKEN.removed) {
                         if (nextWord.excluded) {
                             continue;
                         }
@@ -163,13 +158,33 @@ export class WordProcessor {
         if (mergedCount > 0) {
             return this.prepareSync(userWords, originWords);
         }
-        return newWords.filter(w => !w.excluded);
+        return this.filter(newWords);
+    }
+
+    filter(words) {
+        const newWords = [];
+        for (let i = 0; i < words.length; i++) {
+            const word = words[i];
+            if (word.excluded || word.cleanText == '') {
+                continue;
+            }
+            if (word.replaced) {
+                word.type = TOKEN.replaced;
+                if (word.replaced.cleanText == word.cleanText) {
+                    word.replaced = null;
+                    word.type = null;
+                }
+            }
+            newWords.push(word);
+        }
+        return newWords;
     }
 
 
     parseWords(str) {
         const keyMap = {};
         const wordChunks = this.prepareStr(str).split(/ /);
+
         const words = [];
         for (let i = 0; i < wordChunks.length; i++) {
             words.push(new Word(wordChunks[i], keyMap));
@@ -179,7 +194,7 @@ export class WordProcessor {
     }
 
     prepareStr(s) {
-        let str = s;
+        let str = s.trim();
         str = str.replace(/\b(are|did|do|does|could|had|have|has|is|might|may|must|was|were|would) ?not\b/ig, '$1n’t');
         str = str.replace(/\bcan ?not\b/ig, 'can’t');
         str = str.replace(/\b(You|we|they) (are)\b/ig, '$1’re');
@@ -196,7 +211,7 @@ export class WordProcessor {
         str = str.replace(/(-|–|—) +/ig, ' $1\u00A0');
         str = str.replace(/\s+/g, ' ');
         //str = str[0].toUpperCase() + str.slice(1);
-        return str;
+        return str.trim();
     }
 
 
@@ -321,20 +336,31 @@ export class WordProcessor {
 
     print() {
         console.log(this.words.map(w => {
+            //console.log(w);
+
+            let s = '';
             if (w.type == TOKEN.added) {
-                return '+' + w.cleanText;
+                s += '+' + w.cleanText;
             }
-            if (w.type == TOKEN.removed) {
-                return '-' + w.cleanText + (w.replacedWith ? '(' + w.replacedWith.cleanText + ')' : '');
+            else if (w.type == TOKEN.removed) {
+                s += '-' + w.cleanText;
             }
-            if (w.type == TOKEN.movedFrom) {
-                return '~$' + w.cleanText;
+            else if (w.type == TOKEN.movedFrom) {
+                s += '' + w.cleanText + '~>';
             }
-            if (w.type == TOKEN.movedTo) {
-                return '~^' + w.cleanText;
+            else if (w.type == TOKEN.movedTo) {
+                s += '~>' + w.cleanText;
             }
-            return w.cleanText;
-        }).join(' '));
+            else {
+                s += w.cleanText
+            }
+
+            if (w.replaced) {
+                s += '(' + w.replaced.cleanText + ')';
+            }
+
+            return s;
+        }).join(','), ' / ', this.originText, ' / ', this.userText);
     }
 }
 

@@ -35,6 +35,7 @@ class Storage {
                         console.log("Real saving", key, data);
                         return vk.setKey(key, {...data, serverRevision: void 0}).then(()=> {
                             data.serverRevision = revision;
+                            this.saveToLocalStorage(key, data);
                         })
                     }
                 });
@@ -108,8 +109,8 @@ class Storage {
 export const storage = window.storage = new Storage();
 setInterval(() => {
     storage.saveAll();
-}, 10000);
+}, 15000);
 
 setInterval(() => {
     storage.fetchAll();
-}, 15000);
+}, 20000);
