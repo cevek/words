@@ -127,12 +127,17 @@
 	    words.print();
 	}
 	window.pp = pp;
+	/*
 	pp('She gives the man some money', 'She gives to the man some money');
 	pp('-This is Alissa, - the man says to him wife', '-This is Alissa, - the man says her wife');
 	pp('Suddenly the woman shouts at Alissa', 'Suddenly a woman shouts at the Alissa');
 	//pp('-You aren’t going to read here,- she here,’ she shouts', '-You aren’t going to read here,- she here,’ she shouts');
 	pp('The woman shouts at her every day', 'The woman shouts at her every day');
 	pp('She cries every night.', 'She cries every day.');
+	*/
+
+	//pp('One day, the thin man says to Alissa, ','  One day, the thin man says to Alissa:')
+	//pp('The next morning, the thin man takes Alissa into the house', 'Next morning a thin man takes Alissa in the house');
 
 /***/ },
 /* 1 */
@@ -22764,15 +22769,22 @@
 	            'div',
 	            { className: 'line' },
 	            this.words.map(function (word) {
+	                var userWord = word.text.trim();
+	                var originWord = undefined;
+	                if (word.replaced) {
+	                    originWord = _react2['default'].createElement(
+	                        'span',
+	                        { className: 'original' },
+	                        word.text.trim()
+	                    );
+	                    userWord = word.replaced.text.trim();
+	                }
+	
 	                return [_react2['default'].createElement(
 	                    'span',
 	                    { className: _classnames2['default'](word.type ? [_TokenJs.TOKEN.token, word.type] : null) },
-	                    word.replacedWith ? _react2['default'].createElement(
-	                        'span',
-	                        { className: 'replaced-with' },
-	                        word.replacedWith.text.trim()
-	                    ) : null,
-	                    word.text.trim()
+	                    originWord,
+	                    userWord
 	                ), ' '];
 	            })
 	        );
@@ -22879,35 +22891,30 @@
 	}
 	var noMovedWords = prepareNoMoved('a,the,are,is,do,on,in,at');
 	var rules = prepareRules('a,the|are,is|dinner,lunch|every,each|his,her,him|big,large');
-	console.log(noMovedWords);
 	
 	var WordProcessor = (function () {
 	    function WordProcessor(originText, userText) {
 	        _classCallCheck(this, WordProcessor);
 	
+	        this.originText = originText;
+	        this.userText = userText;
 	        this.words = this.parseWords(userText);
 	        var originWords = this.parseWords(originText);
 	
 	        this.words = this.prepareSync(this.words, originWords);
 	        //this.modify();
-	        //this.fixOrder();
+	        //this.fixO§rder();
 	        //this.merge();
 	        //this.fixMovings();
 	        //this.removeSameInsertRemoves();
 	    }
 	
-	    WordProcessor.prototype.tryToReplace = function tryToReplace(removed, added) {
-	        if (rules[removed.cleanText] && rules[removed.cleanText] === rules[added.cleanText] || _lisJs.levenshtein(added.cleanText, removed.cleanText) <= 2) {
-	            removed.key = added.key;
-	            //removed.type = TOKEN.replaced;
-	            //todo: bug
-	            //if (added.cleanText !== removed.cleanText) {
-	            removed.replacedWith = added;
-	            //removed.type = null;
-	            //}
-	            added.key = Math.random();
-	            added.excluded = true;
-	            return true;
+	    WordProcessor.prototype.tryToReplace = function tryToReplace(added, removed) {
+	        if (rules[added.cleanText] && rules[removed.cleanText] === rules[added.cleanText] || _lisJs.levenshtein(added.cleanText, removed.cleanText) <= 2) {
+	            //console.log('replace', added, removed);
+	            added.replaced = removed;
+	            removed.excluded = true;
+	            return false;
 	        }
 	        return false;
 	    };
@@ -22974,7 +22981,6 @@
 	
 	    WordProcessor.prototype.prepareSync = function prepareSync(userWords, originWords) {
 	        var newWords = this.modify(_lisJs.sync(userWords, originWords, this.compareWords), userWords);
-	
 	        var mergedCount = 0;
 	        var removedAddedPartStartPos = -1;
 	
@@ -22988,7 +22994,7 @@
 	                removedAddedPartStartPos = -1;
 	            }
 	
-	            if (word.type == _TokenJs.TOKEN.removed && !word.replacedWith) {
+	            if (word.type == _TokenJs.TOKEN.added && !word.replaced) {
 	                //console.log('removed', word);
 	                var j = removedAddedPartStartPos;
 	                while (true) {
@@ -22996,10 +23002,10 @@
 	                    if (!nextWord) {
 	                        break;
 	                    }
-	                    if (nextWord.type == _TokenJs.TOKEN.removed) {
+	                    if (nextWord.type == _TokenJs.TOKEN.added) {
 	                        continue;
 	                    }
-	                    if (nextWord.type == _TokenJs.TOKEN.added) {
+	                    if (nextWord.type == _TokenJs.TOKEN.removed) {
 	                        if (nextWord.excluded) {
 	                            continue;
 	                        }
@@ -23016,14 +23022,32 @@
 	        if (mergedCount > 0) {
 	            return this.prepareSync(userWords, originWords);
 	        }
-	        return newWords.filter(function (w) {
-	            return !w.excluded;
-	        });
+	        return this.filter(newWords);
+	    };
+	
+	    WordProcessor.prototype.filter = function filter(words) {
+	        var newWords = [];
+	        for (var i = 0; i < words.length; i++) {
+	            var word = words[i];
+	            if (word.excluded || word.cleanText == '') {
+	                continue;
+	            }
+	            if (word.replaced) {
+	                word.type = _TokenJs.TOKEN.replaced;
+	                if (word.replaced.cleanText == word.cleanText) {
+	                    word.replaced = null;
+	                    word.type = null;
+	                }
+	            }
+	            newWords.push(word);
+	        }
+	        return newWords;
 	    };
 	
 	    WordProcessor.prototype.parseWords = function parseWords(str) {
 	        var keyMap = {};
 	        var wordChunks = this.prepareStr(str).split(/ /);
+	
 	        var words = [];
 	        for (var i = 0; i < wordChunks.length; i++) {
 	            words.push(new _SentenceJs.Word(wordChunks[i], keyMap));
@@ -23033,7 +23057,7 @@
 	    };
 	
 	    WordProcessor.prototype.prepareStr = function prepareStr(s) {
-	        var str = s;
+	        var str = s.trim();
 	        str = str.replace(/\b(are|did|do|does|could|had|have|has|is|might|may|must|was|were|would) ?not\b/ig, '$1n’t');
 	        str = str.replace(/\bcan ?not\b/ig, 'can’t');
 	        str = str.replace(/\b(You|we|they) (are)\b/ig, '$1’re');
@@ -23050,7 +23074,7 @@
 	        str = str.replace(/(-|–|—) +/ig, ' $1 ');
 	        str = str.replace(/\s+/g, ' ');
 	        //str = str[0].toUpperCase() + str.slice(1);
-	        return str;
+	        return str.trim();
 	    };
 	
 	    WordProcessor.prototype.canMove = function canMove(word) {
@@ -23167,20 +23191,27 @@
 	
 	    WordProcessor.prototype.print = function print() {
 	        console.log(this.words.map(function (w) {
+	            //console.log(w);
+	
+	            var s = '';
 	            if (w.type == _TokenJs.TOKEN.added) {
-	                return '+' + w.cleanText;
+	                s += '+' + w.cleanText;
+	            } else if (w.type == _TokenJs.TOKEN.removed) {
+	                s += '-' + w.cleanText;
+	            } else if (w.type == _TokenJs.TOKEN.movedFrom) {
+	                s += '' + w.cleanText + '~>';
+	            } else if (w.type == _TokenJs.TOKEN.movedTo) {
+	                s += '~>' + w.cleanText;
+	            } else {
+	                s += w.cleanText;
 	            }
-	            if (w.type == _TokenJs.TOKEN.removed) {
-	                return '-' + w.cleanText + (w.replacedWith ? '(' + w.replacedWith.cleanText + ')' : '');
+	
+	            if (w.replaced) {
+	                s += '(' + w.replaced.cleanText + ')';
 	            }
-	            if (w.type == _TokenJs.TOKEN.movedFrom) {
-	                return '~$' + w.cleanText;
-	            }
-	            if (w.type == _TokenJs.TOKEN.movedTo) {
-	                return '~^' + w.cleanText;
-	            }
-	            return w.cleanText;
-	        }).join(' '));
+	
+	            return s;
+	        }).join(','), ' / ', this.originText, ' / ', this.userText);
 	    };
 	
 	    return WordProcessor;
@@ -23486,6 +23517,7 @@
 	                            console.log("Real saving", key, data);
 	                            return _vkJs.vk.setKey(key, _extends({}, data, { serverRevision: void 0 })).then(function () {
 	                                data.serverRevision = revision;
+	                                _this.saveToLocalStorage(key, data);
 	                            });
 	                        }
 	                    });
@@ -23563,11 +23595,11 @@
 	exports.storage = storage;
 	setInterval(function () {
 	    storage.saveAll();
-	}, 10000);
+	}, 15000);
 	
 	setInterval(function () {
 	    storage.fetchAll();
-	}, 15000);
+	}, 20000);
 
 /***/ },
 /* 239 */
