@@ -23,13 +23,13 @@ export class Word {
 
 export class Sentence extends React.Component {
     /*constructor(parentNode, svgNode, originText, userText) {
-        this.originText = originText;
-        this.parentNode = parentNode;
-        this.svgNode = svgNode;
-        this.userText = userText;
-        this.words = new WordProcessor(originText, userText).words;
-        this.renderLine();
-    }*/
+     this.originText = originText;
+     this.parentNode = parentNode;
+     this.svgNode = svgNode;
+     this.userText = userText;
+     this.words = new WordProcessor(originText, userText).words;
+     this.renderLine();
+     }*/
 
     generateArrowPath(y, from, to) {
         const height = 20;
@@ -75,10 +75,16 @@ export class Sentence extends React.Component {
     }
 
     render() {
-        this.words = new WordProcessor(this.props.origin, this.props.userText).words;
+        const wordProcessor = new WordProcessor(this.props.origin, this.props.userText);
+        wordProcessor.print();
+        this.words = wordProcessor.words;
+
         return <div className="line">
             {this.words.map(word =>
                 [<span className={classNames(word.type ? [TOKEN.token, word.type] : null)}>
+                    {word.replacedWith ?
+                        <span className="replaced-with">{word.replacedWith.text.trim()}</span>
+                        : null}
                     {word.text.trim()}
                 </span>, ' '])}
         </div>

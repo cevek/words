@@ -66,6 +66,10 @@
 	
 	var _AccountJs = __webpack_require__(241);
 	
+	var _TokenJs = __webpack_require__(235);
+	
+	var _WordProcessorJs = __webpack_require__(236);
+	
 	window.log = function () {
 	    console.log.apply(console, arguments);
 	};
@@ -117,6 +121,18 @@
 	_AccountJs.account.fetch().then(function () {
 	    _react2['default'].render(_react2['default'].createElement(Main, null), document.getElementById('app'));
 	});
+	
+	function pp(origin, user) {
+	    var words = new _WordProcessorJs.WordProcessor(origin, user);
+	    words.print();
+	}
+	window.pp = pp;
+	pp('She gives the man some money', 'She gives to the man some money');
+	pp('-This is Alissa, - the man says to him wife', '-This is Alissa, - the man says her wife');
+	pp('Suddenly the woman shouts at Alissa', 'Suddenly a woman shouts at the Alissa');
+	//pp('-You aren’t going to read here,- she here,’ she shouts', '-You aren’t going to read here,- she here,’ she shouts');
+	pp('The woman shouts at her every day', 'The woman shouts at her every day');
+	pp('She cries every night.', 'She cries every day.');
 
 /***/ },
 /* 1 */
@@ -22692,13 +22708,13 @@
 	    }
 	
 	    /*constructor(parentNode, svgNode, originText, userText) {
-	        this.originText = originText;
-	        this.parentNode = parentNode;
-	        this.svgNode = svgNode;
-	        this.userText = userText;
-	        this.words = new WordProcessor(originText, userText).words;
-	        this.renderLine();
-	    }*/
+	     this.originText = originText;
+	     this.parentNode = parentNode;
+	     this.svgNode = svgNode;
+	     this.userText = userText;
+	     this.words = new WordProcessor(originText, userText).words;
+	     this.renderLine();
+	     }*/
 	
 	    Sentence.prototype.generateArrowPath = function generateArrowPath(y, from, to) {
 	        var height = 20;
@@ -22740,7 +22756,10 @@
 	    };
 	
 	    Sentence.prototype.render = function render() {
-	        this.words = new _WordProcessorJs.WordProcessor(this.props.origin, this.props.userText).words;
+	        var wordProcessor = new _WordProcessorJs.WordProcessor(this.props.origin, this.props.userText);
+	        wordProcessor.print();
+	        this.words = wordProcessor.words;
+	
 	        return _react2['default'].createElement(
 	            'div',
 	            { className: 'line' },
@@ -22748,6 +22767,11 @@
 	                return [_react2['default'].createElement(
 	                    'span',
 	                    { className: _classnames2['default'](word.type ? [_TokenJs.TOKEN.token, word.type] : null) },
+	                    word.replacedWith ? _react2['default'].createElement(
+	                        'span',
+	                        { className: 'replaced-with' },
+	                        word.replacedWith.text.trim()
+	                    ) : null,
 	                    word.text.trim()
 	                ), ' '];
 	            })
@@ -22830,6 +22854,33 @@
 	//todo: the same keys => ..s, his-him-her, at-to-into, 1 sym mistake,
 	//todo: last the a is must be separatly
 	
+	function prepareRules(rules) {
+	    var blocks = rules.split('|');
+	    var map = {};
+	    for (var i = 0; i < blocks.length; i++) {
+	        var words = blocks[i].split(',');
+	        var blockMap = {};
+	        for (var j = 0; j < words.length; j++) {
+	            var word = words[j];
+	            blockMap[word] = true;
+	            map[word] = blockMap;
+	        }
+	    }
+	    return map;
+	}
+	function prepareNoMoved(rule) {
+	    var words = rule.split(',');
+	    var blockMap = {};
+	    for (var j = 0; j < words.length; j++) {
+	        var word = words[j];
+	        blockMap[word] = true;
+	    }
+	    return blockMap;
+	}
+	var noMovedWords = prepareNoMoved('a,the,are,is,do,on,in,at');
+	var rules = prepareRules('a,the|are,is|dinner,lunch|every,each|his,her,him|big,large');
+	console.log(noMovedWords);
+	
 	var WordProcessor = (function () {
 	    function WordProcessor(originText, userText) {
 	        _classCallCheck(this, WordProcessor);
@@ -22837,15 +22888,138 @@
 	        this.words = this.parseWords(userText);
 	        var originWords = this.parseWords(originText);
 	
-	        this.sync = _lisJs.sync(this.words, originWords, function (a, b) {
-	            return a.key === b.key;
-	        });
-	        this.modify();
-	        this.fixOrder();
-	        this.merge();
-	        this.fixMovings();
-	        this.removeSameInsertRemoves();
+	        this.words = this.prepareSync(this.words, originWords);
+	        //this.modify();
+	        //this.fixOrder();
+	        //this.merge();
+	        //this.fixMovings();
+	        //this.removeSameInsertRemoves();
 	    }
+	
+	    WordProcessor.prototype.tryToReplace = function tryToReplace(removed, added) {
+	        if (rules[removed.cleanText] && rules[removed.cleanText] === rules[added.cleanText] || _lisJs.levenshtein(added.cleanText, removed.cleanText) <= 2) {
+	            removed.key = added.key;
+	            //removed.type = TOKEN.replaced;
+	            //todo: bug
+	            //if (added.cleanText !== removed.cleanText) {
+	            removed.replacedWith = added;
+	            //removed.type = null;
+	            //}
+	            added.key = Math.random();
+	            added.excluded = true;
+	            return true;
+	        }
+	        return false;
+	    };
+	
+	    WordProcessor.prototype.compareWords = function compareWords(a, b) {
+	        return a.key === b.key;
+	    };
+	
+	    WordProcessor.prototype.modify = function modify(syncResult, userWords) {
+	        var newUserWords = userWords.slice();
+	        newUserWords.keyMap = userWords.keyMap;
+	
+	        var _loop = function (i) {
+	            var block = syncResult[i];
+	            if (block.type == _TokenJs.TOKEN.added) {
+	                var word = block.node;
+	                word.type = _TokenJs.TOKEN.added;
+	                if (block.next) {
+	                    var pos = newUserWords.findIndex(function (w) {
+	                        return w.key == block.next.key;
+	                    });
+	                    newUserWords.splice(pos, 0, word);
+	                } else {
+	                    newUserWords.push(word);
+	                }
+	            }
+	
+	            if (block.type == _TokenJs.TOKEN.removed) {
+	                var word = block.node;
+	                word.type = _TokenJs.TOKEN.removed;
+	            }
+	
+	            if (block.type == _TokenJs.TOKEN.moved) {
+	                var word = newUserWords.find(function (w) {
+	                    return w.key == block.node.key;
+	                });
+	                var pos = newUserWords.length;
+	                if (block.next) {
+	                    pos = newUserWords.findIndex(function (w) {
+	                        return w.key == block.next.key;
+	                    });
+	                }
+	                var newWord = new _SentenceJs.Word(block.node.text, newUserWords.keyMap);
+	                newWord.movedFrom = word;
+	
+	                var canMove = !noMovedWords[newWord.cleanText];
+	
+	                newWord.type = canMove ? _TokenJs.TOKEN.movedTo : _TokenJs.TOKEN.added;
+	                newWord.key = word.key;
+	                newUserWords.splice(pos, 0, newWord);
+	                //todo
+	                word.key += '*';
+	                word.type = canMove ? _TokenJs.TOKEN.movedFrom : _TokenJs.TOKEN.removed;
+	                word.movedTo = newWord;
+	                //return {word: word, pos: pos, newWord: newWord};
+	            }
+	        };
+	
+	        for (var i = 0; i < syncResult.length; i++) {
+	            _loop(i);
+	        }
+	        return newUserWords;
+	    };
+	
+	    WordProcessor.prototype.prepareSync = function prepareSync(userWords, originWords) {
+	        var newWords = this.modify(_lisJs.sync(userWords, originWords, this.compareWords), userWords);
+	
+	        var mergedCount = 0;
+	        var removedAddedPartStartPos = -1;
+	
+	        for (var i = 0; i < newWords.length; i++) {
+	            var word = newWords[i];
+	            if (word.type == _TokenJs.TOKEN.added || word.type == _TokenJs.TOKEN.removed) {
+	                if (removedAddedPartStartPos == -1) {
+	                    removedAddedPartStartPos = i;
+	                }
+	            } else {
+	                removedAddedPartStartPos = -1;
+	            }
+	
+	            if (word.type == _TokenJs.TOKEN.removed && !word.replacedWith) {
+	                //console.log('removed', word);
+	                var j = removedAddedPartStartPos;
+	                while (true) {
+	                    var nextWord = newWords[j++];
+	                    if (!nextWord) {
+	                        break;
+	                    }
+	                    if (nextWord.type == _TokenJs.TOKEN.removed) {
+	                        continue;
+	                    }
+	                    if (nextWord.type == _TokenJs.TOKEN.added) {
+	                        if (nextWord.excluded) {
+	                            continue;
+	                        }
+	                        if (this.tryToReplace(word, nextWord)) {
+	                            mergedCount++;
+	                            break;
+	                        }
+	                    } else {
+	                        break;
+	                    }
+	                }
+	            }
+	        }
+	        if (mergedCount > 0) {
+	            return this.prepareSync(userWords, originWords);
+	        }
+	        return newWords.filter(function (w) {
+	            return !w.excluded;
+	        });
+	    };
 	
 	    WordProcessor.prototype.parseWords = function parseWords(str) {
 	        var keyMap = {};
@@ -22860,7 +23034,8 @@
 	
 	    WordProcessor.prototype.prepareStr = function prepareStr(s) {
 	        var str = s;
-	        str = str.replace(/\b(are|did|do|does|can|could|had|have|has|is|might|may|must|was|were|would) ?not\b/ig, '$1n’t');
+	        str = str.replace(/\b(are|did|do|does|could|had|have|has|is|might|may|must|was|were|would) ?not\b/ig, '$1n’t');
+	        str = str.replace(/\bcan ?not\b/ig, 'can’t');
 	        str = str.replace(/\b(You|we|they) (are)\b/ig, '$1’re');
 	        str = str.replace(/\b(I|he|she|they|we|you) (had)\b/ig, '$1’d');
 	        str = str.replace(/\b(I|they|we|you) have\b/ig, '$1’ve');
@@ -22871,67 +23046,15 @@
 	        str = str.replace(/\b(let) us\b/ig, '$1’s');
 	        str = str.replace(/\b(I|you|he|she|it|we|they|that) will\b/ig, '$1’ll');
 	        str = str.replace(/'/ig, '’');
+	        str = str.replace(/,/ig, ', ');
+	        str = str.replace(/(-|–|—) +/ig, ' $1 ');
 	        str = str.replace(/\s+/g, ' ');
-	        str = str.replace(/(-|–|—) +/ig, '$1 ');
 	        //str = str[0].toUpperCase() + str.slice(1);
 	        return str;
 	    };
 	
-	    WordProcessor.prototype.modify = function modify() {
-	        var _this = this;
-	
-	        var _loop = function (i) {
-	            var block = _this.sync[i];
-	            if (block.type == _TokenJs.TOKEN.added) {
-	                var word = block.node;
-	                word.type = _TokenJs.TOKEN.added;
-	                if (block.next) {
-	                    var pos = _this.words.findIndex(function (w) {
-	                        return w.key == block.next.key;
-	                    });
-	                    _this.words.splice(pos, 0, word);
-	                } else {
-	                    _this.words.push(word);
-	                }
-	            }
-	            if (block.type == _TokenJs.TOKEN.removed) {
-	                var word = block.node;
-	                word.type = _TokenJs.TOKEN.removed;
-	            }
-	            if (block.type == _TokenJs.TOKEN.moved) {
-	                _this.move(block, i);
-	            }
-	        };
-	
-	        for (var i = 0; i < this.sync.length; i++) {
-	            _loop(i);
-	        }
-	    };
-	
 	    WordProcessor.prototype.canMove = function canMove(word) {
 	        return !word.cleanText.match(/^(a|the|and|to)$/);
-	    };
-	
-	    WordProcessor.prototype.move = function move(block, blockPos) {
-	        var word = this.words.find(function (w) {
-	            return w.key == block.node.key;
-	        });
-	        var pos = this.words.length;
-	        if (block.next) {
-	            pos = this.words.findIndex(function (w) {
-	                return w.key == block.next.key;
-	            });
-	        }
-	        var newWord = new _SentenceJs.Word(block.node.text, this.words.keyMap);
-	        newWord.movedFrom = word;
-	
-	        newWord.type = _TokenJs.TOKEN.movedTo;
-	        newWord.key = word.key;
-	        this.words.splice(pos, 0, newWord);
-	        word.key = null;
-	        word.type = _TokenJs.TOKEN.movedFrom;
-	        word.movedTo = newWord;
-	        return { word: word, pos: pos, newWord: newWord };
 	    };
 	
 	    WordProcessor.prototype.merge = function merge() {
@@ -23040,6 +23163,24 @@
 	                }
 	            }
 	        }
+	    };
+	
+	    WordProcessor.prototype.print = function print() {
+	        console.log(this.words.map(function (w) {
+	            if (w.type == _TokenJs.TOKEN.added) {
+	                return '+' + w.cleanText;
+	            }
+	            if (w.type == _TokenJs.TOKEN.removed) {
+	                return '-' + w.cleanText + (w.replacedWith ? '(' + w.replacedWith.cleanText + ')' : '');
+	            }
+	            if (w.type == _TokenJs.TOKEN.movedFrom) {
+	                return '~$' + w.cleanText;
+	            }
+	            if (w.type == _TokenJs.TOKEN.movedTo) {
+	                return '~^' + w.cleanText;
+	            }
+	            return w.cleanText;
+	        }).join(' '));
 	    };
 	
 	    return WordProcessor;
@@ -23356,7 +23497,7 @@
 	    };
 	
 	    Storage.prototype.saveAll = function saveAll() {
-	        console.log("SaveAll");
+	        //console.log("SaveAll");
 	        for (var key in this.data) {
 	            if (this.checkKey(key)) {
 	                this.save(key, this.data[key]);
@@ -23370,8 +23511,6 @@
 	    };
 	
 	    Storage.prototype.saveToLocalStorage = function saveToLocalStorage(key, data) {
-	        console.log("Save to local", data);
-	
 	        localStorage[key] = JSON.stringify(data);
 	    };
 	
@@ -23395,7 +23534,7 @@
 	    Storage.prototype.fetchAll = function fetchAll() {
 	        var _this2 = this;
 	
-	        console.log("FetchAll");
+	        //console.log("FetchAll");
 	        this.data = {};
 	        for (var key in localStorage) {
 	            if (this.checkKey(key)) {

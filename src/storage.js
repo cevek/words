@@ -46,7 +46,7 @@ class Storage {
     }
 
     saveAll() {
-        console.log("SaveAll");
+        //console.log("SaveAll");
         for (let key in this.data) {
             if (this.checkKey(key)) {
                 this.save(key, this.data[key]);
@@ -82,7 +82,7 @@ class Storage {
 
 
     fetchAll() {
-        console.log("FetchAll");
+        //console.log("FetchAll");
         this.data = {};
         for (let key in localStorage) {
             if (this.checkKey(key)) {

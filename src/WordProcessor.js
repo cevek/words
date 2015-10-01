@@ -7,19 +7,165 @@ import {Word} from './Sentence.js';
 //todo: the same keys => ..s, his-him-her, at-to-into, 1 sym mistake,
 //todo: last the a is must be separatly
 
+function prepareRules(rules) {
+    const blocks = rules.split('|');
+    const map = {};
+    for (let i = 0; i < blocks.length; i++) {
+        const words = blocks[i].split(',');
+        const blockMap = {};
+        for (let j = 0; j < words.length; j++) {
+            const word = words[j];
+            blockMap[word] = true;
+            map[word] = blockMap;
+        }
+    }
+    return map;
+}
+function prepareNoMoved(rule) {
+    const words = rule.split(',');
+    const blockMap = {};
+    for (let j = 0; j < words.length; j++) {
+        const word = words[j];
+        blockMap[word] = true;
+    }
+    return blockMap;
+}
+const noMovedWords = prepareNoMoved('a,the,are,is,do,on,in,at');
+const rules = prepareRules('a,the|are,is|dinner,lunch|every,each|his,her,him|big,large');
+
 
 export class WordProcessor {
     constructor(originText, userText) {
         this.words = this.parseWords(userText);
         const originWords = this.parseWords(originText);
 
-        this.sync = sync(this.words, originWords, (a, b)=>a.key === b.key);
-        this.modify();
-        this.fixOrder();
-        this.merge();
-        this.fixMovings();
-        this.removeSameInsertRemoves();
+        this.words = this.prepareSync(this.words, originWords);
+        //this.modify();
+        //this.fixO§rder();
+        //this.merge();
+        //this.fixMovings();
+        //this.removeSameInsertRemoves();
     }
+
+    tryToReplace(removed, added) {
+        if (rules[removed.cleanText] && rules[removed.cleanText] === rules[added.cleanText]
+            || levenshtein(added.cleanText, removed.cleanText) <= 2) {
+            removed.key = added.key;
+            //removed.type = TOKEN.replaced;
+            //todo: bug
+            //if (added.cleanText !== removed.cleanText) {
+                removed.replacedWith = added;
+                //removed.type = null;
+            //}
+            added.key = Math.random();
+            added.excluded = true;
+            return true;
+        }
+        return false;
+    }
+
+
+    compareWords(a, b) {
+        return a.key === b.key;
+    }
+
+    modify(syncResult, userWords) {
+        const newUserWords = userWords.slice();
+        newUserWords.keyMap = userWords.keyMap;
+
+        for (let i = 0; i < syncResult.length; i++) {
+            const block = syncResult[i];
+            if (block.type == TOKEN.added) {
+                const word = block.node;
+                word.type = TOKEN.added;
+                if (block.next) {
+                    const pos = newUserWords.findIndex(w => w.key == block.next.key);
+                    newUserWords.splice(pos, 0, word);
+                }
+                else {
+                    newUserWords.push(word);
+                }
+            }
+
+            if (block.type == TOKEN.removed) {
+                const word = block.node;
+                word.type = TOKEN.removed;
+            }
+
+            if (block.type == TOKEN.moved) {
+                const word = newUserWords.find(w => w.key == block.node.key);
+                let pos = newUserWords.length;
+                if (block.next) {
+                    pos = newUserWords.findIndex(w => w.key == block.next.key);
+                }
+                const newWord = new Word(block.node.text, newUserWords.keyMap);
+                newWord.movedFrom = word;
+
+                const canMove = !noMovedWords[newWord.cleanText];
+
+                newWord.type = canMove ? TOKEN.movedTo : TOKEN.added;
+                newWord.key = word.key;
+                newUserWords.splice(pos, 0, newWord);
+                //todo
+                word.key += '*';
+                word.type = canMove ? TOKEN.movedFrom : TOKEN.removed;
+                word.movedTo = newWord;
+                //return {word: word, pos: pos, newWord: newWord};
+            }
+        }
+        return newUserWords;
+    }
+
+
+    prepareSync(userWords, originWords) {
+        const newWords = this.modify(sync(userWords, originWords, this.compareWords), userWords);
+
+        let mergedCount = 0;
+        let removedAddedPartStartPos = -1;
+
+        for (let i = 0; i < newWords.length; i++) {
+            const word = newWords[i];
+            if (word.type == TOKEN.added || word.type == TOKEN.removed) {
+                if (removedAddedPartStartPos == -1) {
+                    removedAddedPartStartPos = i;
+                }
+            }
+            else {
+                removedAddedPartStartPos = -1;
+            }
+
+            if (word.type == TOKEN.removed && !word.replacedWith) {
+                //console.log('removed', word);
+                let j = removedAddedPartStartPos;
+                while (true) {
+                    const nextWord = newWords[j++];
+                    if (!nextWord) {
+                        break;
+                    }
+                    if (nextWord.type == TOKEN.removed) {
+                        continue;
+                    }
+                    if (nextWord.type == TOKEN.added) {
+                        if (nextWord.excluded) {
+                            continue;
+                        }
+                        if (this.tryToReplace(word, nextWord)) {
+                            mergedCount++;
+                            break;
+                        }
+                    }
+                    else {
+                        break;
+                    }
+                }
+            }
+        }
+        if (mergedCount > 0) {
+            return this.prepareSync(userWords, originWords);
+        }
+        return newWords.filter(w => !w.excluded);
+    }
+
 
     parseWords(str) {
         const keyMap = {};
@@ -34,7 +180,8 @@ export class WordProcessor {
 
     prepareStr(s) {
         let str = s;
-        str = str.replace(/\b(are|did|do|does|can|could|had|have|has|is|might|may|must|was|were|would) ?not\b/ig, '$1n’t');
+        str = str.replace(/\b(are|did|do|does|could|had|have|has|is|might|may|must|was|were|would) ?not\b/ig, '$1n’t');
+        str = str.replace(/\bcan ?not\b/ig, 'can’t');
         str = str.replace(/\b(You|we|they) (are)\b/ig, '$1’re');
         str = str.replace(/\b(I|he|she|they|we|you) (had)\b/ig, '$1’d');
         str = str.replace(/\b(I|they|we|you) have\b/ig, '$1’ve');
@@ -45,57 +192,16 @@ export class WordProcessor {
         str = str.replace(/\b(let) us\b/ig, '$1’s');
         str = str.replace(/\b(I|you|he|she|it|we|they|that) will\b/ig, '$1’ll');
         str = str.replace(/'/ig, '’');
+        str = str.replace(/,/ig, ', ');
+        str = str.replace(/(-|–|—) +/ig, ' $1\u00A0');
         str = str.replace(/\s+/g, ' ');
-        str = str.replace(/(-|–|—) +/ig, '$1\u00A0');
         //str = str[0].toUpperCase() + str.slice(1);
         return str;
     }
 
 
-    modify() {
-        for (let i = 0; i < this.sync.length; i++) {
-            const block = this.sync[i];
-            if (block.type == TOKEN.added) {
-                const word = block.node;
-                word.type = TOKEN.added;
-                if (block.next) {
-                    const pos = this.words.findIndex(w => w.key == block.next.key);
-                    this.words.splice(pos, 0, word);
-                }
-                else {
-                    this.words.push(word);
-                }
-            }
-            if (block.type == TOKEN.removed) {
-                const word = block.node;
-                word.type = TOKEN.removed;
-            }
-            if (block.type == TOKEN.moved) {
-                this.move(block, i);
-            }
-        }
-    }
-
     canMove(word) {
         return !word.cleanText.match(/^(a|the|and|to)$/);
-    }
-
-    move(block, blockPos) {
-        const word = this.words.find(w => w.key == block.node.key);
-        let pos = this.words.length;
-        if (block.next) {
-            pos = this.words.findIndex(w => w.key == block.next.key);
-        }
-        const newWord = new Word(block.node.text, this.words.keyMap);
-        newWord.movedFrom = word;
-
-        newWord.type = TOKEN.movedTo;
-        newWord.key = word.key;
-        this.words.splice(pos, 0, newWord);
-        word.key = null;
-        word.type = TOKEN.movedFrom;
-        word.movedTo = newWord;
-        return {word: word, pos: pos, newWord: newWord};
     }
 
     merge() {
@@ -211,6 +317,24 @@ export class WordProcessor {
                 }
             }
         }
+    }
+
+    print() {
+        console.log(this.words.map(w => {
+            if (w.type == TOKEN.added) {
+                return '+' + w.cleanText;
+            }
+            if (w.type == TOKEN.removed) {
+                return '-' + w.cleanText + (w.replacedWith ? '(' + w.replacedWith.cleanText + ')' : '');
+            }
+            if (w.type == TOKEN.movedFrom) {
+                return '~$' + w.cleanText;
+            }
+            if (w.type == TOKEN.movedTo) {
+                return '~^' + w.cleanText;
+            }
+            return w.cleanText;
+        }).join(' '));
     }
 }
 

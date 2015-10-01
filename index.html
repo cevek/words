@@ -66,15 +66,19 @@
         .token {
         }
 
-        .moved-to, .replaced, .added {
+        .replaced-with{
+            position: absolute;
+            font-size: 12px;
+            margin: -12px 0 0 0;
+        }
+
+        .moved-to, .added {
             padding: 0 3px;
             background: #D8FFBC;;
         }
 
         .removed {
-            color: silver;
-            background: #EEE;
-            padding: 0 3px;
+            color: darkred;
             border-radius: 3px;
             text-decoration: line-through;
         }
