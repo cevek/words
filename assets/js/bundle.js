@@ -22774,17 +22774,27 @@
 	            this.words.map(function (word) {
 	                var userWord = word.text.trim();
 	                var originWord = undefined;
+	                var tokens = [];
+	                tokens.push(word.type);
 	                if (word.replacedWith) {
+	                    tokens.push(_TokenJs.TOKEN.replaced);
 	                    originWord = _react2['default'].createElement(
 	                        'span',
 	                        { className: 'original' },
 	                        word.replacedWith.text.trim()
 	                    );
 	                }
+	                if (word.movedFrom) {
+	                    tokens.push(_TokenJs.TOKEN.movedTo);
+	                }
+	                if (word.movedTo) {
+	                    tokens.push(_TokenJs.TOKEN.movedFrom);
+	                }
 	
 	                return [_react2['default'].createElement(
 	                    'span',
-	                    { className: _classnames2['default'](word.type ? [_TokenJs.TOKEN.token, word.type] : null) },
+	                    {
+	                        className: _classnames2['default'](tokens) },
 	                    originWord,
 	                    userWord
 	                ), ' '];
@@ -23096,11 +23106,9 @@
 	        var newWords = [];
 	        for (var i = 0; i < words.length; i++) {
 	            var word = words[i];
-	            /*
-	                        if (word.cleanText == '') {
-	                            continue;
-	                        }
-	            */
+	            if (word.cleanText == '') {
+	                continue;
+	            }
 	            // if the replaced word is same with word
 	            if (word.replacedWith) {
 	                word.type = _TokenJs.TOKEN.replacedWith;
@@ -23143,8 +23151,8 @@
 	        str = str.replace(/\b(I|you|he|she|it|we|they|that) will\b/ig, '$1’ll');
 	        str = str.replace(/'/ig, '’');
 	        str = str.replace(/,/ig, ', ');
-	        str = str.replace(/(-|–|—) +/ig, ' $1 ');
 	        str = str.replace(/\s+/g, ' ');
+	        str = str.replace(/(-|–|—) +/ig, ' $1 ');
 	        //str = str[0].toUpperCase() + str.slice(1);
 	        return str.trim();
 	    };
@@ -23285,7 +23293,7 @@
 	            }
 	
 	            return s;
-	        }).join(','), ' / ', this.originText, ' / ', this.userText /*,this.words*/);
+	        }).join(','), ' pp(\'' + this.originText + '\', \'' + this.userText + '\')' /*,this.words*/);
 	    };
 	
 	    return WordProcessor;

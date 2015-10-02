@@ -234,11 +234,9 @@ export class WordProcessor {
         const newWords = [];
         for (let i = 0; i < words.length; i++) {
             const word = words[i];
-/*
             if (word.cleanText == '') {
                 continue;
             }
-*/
             // if the replaced word is same with word
             if (word.replacedWith) {
                 word.type = TOKEN.replacedWith;
@@ -282,8 +280,8 @@ export class WordProcessor {
         str = str.replace(/\b(I|you|he|she|it|we|they|that) will\b/ig, '$1’ll');
         str = str.replace(/'/ig, '’');
         str = str.replace(/,/ig, ', ');
-        str = str.replace(/(-|–|—) +/ig, ' $1\u00A0');
         str = str.replace(/\s+/g, ' ');
+        str = str.replace(/(-|–|—) +/ig, ' $1\u00A0');
         //str = str[0].toUpperCase() + str.slice(1);
         return str.trim();
     }
@@ -422,7 +420,7 @@ export class WordProcessor {
             if (w.type == TOKEN.removed) {
                 s += '-';
             }
-            s += w.cleanText
+            s += w.cleanText;
 
             if (w.replacedWith) {
                 s += '(' + w.replacedWith.cleanText + ')';
@@ -433,7 +431,7 @@ export class WordProcessor {
 
 
             return s;
-        }).join(','), ' / ', this.originText, ' / ', this.userText/*,this.words*/);
+        }).join(','), ' pp(\'' + this.originText + '\', \'' + this.userText + '\')'/*,this.words*/);
     }
 }
 

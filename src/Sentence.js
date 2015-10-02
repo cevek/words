@@ -83,11 +83,21 @@ export class Sentence extends React.Component {
             {this.words.map(word => {
                 let userWord = word.text.trim();
                 let originWord;
+                const tokens = [];
+                tokens.push(word.type);
                 if (word.replacedWith) {
+                    tokens.push(TOKEN.replaced);
                     originWord = <span className="original">{word.replacedWith.text.trim()}</span>;
                 }
+                if (word.movedFrom) {
+                    tokens.push(TOKEN.movedTo);
+                }
+                if (word.movedTo) {
+                    tokens.push(TOKEN.movedFrom);
+                }
 
-                return [<span className={classNames(word.type ? [TOKEN.token, word.type] : null)}>
+                return [<span
+                    className={classNames(tokens)}>
                     {originWord}
                     {userWord}
                 </span>, ' ']
