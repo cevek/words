@@ -83,12 +83,6 @@
 	        _React$Component.apply(this, arguments);
 	    }
 	
-	    /*
-	    account.fetch().then(()=> {
-	        React.render(<Main/>, document.getElementById('app'));
-	    });
-	    */
-	
 	    Main.prototype.login = function login() {
 	        var _this = this;
 	
@@ -124,6 +118,10 @@
 	    return Main;
 	})(_react2['default'].Component);
 	
+	_AccountJs.account.fetch().then(function () {
+	    _react2['default'].render(_react2['default'].createElement(Main, null), document.getElementById('app'));
+	});
+	
 	function pp(origin, user) {
 	    var words = new _WordProcessorJs.WordProcessor(origin, user);
 	    words.print();
@@ -137,10 +135,12 @@
 	pp('The woman shouts at her every day', 'The woman shouts at her every day');
 	pp('She cries every night.', 'She cries every day.');
 	*/
-	
+
 	//pp('One day, the thin man says to Alissa, ','  One day, the thin man says to Alissa:')
 	//pp('The next morning, the thin man takes Alissa into the house', 'Next morning a thin man takes Alissa in the house');
-	pp('The next morning, the thin man takes Alissa into house', 'TAKES ALISSA IN HOUSE NEXT MORNING A THIN MAN');
+
+	//pp('The next morning, the thin man takes Alissa into house', 'TAKES ALISSA IN HOUSE NEXT MORNING A THIN MAN');
+	//pp('aa bb the dd the ee', 'AA BB DD THE EE THE');
 
 /***/ },
 /* 1 */
@@ -22774,13 +22774,12 @@
 	            this.words.map(function (word) {
 	                var userWord = word.text.trim();
 	                var originWord = undefined;
-	                if (word.replaced) {
+	                if (word.replacedWith) {
 	                    originWord = _react2['default'].createElement(
 	                        'span',
 	                        { className: 'original' },
-	                        word.text.trim()
+	                        word.replacedWith.text.trim()
 	                    );
-	                    userWord = word.replaced.text.trim();
 	                }
 	
 	                return [_react2['default'].createElement(
@@ -22915,10 +22914,14 @@
 	    WordProcessor.prototype.tryToReplace = function tryToReplace(added, removed) {
 	        if (rules[added.cleanText] && rules[removed.cleanText] === rules[added.cleanText] || _lisJs.levenshtein(added.cleanText, removed.cleanText) <= 2) {
 	            //console.log('replace', added, removed);
-	            //removed.key = added.key;
+	            removed.type = null;
+	            added.type = null;
+	
+	            removed.key = added.key;
 	            //removed.movedTo = added;
-	            added.replaced = removed;
-	            removed.excluded = true;
+	            removed.replacedWith = added;
+	            //added.replaced = removed;
+	            //removed.excluded = true;
 	            return true;
 	        }
 	        return false;
@@ -22939,8 +22942,11 @@
 	                word.type = _TokenJs.TOKEN.added;
 	                if (block.next) {
 	                    var pos = newUserWords.findIndex(function (w) {
-	                        return w.key == block.next.key && w.original;
+	                        return w.key == block.next.key && !w.movedTo;
 	                    });
+	                    if (pos == -1) {
+	                        throw "Pos -1";
+	                    }
 	                    newUserWords.splice(pos, 0, word);
 	                } else {
 	                    newUserWords.push(word);
@@ -22954,45 +22960,53 @@
 	
 	            if (block.type == _TokenJs.TOKEN.moved) {
 	                (function () {
-	
 	                    var origWord = block.node;
 	                    if (block.next) {
 	                        var pos = newUserWords.findIndex(function (w) {
-	                            return w.key == block.next.key && w.original;
+	                            return w.key == block.next.key && !w.movedTo;
 	                        });
+	                        if (pos == -1) {
+	                            throw "Pos -1";
+	                        }
 	                        newUserWords.splice(pos, 0, origWord);
 	                    } else {
 	                        newUserWords.push(origWord);
 	                    }
-	                    origWord.type = _TokenJs.TOKEN.movedTo;
+	                    origWord.type = null;
 	
 	                    var userWord = newUserWords.find(function (w) {
 	                        return w.key == origWord.key && !w.original;
 	                    });
-	                    userWord.type = _TokenJs.TOKEN.movedFrom;
+	                    userWord.type = null;
 	
-	                    origWord.movedFrom = userWord;
-	                    userWord.movedTo = origWord;
+	                    var canMove = !noMovedWords[origWord.cleanText];
+	                    if (canMove) {
+	                        origWord.movedFrom = userWord;
+	                        userWord.movedTo = origWord;
+	                    } else {
+	                        //origWord.type = TOKEN.added;
+	                        userWord.type = _TokenJs.TOKEN.removed;
+	                    }
 	
 	                    //userWord.type = TOKEN.movedFrom;
 	                    //userWord.movedFrom = block.node;
 	
 	                    /*
-	                                    let pos = newUserWords.length;
-	                                    if (block.next) {
-	                                        pos = newUserWords.findIndex(w => w.key == block.next.key && !block.next.movedFrom);
-	                                    }
-	                                    const newWord = new Word(block.node.text, newUserWords.keyMap);
-	                                    newWord.movedFrom = word;
-	                                     const canMove = !noMovedWords[newWord.cleanText];
-	                                    newWord.type = canMove ? TOKEN.movedTo : TOKEN.added;
-	                                    //newWord.key = word.key;
-	                                    //newUserWords.splice(pos, 0, newWord);
-	                                    //todo
-	                                    //word.key = Math.random();
-	                                    word.type = canMove ? TOKEN.movedFrom : TOKEN.removed;
-	                                    word.movedTo = newWord;
-	                    */
+	                     let pos = newUserWords.length;
+	                     if (block.next) {
+	                     pos = newUserWords.findIndex(w => w.key == block.next.key && !block.next.movedFrom);
+	                     }
+	                     const newWord = new Word(block.node.text, newUserWords.keyMap);
+	                     newWord.movedFrom = word;
+	                      const canMove = !noMovedWords[newWord.cleanText];
+	                     newWord.type = canMove ? TOKEN.movedTo : TOKEN.added;
+	                     //newWord.key = word.key;
+	                     //newUserWords.splice(pos, 0, newWord);
+	                     //todo
+	                     //word.key = Math.random();
+	                     word.type = canMove ? TOKEN.movedFrom : TOKEN.removed;
+	                     word.movedTo = newWord;
+	                     */
 	                    //return {word: word, pos: pos, newWord: newWord};
 	                })();
 	            }
@@ -23012,14 +23026,17 @@
 	
 	    WordProcessor.prototype.prepareSync = function prepareSync(userWords, originWords) {
 	        var newWords = this.modify(_lisJs.sync(userWords, originWords, this.compareWords), userWords);
-	        console.log(newWords);
 	
 	        var mergedCount = 0;
 	        var removedAddedPartStartPos = -1;
 	
+	        //we try to find removed pair for added in the ([added|removed|movedFrom]*) parts
 	        for (var i = 0; i < newWords.length; i++) {
 	            var word = newWords[i];
-	            if (word.type == _TokenJs.TOKEN.added || word.type == _TokenJs.TOKEN.removed) {
+	            //todo: check movedFrom
+	
+	            //start ([added|removed|movedFrom]*) position
+	            if (word.type == _TokenJs.TOKEN.added || word.type == _TokenJs.TOKEN.removed || word.movedFrom) {
 	                if (removedAddedPartStartPos == -1) {
 	                    removedAddedPartStartPos = i;
 	                }
@@ -23027,7 +23044,8 @@
 	                removedAddedPartStartPos = -1;
 	            }
 	
-	            if (word.type == _TokenJs.TOKEN.added && !word.replaced) {
+	            // find only added words
+	            if (word.type == _TokenJs.TOKEN.added) {
 	                //console.log('removed', word);
 	                var j = removedAddedPartStartPos;
 	                while (true) {
@@ -23038,10 +23056,8 @@
 	                    if (nextWord.type == _TokenJs.TOKEN.added) {
 	                        continue;
 	                    }
+	                    // find removed pair
 	                    if (nextWord.type == _TokenJs.TOKEN.removed) {
-	                        if (nextWord.excluded) {
-	                            continue;
-	                        }
 	                        if (this.tryToReplace(word, nextWord)) {
 	                            mergedCount++;
 	                            break;
@@ -23052,12 +23068,13 @@
 	                }
 	            }
 	        }
-	        /*for (let i = 0; i < newWords.length; i++) {
-	            const word = newWords[i];
-	            if (word.type == TOKEN.added && !word.replaced) {
-	                for (let j = 0; j < newWords.length; j++) {
-	                    const word2 = newWords[j];
-	                    if (word2.type == TOKEN.removed && !word2.excluded) {
+	        //in finally we try to find pair(added,removed) in other parts of the sentence
+	        for (var i = 0; i < newWords.length; i++) {
+	            var word = newWords[i];
+	            if (word.type == _TokenJs.TOKEN.added && !word.replaced) {
+	                for (var j = 0; j < newWords.length; j++) {
+	                    var word2 = newWords[j];
+	                    if (word2.type == _TokenJs.TOKEN.removed) {
 	                        if (this.tryToReplace(word, word2)) {
 	                            mergedCount++;
 	                        }
@@ -23065,9 +23082,10 @@
 	                    }
 	                }
 	            }
-	        }*/
+	        }
 	
-	        console.log(mergedCount, "mergedCount");
+	        //console.log(mergedCount, "mergedCount");
+	        // if we have merged pairs try again
 	        if (mergedCount > 0) {
 	            return this.prepareSync(userWords, originWords);
 	        }
@@ -23078,13 +23096,16 @@
 	        var newWords = [];
 	        for (var i = 0; i < words.length; i++) {
 	            var word = words[i];
-	            if (word.excluded || word.cleanText == '') {
-	                continue;
-	            }
-	            if (word.replaced) {
-	                word.type = _TokenJs.TOKEN.replaced;
-	                if (word.replaced.cleanText == word.cleanText) {
-	                    word.replaced = null;
+	            /*
+	                        if (word.cleanText == '') {
+	                            continue;
+	                        }
+	            */
+	            // if the replaced word is same with word
+	            if (word.replacedWith) {
+	                word.type = _TokenJs.TOKEN.replacedWith;
+	                if (word.replacedWith.cleanText == word.cleanText) {
+	                    word.replacedWith = null;
 	                    word.type = null;
 	                }
 	            }
@@ -23245,24 +23266,26 @@
 	            //console.log(w);
 	
 	            var s = '';
-	            if (w.type == _TokenJs.TOKEN.added) {
-	                s += '+' + w.cleanText;
-	            } else if (w.type == _TokenJs.TOKEN.removed) {
-	                s += '-' + w.cleanText;
-	            } else if (w.type == _TokenJs.TOKEN.movedFrom) {
-	                s += '' + w.cleanText + '~>';
-	            } else if (w.type == _TokenJs.TOKEN.movedTo) {
-	                s += '~>' + w.cleanText;
-	            } else {
-	                s += w.cleanText;
+	            if (w.movedFrom) {
+	                s += '~>';
 	            }
+	            if (w.type == _TokenJs.TOKEN.added) {
+	                s += '+';
+	            }
+	            if (w.type == _TokenJs.TOKEN.removed) {
+	                s += '-';
+	            }
+	            s += w.cleanText;
 	
-	            if (w.replaced) {
-	                s += '(' + w.replaced.cleanText + ')';
+	            if (w.replacedWith) {
+	                s += '(' + w.replacedWith.cleanText + ')';
+	            }
+	            if (w.movedTo) {
+	                s += '~>';
 	            }
 	
 	            return s;
-	        }).join(','), ' / ', this.originText, ' / ', this.userText, this.words);
+	        }).join(','), ' / ', this.originText, ' / ', this.userText /*,this.words*/);
 	    };
 	
 	    return WordProcessor;

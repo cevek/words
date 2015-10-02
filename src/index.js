@@ -34,11 +34,9 @@ class Main extends React.Component {
     }
 }
 
-/*
 account.fetch().then(()=> {
     React.render(<Main/>, document.getElementById('app'));
 });
-*/
 
 function pp(origin, user) {
     const words = new WordProcessor(origin, user);
@@ -56,4 +54,6 @@ pp('She cries every night.', 'She cries every day.');
 
 //pp('One day, the thin man says to Alissa, ','  One day, the thin man says to Alissa:')
 //pp('The next morning, the thin man takes Alissa into the house', 'Next morning a thin man takes Alissa in the house');
-pp('The next morning, the thin man takes Alissa into house', 'TAKES ALISSA IN HOUSE NEXT MORNING A THIN MAN');
+
+//pp('The next morning, the thin man takes Alissa into house', 'TAKES ALISSA IN HOUSE NEXT MORNING A THIN MAN');
+//pp('aa bb the dd the ee', 'AA BB DD THE EE THE');
