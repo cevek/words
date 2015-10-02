@@ -83,6 +83,12 @@
 	        _React$Component.apply(this, arguments);
 	    }
 	
+	    /*
+	    account.fetch().then(()=> {
+	        React.render(<Main/>, document.getElementById('app'));
+	    });
+	    */
+	
 	    Main.prototype.login = function login() {
 	        var _this = this;
 	
@@ -118,10 +124,6 @@
 	    return Main;
 	})(_react2['default'].Component);
 	
-	_AccountJs.account.fetch().then(function () {
-	    _react2['default'].render(_react2['default'].createElement(Main, null), document.getElementById('app'));
-	});
-	
 	function pp(origin, user) {
 	    var words = new _WordProcessorJs.WordProcessor(origin, user);
 	    words.print();
@@ -135,9 +137,10 @@
 	pp('The woman shouts at her every day', 'The woman shouts at her every day');
 	pp('She cries every night.', 'She cries every day.');
 	*/
-
+	
 	//pp('One day, the thin man says to Alissa, ','  One day, the thin man says to Alissa:')
 	//pp('The next morning, the thin man takes Alissa into the house', 'Next morning a thin man takes Alissa in the house');
+	pp('The next morning, the thin man takes Alissa into house', 'TAKES ALISSA IN HOUSE NEXT MORNING A THIN MAN');
 
 /***/ },
 /* 1 */
@@ -22898,7 +22901,7 @@
 	
 	        this.originText = originText;
 	        this.userText = userText;
-	        this.words = this.parseWords(userText);
+	        this.words = this.parseWords(userText, true);
 	        var originWords = this.parseWords(originText);
 	
 	        this.words = this.prepareSync(this.words, originWords);
@@ -22912,9 +22915,11 @@
 	    WordProcessor.prototype.tryToReplace = function tryToReplace(added, removed) {
 	        if (rules[added.cleanText] && rules[removed.cleanText] === rules[added.cleanText] || _lisJs.levenshtein(added.cleanText, removed.cleanText) <= 2) {
 	            //console.log('replace', added, removed);
+	            //removed.key = added.key;
+	            //removed.movedTo = added;
 	            added.replaced = removed;
 	            removed.excluded = true;
-	            return false;
+	            return true;
 	        }
 	        return false;
 	    };
@@ -22934,7 +22939,7 @@
 	                word.type = _TokenJs.TOKEN.added;
 	                if (block.next) {
 	                    var pos = newUserWords.findIndex(function (w) {
-	                        return w.key == block.next.key;
+	                        return w.key == block.next.key && w.original;
 	                    });
 	                    newUserWords.splice(pos, 0, word);
 	                } else {
@@ -22948,39 +22953,67 @@
 	            }
 	
 	            if (block.type == _TokenJs.TOKEN.moved) {
-	                var word = newUserWords.find(function (w) {
-	                    return w.key == block.node.key;
-	                });
-	                var pos = newUserWords.length;
-	                if (block.next) {
-	                    pos = newUserWords.findIndex(function (w) {
-	                        return w.key == block.next.key;
+	                (function () {
+	
+	                    var origWord = block.node;
+	                    if (block.next) {
+	                        var pos = newUserWords.findIndex(function (w) {
+	                            return w.key == block.next.key && w.original;
+	                        });
+	                        newUserWords.splice(pos, 0, origWord);
+	                    } else {
+	                        newUserWords.push(origWord);
+	                    }
+	                    origWord.type = _TokenJs.TOKEN.movedTo;
+	
+	                    var userWord = newUserWords.find(function (w) {
+	                        return w.key == origWord.key && !w.original;
 	                    });
-	                }
-	                var newWord = new _SentenceJs.Word(block.node.text, newUserWords.keyMap);
-	                newWord.movedFrom = word;
+	                    userWord.type = _TokenJs.TOKEN.movedFrom;
 	
-	                var canMove = !noMovedWords[newWord.cleanText];
+	                    origWord.movedFrom = userWord;
+	                    userWord.movedTo = origWord;
 	
-	                newWord.type = canMove ? _TokenJs.TOKEN.movedTo : _TokenJs.TOKEN.added;
-	                newWord.key = word.key;
-	                newUserWords.splice(pos, 0, newWord);
-	                //todo
-	                word.key += '*';
-	                word.type = canMove ? _TokenJs.TOKEN.movedFrom : _TokenJs.TOKEN.removed;
-	                word.movedTo = newWord;
-	                //return {word: word, pos: pos, newWord: newWord};
+	                    //userWord.type = TOKEN.movedFrom;
+	                    //userWord.movedFrom = block.node;
+	
+	                    /*
+	                                    let pos = newUserWords.length;
+	                                    if (block.next) {
+	                                        pos = newUserWords.findIndex(w => w.key == block.next.key && !block.next.movedFrom);
+	                                    }
+	                                    const newWord = new Word(block.node.text, newUserWords.keyMap);
+	                                    newWord.movedFrom = word;
+	                                     const canMove = !noMovedWords[newWord.cleanText];
+	                                    newWord.type = canMove ? TOKEN.movedTo : TOKEN.added;
+	                                    //newWord.key = word.key;
+	                                    //newUserWords.splice(pos, 0, newWord);
+	                                    //todo
+	                                    //word.key = Math.random();
+	                                    word.type = canMove ? TOKEN.movedFrom : TOKEN.removed;
+	                                    word.movedTo = newWord;
+	                    */
+	                    //return {word: word, pos: pos, newWord: newWord};
+	                })();
 	            }
 	        };
 	
 	        for (var i = 0; i < syncResult.length; i++) {
 	            _loop(i);
 	        }
+	        for (var i = 0; i < newUserWords.length; i++) {
+	            var word = newUserWords[i];
+	
+	            //const canMove = !noMovedWords[newWord.cleanText];
+	            //newWord.type = canMove ? TOKEN.movedTo : TOKEN.added;
+	        }
 	        return newUserWords;
 	    };
 	
 	    WordProcessor.prototype.prepareSync = function prepareSync(userWords, originWords) {
 	        var newWords = this.modify(_lisJs.sync(userWords, originWords, this.compareWords), userWords);
+	        console.log(newWords);
+	
 	        var mergedCount = 0;
 	        var removedAddedPartStartPos = -1;
 	
@@ -23019,6 +23052,22 @@
 	                }
 	            }
 	        }
+	        /*for (let i = 0; i < newWords.length; i++) {
+	            const word = newWords[i];
+	            if (word.type == TOKEN.added && !word.replaced) {
+	                for (let j = 0; j < newWords.length; j++) {
+	                    const word2 = newWords[j];
+	                    if (word2.type == TOKEN.removed && !word2.excluded) {
+	                        if (this.tryToReplace(word, word2)) {
+	                            mergedCount++;
+	                        }
+	                        break;
+	                    }
+	                }
+	            }
+	        }*/
+	
+	        console.log(mergedCount, "mergedCount");
 	        if (mergedCount > 0) {
 	            return this.prepareSync(userWords, originWords);
 	        }
@@ -23044,13 +23093,15 @@
 	        return newWords;
 	    };
 	
-	    WordProcessor.prototype.parseWords = function parseWords(str) {
+	    WordProcessor.prototype.parseWords = function parseWords(str, isUserText) {
 	        var keyMap = {};
 	        var wordChunks = this.prepareStr(str).split(/ /);
 	
 	        var words = [];
 	        for (var i = 0; i < wordChunks.length; i++) {
-	            words.push(new _SentenceJs.Word(wordChunks[i], keyMap));
+	            var word = new _SentenceJs.Word(wordChunks[i], keyMap);
+	            word.original = !isUserText;
+	            words.push(word);
 	        }
 	        words.keyMap = keyMap;
 	        return words;
@@ -23211,7 +23262,7 @@
 	            }
 	
 	            return s;
-	        }).join(','), ' / ', this.originText, ' / ', this.userText);
+	        }).join(','), ' / ', this.originText, ' / ', this.userText, this.words);
 	    };
 	
 	    return WordProcessor;

@@ -38,7 +38,7 @@ export class WordProcessor {
     constructor(originText, userText) {
         this.originText = originText;
         this.userText = userText;
-        this.words = this.parseWords(userText);
+        this.words = this.parseWords(userText, true);
         const originWords = this.parseWords(originText);
 
         this.words = this.prepareSync(this.words, originWords);
@@ -53,9 +53,11 @@ export class WordProcessor {
         if (rules[added.cleanText] && rules[removed.cleanText] === rules[added.cleanText]
             || levenshtein(added.cleanText, removed.cleanText) <= 2) {
             //console.log('replace', added, removed);
+            //removed.key = added.key;
+            //removed.movedTo = added;
             added.replaced = removed;
             removed.excluded = true;
-            return false;
+            return true;
         }
         return false;
     }
@@ -75,7 +77,7 @@ export class WordProcessor {
                 const word = block.node;
                 word.type = TOKEN.added;
                 if (block.next) {
-                    const pos = newUserWords.findIndex(w => w.key == block.next.key);
+                    const pos = newUserWords.findIndex(w => w.key == block.next.key && w.original);
                     newUserWords.splice(pos, 0, word);
                 }
                 else {
@@ -89,25 +91,53 @@ export class WordProcessor {
             }
 
             if (block.type == TOKEN.moved) {
-                const word = newUserWords.find(w => w.key == block.node.key);
-                let pos = newUserWords.length;
+
+                const origWord = block.node;
                 if (block.next) {
-                    pos = newUserWords.findIndex(w => w.key == block.next.key);
+                    const pos = newUserWords.findIndex(w => w.key == block.next.key && w.original);
+                    newUserWords.splice(pos, 0, origWord);
                 }
-                const newWord = new Word(block.node.text, newUserWords.keyMap);
-                newWord.movedFrom = word;
+                else {
+                    newUserWords.push(origWord);
+                }
+                origWord.type = TOKEN.movedTo;
 
-                const canMove = !noMovedWords[newWord.cleanText];
+                const userWord = newUserWords.find(w => w.key == origWord.key && !w.original);
+                userWord.type = TOKEN.movedFrom;
 
-                newWord.type = canMove ? TOKEN.movedTo : TOKEN.added;
-                newWord.key = word.key;
-                newUserWords.splice(pos, 0, newWord);
-                //todo
-                word.key += '*';
-                word.type = canMove ? TOKEN.movedFrom : TOKEN.removed;
-                word.movedTo = newWord;
+                origWord.movedFrom = userWord;
+                userWord.movedTo = origWord;
+
+                //userWord.type = TOKEN.movedFrom;
+                //userWord.movedFrom = block.node;
+
+                /*
+                                let pos = newUserWords.length;
+                                if (block.next) {
+                                    pos = newUserWords.findIndex(w => w.key == block.next.key && !block.next.movedFrom);
+                                }
+                                const newWord = new Word(block.node.text, newUserWords.keyMap);
+                                newWord.movedFrom = word;
+
+                                const canMove = !noMovedWords[newWord.cleanText];
+                                newWord.type = canMove ? TOKEN.movedTo : TOKEN.added;
+                                //newWord.key = word.key;
+                                //newUserWords.splice(pos, 0, newWord);
+                                //todo
+                                //word.key = Math.random();
+                                word.type = canMove ? TOKEN.movedFrom : TOKEN.removed;
+                                word.movedTo = newWord;
+                */
                 //return {word: word, pos: pos, newWord: newWord};
             }
+        }
+        for (let i = 0; i < newUserWords.length; i++) {
+            const word = newUserWords[i];
+
+            //const canMove = !noMovedWords[newWord.cleanText];
+            //newWord.type = canMove ? TOKEN.movedTo : TOKEN.added;
+
+
         }
         return newUserWords;
     }
@@ -115,6 +145,8 @@ export class WordProcessor {
 
     prepareSync(userWords, originWords) {
         const newWords = this.modify(sync(userWords, originWords, this.compareWords), userWords);
+        console.log(newWords);
+
         let mergedCount = 0;
         let removedAddedPartStartPos = -1;
 
@@ -155,6 +187,22 @@ export class WordProcessor {
                 }
             }
         }
+        /*for (let i = 0; i < newWords.length; i++) {
+            const word = newWords[i];
+            if (word.type == TOKEN.added && !word.replaced) {
+                for (let j = 0; j < newWords.length; j++) {
+                    const word2 = newWords[j];
+                    if (word2.type == TOKEN.removed && !word2.excluded) {
+                        if (this.tryToReplace(word, word2)) {
+                            mergedCount++;
+                        }
+                        break;
+                    }
+                }
+            }
+        }*/
+
+        console.log(mergedCount, "mergedCount");
         if (mergedCount > 0) {
             return this.prepareSync(userWords, originWords);
         }
@@ -181,13 +229,15 @@ export class WordProcessor {
     }
 
 
-    parseWords(str) {
+    parseWords(str, isUserText) {
         const keyMap = {};
         const wordChunks = this.prepareStr(str).split(/ /);
 
         const words = [];
         for (let i = 0; i < wordChunks.length; i++) {
-            words.push(new Word(wordChunks[i], keyMap));
+            var word = new Word(wordChunks[i], keyMap);
+            word.original = !isUserText;
+            words.push(word);
         }
         words.keyMap = keyMap;
         return words;
@@ -360,7 +410,7 @@ export class WordProcessor {
             }
 
             return s;
-        }).join(','), ' / ', this.originText, ' / ', this.userText);
+        }).join(','), ' / ', this.originText, ' / ', this.userText, this.words);
     }
 }
 
