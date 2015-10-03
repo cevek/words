@@ -1,8 +1,8 @@
 export class Post {
-    revision:number;
-    serverRevision:number;
-    currentLine:number;
-    lines:string[][];
+    revision = 0;
+    serverRevision = 0;
+    currentLine = 0;
+    lines:string[][] = [];
 
     constructor(public postId:string) {
     }

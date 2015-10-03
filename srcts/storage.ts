@@ -62,7 +62,7 @@ class Storage {
 
     saveToFirebase(key:string, value:any) {
         const http = new HTTP();
-        http.put('https://wordss.firebaseio.com/web/data/users/' + account.userId + '/' + key + 'on', null, JSON.stringify(value));
+        http.put('https://wordss.firebaseio.com/web/data/users/' + account.userId + '/' + key + '.json', null, JSON.stringify(value));
     }
 
     saveToLocalStorage(key:string, data:Post) {

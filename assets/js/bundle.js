@@ -20975,7 +20975,7 @@
 	            }
 	            var types = [];
 	            switch (word.type) {
-	                case 2 /* added */:
+	                case 1 /* added */:
 	                    types.push('added');
 	                    break;
 	                case 0 /* removed */:
@@ -21145,7 +21145,7 @@
 	            var block = syncResult[i];
 	            if (block.type == SyncTypes.added) {
 	                var word = block.node;
-	                word.type = 2 /* added */;
+	                word.type = 1 /* added */;
 	                if (block.next) {
 	                    var pos = newUserWords.findIndex(function (w) { return w.key == block.next.key && !w.movedTo; });
 	                    if (pos == -1) {
@@ -21201,7 +21201,7 @@
 	            var word = newWords[i];
 	            //todo: check movedFrom
 	            //start ([added|removed|movedFrom]*) position
-	            if (word.type == 2 /* added */ || word.type == 0 /* removed */ || word.movedFrom) {
+	            if (word.type == 1 /* added */ || word.type == 0 /* removed */ || word.movedFrom) {
 	                if (removedAddedPartStartPos == -1) {
 	                    removedAddedPartStartPos = i;
 	                }
@@ -21210,7 +21210,7 @@
 	                removedAddedPartStartPos = -1;
 	            }
 	            // find only added words
-	            if (word.type == 2 /* added */) {
+	            if (word.type == 1 /* added */) {
 	                //console.log('removed', word);
 	                var j = removedAddedPartStartPos;
 	                while (true) {
@@ -21218,7 +21218,7 @@
 	                    if (!nextWord) {
 	                        break;
 	                    }
-	                    if (nextWord.type == 2 /* added */) {
+	                    if (nextWord.type == 1 /* added */) {
 	                        continue;
 	                    }
 	                    // find removed pair
@@ -21237,7 +21237,7 @@
 	        //in finally we try to find pair(added,removed) in other parts of the sentence
 	        for (var i = 0; i < newWords.length; i++) {
 	            var word = newWords[i];
-	            if (word.type == 2 /* added */ && !word.replacedWith) {
+	            if (word.type == 1 /* added */ && !word.replacedWith) {
 	                for (var j = 0; j < newWords.length; j++) {
 	                    var word2 = newWords[j];
 	                    if (word2.type == 0 /* removed */) {
@@ -21265,7 +21265,7 @@
 	            }
 	            // if the replaced word is same with word
 	            if (word.replacedWith) {
-	                word.type = 7 /* replacedWith */;
+	                word.type = 6 /* replacedWith */;
 	                if (word.replacedWith.cleanText == word.cleanText) {
 	                    word.replacedWith = null;
 	                    word.type = null;
@@ -21317,14 +21317,14 @@
 	            var prevWord = this.words[i - 1];
 	            var thisWord = this.words[i];
 	            var merge = false;
-	            if (prevWord.type == 5 /* movedFrom */ && thisWord.type == 5 /* movedFrom */) {
+	            if (prevWord.type == 4 /* movedFrom */ && thisWord.type == 4 /* movedFrom */) {
 	                var to1Pos = this.words.indexOf(prevWord.movedTo);
 	                var to2Pos = this.words.indexOf(thisWord.movedTo);
 	                if (to1Pos == to2Pos - 1) {
 	                    merge = true;
 	                }
 	            }
-	            else if (prevWord.type == 4 /* movedTo */ && thisWord.type == 4 /* movedTo */) {
+	            else if (prevWord.type == 3 /* movedTo */ && thisWord.type == 3 /* movedTo */) {
 	                var from1Pos = this.words.indexOf(prevWord.movedFrom);
 	                var from2Pos = this.words.indexOf(thisWord.movedFrom);
 	                if (from1Pos == from2Pos - 1) {
@@ -21349,12 +21349,12 @@
 	        for (var i = this.words.length - 1; i >= 1; i--) {
 	            var nextWord = this.words[i];
 	            var word = this.words[i - 1];
-	            if (word.type == 0 /* removed */ && nextWord.type == 2 /* added */) {
+	            if (word.type == 0 /* removed */ && nextWord.type == 1 /* added */) {
 	                if (Math.abs(nextWord.text.length - word.text.length) < 5) {
 	                    var dist = lis_1.levenshtein(word.cleanText, nextWord.cleanText);
 	                    if (dist <= 2 && word.text.length > 3) {
-	                        nextWord.type = 6 /* correct */;
-	                        word.type = 8 /* misspelling */;
+	                        nextWord.type = 5 /* correct */;
+	                        word.type = 7 /* misspelling */;
 	                        this.words.splice(i - 1, 0, nextWord);
 	                        this.words.splice(i + 1, 1);
 	                    }
@@ -21368,15 +21368,15 @@
 	        for (var i = 0; i < this.words.length; i++) {
 	            var word = this.words[i];
 	            var nextWord = this.words[i + 1];
-	            if (word.type == 5 /* movedFrom */ && !this.canMove(word)) {
-	                if (nextWord && word.cleanText == nextWord.cleanText && nextWord.type == 2 /* added */) {
+	            if (word.type == 4 /* movedFrom */ && !this.canMove(word)) {
+	                if (nextWord && word.cleanText == nextWord.cleanText && nextWord.type == 1 /* added */) {
 	                    nextWord.type = null;
 	                    i--;
 	                }
 	                else {
 	                    word.type = 0 /* removed */;
 	                }
-	                word.movedTo.type = 2 /* added */;
+	                word.movedTo.type = 1 /* added */;
 	            }
 	        }
 	    };
@@ -21384,7 +21384,7 @@
 	        for (var i = 0; i < this.words.length - 1; i++) {
 	            var word = this.words[i];
 	            var nextWord = this.words[i + 1];
-	            if (word.cleanText == nextWord.cleanText && word.type == 0 /* removed */ && (nextWord.type == 2 /* added */ || !nextWord.type)) {
+	            if (word.cleanText == nextWord.cleanText && word.type == 0 /* removed */ && (nextWord.type == 1 /* added */ || !nextWord.type)) {
 	                this.words.splice(i, 1);
 	                nextWord.type = null;
 	                i--;
@@ -21418,7 +21418,7 @@
 	            if (w.movedFrom) {
 	                s += '~>';
 	            }
-	            if (w.type == 2 /* added */) {
+	            if (w.type == 1 /* added */) {
 	                s += '+';
 	            }
 	            if (w.type == 0 /* removed */) {
@@ -21722,7 +21722,7 @@
 	    };
 	    Storage.prototype.saveToFirebase = function (key, value) {
 	        var http = new http_1.HTTP();
-	        http.put('https://wordss.firebaseio.com/web/data/users/' + Account_1.account.userId + '/' + key + 'on', null, JSON.stringify(value));
+	        http.put('https://wordss.firebaseio.com/web/data/users/' + Account_1.account.userId + '/' + key + '.json', null, JSON.stringify(value));
 	    };
 	    Storage.prototype.saveToLocalStorage = function (key, data) {
 	        localStorage[key] = JSON.stringify(data);
@@ -21918,6 +21918,10 @@
 	var Post = (function () {
 	    function Post(postId) {
 	        this.postId = postId;
+	        this.revision = 0;
+	        this.serverRevision = 0;
+	        this.currentLine = 0;
+	        this.lines = [];
 	    }
 	    return Post;
 	})();

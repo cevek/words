@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "noImplicitAny": true,
+    "outDir": "built",
+    "jsx": "react",
+    "rootDir": "srcts",
+    "noLib": true,
+    "sourceMap": true
+  },
+  "files": [
+    "typings/lib.es6/lib.es6.d.ts",
+    "typings/react/react.d.ts",
+    "typings/classnames/classnames.d.ts",
+    "srcts/index.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
