@@ -6,7 +6,7 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var AssetsPlugin = require('assets-webpack-plugin');
 var Clean = require('clean-webpack-plugin');
-var context = path.join(__dirname, 'src');
+var context = path.join(__dirname, 'srcts');
 var assetsPath = path.join(__dirname, 'assets');
 
 
@@ -53,7 +53,7 @@ else {
 module.exports = {
     context: context,
     entry: {
-        app: './index',
+        app: './index.tsx',
         /*vendor: [
             //"react/dist/react.min.js"
             //"../vendor/react.min-0.13.3.js",
@@ -74,6 +74,7 @@ module.exports = {
 
     module: {
         loaders: [
+            { test: /\.tsx?$/, loader: 'ts-loader' },
             {
                 test: /\.s?css$/,
                 loader: ExtractTextPlugin.extract('style-loader', 'css?sourceMap!autoprefixer!sass?sourceMap')
@@ -94,7 +95,7 @@ module.exports = {
         ]
     },
     resolve: {
-        extensions: ['', '.js', '.jsx']
+        extensions: ['', '.js', '.jsx', '.ts', '.tsx']
     },
     devtool: isProd ? null : 'source-map',
     plugins: plugins
