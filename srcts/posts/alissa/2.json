@@ -1,6 +1,42 @@
 {
   "data": [
     [
+      "Alissa and the fat man arrive in the city.",
+      "Алиса и толстяк прибыли в город."
+    ],
+    [
+      "They drive to a house.",
+      "Они подъехали к дому."
+    ],
+    [
+      "A thin man comes to the door.",
+      "Худой мужчина подходит к двери."
+    ],
+    [
+      "The two men talk.",
+      "Двое мужчин разговаривают."
+    ],
+    [
+      "‘Here is your room,’ the thin man says to Alissa.",
+      "- Вот твоя комната, - худой мужчина говорит Алисе."
+    ],
+    [
+      "He points to a door under the steps.",
+      "Он указывает на дверь под ступеньками."
+    ],
+    [
+      "Alissa goes into the room.",
+      "Алиса идет в комнату."
+    ],
+    [
+      "The room is small and dark.",
+      "Комната маленькая и темная."
+    ],
+    [
+      "It is her new home.",
+      "Это ее новый дом."
+    ],
+    [
       "The next morning, the thin man takes Alissa into the house.",
       "На следующее утро худой человек берет Алису в дом."
     ],
@@ -10,7 +46,7 @@
     ],
     [
       "‘She likes reading.’",
-      "- Ей нравится чтение."
+      "- Ей нравится ~чтение."
     ],
     [
       "They laugh.",
@@ -22,11 +58,11 @@
     ],
     [
       "‘You aren’t going to read here,’ she shouts.",
-      "- Ты не будешь(собираешься) читать здесь, - она кричит."
+      "- Ты не будешь(~собираешься) читать здесь, - она кричит."
     ],
     [
       "‘You’re going to cook and clean and wash.’",
-      "- Ты будешь(собираешься) готовить и убирать и мыть."
+      "- Ты будешь(~собираешься) готовить и убирать и мыть."
     ],
     [
       "Alissa works fifteen hours a day.",
@@ -43,106 +79,6 @@
     [
       "She cries every night.",
       "Она плачет каждую ночь."
-    ],
-    [
-      "One day, the thin man says to Alissa,",
-      "Однажды, худой мужчина говорит Алисе:"
-    ],
-    [
-      "‘Pack your things. You must go.",
-      "- Собирай свои вещи. Ты должна уйти."
-    ],
-    [
-      "My wife doesn’t like you.’",
-      "Ты не нравишься моей жене."
-    ],
-    [
-      "The thin man takes her to a clothes shop in the city.",
-      "Худой мужчина забирает ее в магазин одежды в городе."
-    ],
-    [
-      "The shop owner is a large woman.",
-      "Владельцем магазина является крупная женщина."
-    ],
-    [
-      "She gives the man some money.",
-      "Она дает мужчине немного денег"
-    ],
-    [
-      "He goes away.",
-      "Он уходит."
-    ],
-    [
-      "He doesn’t say goodbye to Alissa.",
-      "Он не говорит до свидание Алисе."
-    ],
-    [
-      "Alissa works with five other girls.",
-      "Алиса работает с пятью другими девушками."
-    ],
-    [
-      "They work in a small, dark room.",
-      "Они работают в маленькой, темной комнате."
-    ],
-    [
-      "The girls work all day.",
-      "Девушки работают весь день."
-    ],
-    [
-      "They make clothes.",
-      "Они делают одежду."
-    ],
-    [
-      "They work twelve hours a day.",
-      "Они работают по двенадцать часов в день."
-    ],
-    [
-      "At midday, they eat lunch.",
-      "В полдень они едят ланч."
-    ],
-    [
-      "After lunch, they rest for ten minutes.",
-      "После ланча они отдыхают в течение десяти минут."
-    ],
-    [
-      "At night, they sleep on the floor.",
-      "Ночью они спят на полу."
-    ],
-    [
-      "Each month, the shop owner gives the girls a little money.",
-      "Каждый месяц владелица магазина дает девушкам небольшие деньги"
-    ],
-    [
-      "Alissa buys a book with her money.",
-      "Алиса покупает книгу на свои деньги."
-    ],
-    [
-      "She reads the book after lunch.",
-      "Она читает книгу после обеда."
-    ],
-    [
-      "The shop owner is surprised.",
-      "Владелец магазина удивлена."
-    ],
-    [
-      "The other girls can’t read.",
-      "Другие девушки не умеют читать."
-    ],
-    [
-      "‘Can you write? Can you count?’ the shop owner asks.",
-      "- Ты можешь писать? Ты можешь считать? - спрашивает владелица магазина."
-    ],
-    [
-      "‘Yes, I can,’ Alissa says.",
-      "- Да, я умею, - говорит Алиса."
-    ],
-    [
-      "‘Come,’ the shop owner says.",
-      "- Пойдем, - говорит владелица магазина."
-    ],
-    [
-      "‘You are going to work in the shop.’",
-      "- Ты будешь(собираешься) работать в магазине."
     ]
   ]
 }

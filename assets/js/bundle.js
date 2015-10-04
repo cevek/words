@@ -20758,10 +20758,10 @@
 	        var postId = params.id;
 	        var http = new http_1.HTTP();
 	        return Promise.all([
-	            http.get('src/posts/' + postId.replace('-', '/') + '.json')
+	            http.get('srcts/posts/' + postId.replace('-', '/') + '.json')
 	        ]).then(function (_a) {
-	            var postData = _a[0], userData = _a[1];
-	            return ({ postData: postData, userData: userData });
+	            var postData = _a[0];
+	            return ({ postData: postData });
 	        });
 	    };
 	    App.prototype.componentWillReceiveProps = function () {
@@ -20983,10 +20983,10 @@
 	                    break;
 	            }
 	            if (word.movedFrom) {
-	                types.push('moved-from');
+	                types.push('moved-to');
 	            }
 	            if (word.movedTo) {
-	                types.push('moved-to');
+	                types.push('moved-from');
 	            }
 	            if (word.replacedWith) {
 	                types.push('replaced');
@@ -21782,9 +21782,12 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var globals_1 = __webpack_require__(167);
-	VK.init({
-	    apiId: 5068850
-	});
+	var vkDefined = typeof VK == 'object';
+	if (vkDefined) {
+	    VK.init({
+	        apiId: 5068850
+	    });
+	}
 	var VKManager = (function () {
 	    function VKManager() {
 	    }
@@ -21792,23 +21795,28 @@
 	        var _this = this;
 	        if (timeout === void 0) { timeout = 100; }
 	        return new Promise(function (resolve, reject) {
-	            VK.Api.call(method, params, function (r) {
-	                console.log(r);
-	                if (r.error && r.error_code == 6) {
-	                    setTimeout(function () {
-	                        resolve(_this.apiCall(method, params, timeout * 1.5));
-	                    }, timeout);
-	                }
-	                else if (r.error) {
-	                    reject(r.error);
-	                }
-	                else if (r.response) {
-	                    resolve(r.response);
-	                }
-	                else {
-	                    reject(new Error(r));
-	                }
-	            });
+	            if (vkDefined) {
+	                VK.Api.call(method, params, function (r) {
+	                    console.log(r);
+	                    if (r.error && r.error_code == 6) {
+	                        setTimeout(function () {
+	                            resolve(_this.apiCall(method, params, timeout * 1.5));
+	                        }, timeout);
+	                    }
+	                    else if (r.error) {
+	                        reject(r.error);
+	                    }
+	                    else if (r.response) {
+	                        resolve(r.response);
+	                    }
+	                    else {
+	                        reject(new Error(r));
+	                    }
+	                });
+	            }
+	            else {
+	                reject(new Error('vk is not defined'));
+	            }
 	        });
 	    };
 	    VKManager.prototype.setKey = function (key, value) {
@@ -21833,16 +21841,21 @@
 	    };
 	    VKManager.prototype.login = function (hidden) {
 	        if (hidden === void 0) { hidden = false; }
-	        var vkMethod = hidden ? VK.Auth.getLoginStatus : VK.Auth.login;
 	        return new Promise(function (resolve, reject) {
-	            vkMethod(function (response) {
-	                if (response.session) {
-	                    resolve(response.session.mid);
-	                }
-	                else {
-	                    reject(response);
-	                }
-	            });
+	            if (vkDefined) {
+	                var vkMethod = hidden ? VK.Auth.getLoginStatus : VK.Auth.login;
+	                vkMethod(function (response) {
+	                    if (response.session) {
+	                        resolve(response.session.mid);
+	                    }
+	                    else {
+	                        reject(response);
+	                    }
+	                });
+	            }
+	            else {
+	                reject(new Error('vk is not defined'));
+	            }
 	        });
 	    };
 	    VKManager.prototype.fetchUserId = function (defaultUserId) {
@@ -21971,6 +21984,8 @@
 	            { "id": "alissa-1", "title": "Part1" },
 	            { "id": "alissa-2", "title": "Part2" },
 	            { "id": "alissa-3", "title": "Part3" },
+	            { "id": "alissa-4", "title": "Part4" },
+	            { "id": "alissa-3", "title": "Part5" },
 	        ]
 	    },
 	    {

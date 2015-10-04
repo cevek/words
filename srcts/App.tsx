@@ -37,8 +37,8 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
         const postId = params.id;
         const http = new HTTP();
         return Promise.all([
-            http.get('src/posts/' + postId.replace('-', '/') + '.json')
-        ]).then(([postData, userData]) => ({postData, userData}));
+            http.get('srcts/posts/' + postId.replace('-', '/') + '.json')
+        ]).then(([postData]) => ({postData}));
     }
 
     componentWillReceiveProps() {

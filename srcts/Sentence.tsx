@@ -77,10 +77,10 @@ export class Sentence extends Component<{origin: string; userText: string;}> {
                     case TOKEN.removed: types.push('removed'); break;
                     }
                 if (word.movedFrom){
-                    types.push('moved-from');
+                    types.push('moved-to');
                     }
                 if (word.movedTo){
-                    types.push('moved-to');
+                    types.push('moved-from');
                     }
                 if (word.replacedWith){
                     types.push('replaced');
