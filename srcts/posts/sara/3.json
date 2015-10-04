@@ -1,200 +1,100 @@
 {
   "data": [
     [
-      "It is Tuesday morning.",
-      "Вторник утро."
+      "It is Monday evening.",
+      "Понедельник вечер."
     ],
     [
-      "Today, Sara's father is selling the correct weight.",
-      "Сегодня отец Сары продает правильный вес."
+      "Sara’s father is counting his money.",
+      "Отец Сары ~считает свои деньги."
     ],
     [
-      "He is honest.",
-      "Он честен."
+      "He is happy.",
+      "Он счастлив."
     ],
     [
-      "He takes the correct money.",
-      "Он берет правильные деньги."
+      "But Sara is not happy.",
+      "Но Сара не счастлива."
     ],
     [
-      "Sara is happy.",
-      "Сара счастлива."
+      "She is angry.",
+      "Она сердится."
     ],
     [
-      "Today, she is proud of her father.",
-      "Сегодня она гордится своим отцом."
+      "Father! You must sell the correct weight.",
+      "Отец! Ты должен продавать правильный вес."
     ],
     [
-      "The customers are happy too.",
-      "Покупатели тоже счастливы."
+      "You must not cheat our customers.",
+      "Ты не должен обманывать наших покупателей."
     ],
     [
-      "They buy a lot of fruit.",
-      "Они покупают много фруктов."
+      "Our customers are poor.",
+      "Наши покупатели бедные."
     ],
     [
-      "‘Your fruit is cheap and fresh,’ they say.",
-      "«Ваши фрукты дешевые и свежие», - говорят они."
+      "But we are poor too, Sara!",
+      "Но мы бедные тоже, Сара!"
     ],
     [
-      "But in the afternoon, some customers come back.",
-      "Но во второй половине дня, некоторые покупатели приходят назад."
+      "My wife is dead.",
+      "Моя жена умерла."
     ],
     [
-      "They are angry.",
-      "Они сердитые."
+      "You have no mother.",
+      "У тебя нет матери."
     ],
     [
-      "An old man brings back some apples.",
-      "Старик возвращает несколько яблок."
+      "I have no sons.",
+      "У меня нет сыновей."
     ],
     [
-      "One of his apples is bad.",
-      "Одно из его яблок гнилое."
+      "You have no brothers.",
+      "У тебя нет братьев."
     ],
     [
-      "A girl brings back some oranges.",
-      "Девушка возвращает несколько апельсинов."
+      "We must make money, Sara!",
+      "Мы должны зарабатывать деньги, Сара!"
     ],
     [
-      "One of her oranges is bad.",
-      "Один из ее апельсинов гнилой."
+      "That’s life!",
+      "Такова жизнь!"
     ],
     [
-      "A woman brings back some bananas.",
-      "Женщина возвращает несколько бананов."
+      "I don't want to work at the market, father.",
+      "Я не хочу работать на рынке, отец."
     ],
     [
-      "One of her bananas is bad.",
-      "Один из ее бананов гнилой."
+      "You must work at the market!",
+      "Ты должна работать на рынке!"
     ],
     [
-      "It is black, and full of worms.",
-      "Он черный и полон червей."
+      "We must live, Sara.",
+      "Мы должны жить, Сара."
     ],
     [
-      "‘Look, Mister Fruit! Your fruit isn’t fresh today.",
-      "«Смотрите, мистер Фрукт! Ваши фрукты не свежие сегодня."
+      "We must eat!",
+      "Мы должны съесть!"
     ],
     [
-      "We want our money back!’",
-      "Мы хотим наши деньги назад!»"
+      "You’re a child.",
+      "Ты - ребенок."
     ],
     [
-      "But Mister Fruit does not listen.",
-      "Но мистер Фрукт не слушает."
+      "You don’t understand business.",
+      "Ты не понимаешь бизнеса."
     ],
     [
-      "He does not give them any money.",
-      "Он не дает им никаких денег."
+      "You’re a woman.",
+      "Ты - женщина."
     ],
     [
-      "‘You’re dishonest, father!’ says Sara.",
-      "«Ты нечестный, отец!» - говорит Сара."
+      "Women don't understand business.",
+      "Женщины не понимают бизнеса."
     ],
     [
-      "‘You’re cheating the customers!",
-      "- Ты обманываешь покупателей!"
-    ],
-    [
-      "I don’t want to work for you.",
-      "Я не хочу работать на тебя."
-    ],
-    [
-      "I don’t want to work at the market!’",
-      "Я не хочу работать на рынке!»"
-    ],
-    [
-      "‘But you must work for me, Sara,’ says her father.",
-      "\"Но ты должна работать на меня, Сара, - говорит ее отец."
-    ],
-    [
-      "‘I have no family! I have no wife, and no sons.",
-      "- У меня нет семьи! У меня нет жены и нет сыновей."
-    ],
-    [
-      "Children must help their parents.",
-      "Дети должны помогать своим родителям."
-    ],
-    [
-      "You are my daughter, Sara.",
-      "Ты моя дочь, Сара."
-    ],
-    [
-      "You must work for me. That’s life!’",
-      "Ты должны работать на меня. Такова жизнь!»"
-    ],
-    [
-      "‘No, father,’ says Sara.",
-      "«Нет, отец, - говорит Сара."
-    ],
-    [
-      "‘I don’t want to clean your house.",
-      "- Я не хочу убирать твой дом."
-    ],
-    [
-      "I want to leave home.",
-      "Я хочу уйти из дома."
-    ],
-    [
-      "I don’t want to cook your food.",
-      "Я не хочу готовить тебе еду."
-    ],
-    [
-      "I want to get a good job!",
-      "Я хочу получить хорошую работу!"
-    ],
-    [
-      "I’m not going to work for you.’",
-      "Я не собираюсь работать на тебя»."
-    ],
-    [
-      "Sara’s father is angry.",
-      "Отец Сары сердится."
-    ],
-    [
-      "‘Go to bed!’ he shouts at her.",
-      "«Отправляйся в постель!» - он кричит на нее."
-    ],
-    [
-      "Sara goes to bed.",
-      "Сара идет спать."
-    ],
-    [
-      "She is lonely.",
-      "Ей одиноко."
-    ],
-    [
-      "She is unhappy.",
-      "Она несчастна."
-    ],
-    [
-      "She says a prayer.",
-      "Она произносит молитву."
-    ],
-    [
-      "Please, help me.",
-      "Пожалуйста, помоги мне."
-    ],
-    [
-      "Please, help my father!",
-      "Пожалуйста, помоги моему отцу!"
-    ],
-    [
-      "Please, help us!",
-      "Пожалуйста, помоги нам!"
-    ],
-    [
-      "What am I going to do?",
-      "Что мне делать?"
-    ],
-    [
-      "I need a miracle.",
-      "Мне нужно чудо."
-    ],
-    [
-      "Help me!",
-      "Помоги мне!"
+      "That’s life, Sara!",
+      "Такова жизнь, Сара!"
     ]
   ]
 }

@@ -1,100 +1,80 @@
 {
   "data": [
     [
-      "It is Monday evening.",
-      "Понедельник вечер."
+      "A schoolboy asks for one kilo of apples.",
+      "Школьник просит один кило яблок."
     ],
     [
-      "Sara’s father is counting his money.",
-      "Отец Сары считает свои деньги."
+      "Mister Fruit puts some apples on the scales.",
+      "Мистер Фрукт кладет несколько яблок на весы."
     ],
     [
-      "He is happy.",
-      "Он счастлив."
+      "The scales show one kilo and one hundred grammes.",
+      "Весы показывают один кило и сто граммов."
     ],
     [
-      "But Sara is not happy.",
-      "Но Сара не счастлива."
+      "Mister Fruit takes one apple away.",
+      "Мистер Фрукт убирает одно яблоко."
     ],
     [
-      "She is angry.",
-      "Она сердится."
+      "Now the scales show nine hundred grammes.",
+      "Теперь весы показывают девятьсот граммов."
     ],
     [
-      "Father! You must sell the correct weight.",
-      "Отец! Ты должен продавать правильный вес."
+      "But Mister Fruit says,",
+      "Но мистер Фрукт говорит:"
     ],
     [
-      "You mustn't cheat our customers.",
-      "Ты не должен обманывать наших покупателей."
+      "‘One kilo of apples! One dollar!’",
+      "\"Один кило яблок! Один доллар!»"
     ],
     [
-      "Our customers are poor.",
-      "Наши покупатели бедные."
+      "He takes one dollar from the schoolboy.",
+      "Он берет один доллар у школьника."
     ],
     [
-      "But we are poor too, Sara!",
-      "Но мы тоже бедные, Сара!"
+      "Sara is watching her father.",
+      "Сара ~наблюдает за ее отцом."
     ],
     [
-      "My wife is dead.",
-      "Моя жена умерла."
+      "She sees everything.",
+      "Она видит все."
     ],
     [
-      "You have no mother.",
-      "У тебя нет матери."
+      "A young woman asks for two kilos of oranges.",
+      "Молодая женщина просит два кило апельсинов."
     ],
     [
-      "I have no sons.",
-      "У меня нет сыновей."
+      "Mister Fruit puts some oranges on the scales.",
+      "Мистер Фрукт кладет несколько апельсинов на весы."
     ],
     [
-      "You have no brothers.",
-      "У тебя нет братьев."
+      "The scales show two kilos and two hundred grammes.",
+      "Весы показывают два килограмма и двести граммов."
     ],
     [
-      "We must make money, Sara!",
-      "Мы должны зарабатывать деньги, Сара!"
+      "Mister Fruit takes one orange away.",
+      "Мистер Фрукт убирает один апельсин."
     ],
     [
-      "That’s life!",
-      "Такова жизнь!"
+      "Now the scales show one kilo and eight hundred grammes.",
+      "Теперь весы показывают один кило и восемьсот граммов."
     ],
     [
-      "I don't want to work at the market, father.",
-      "Я не хочу работать на рынке, отец."
+      "But Mister Fruit says,",
+      "Но Мистер Фрукт говорит:"
     ],
     [
-      "You must work at the market!",
-      "Ты должна работать на рынке!"
+      "‘Two kilos of oranges. Two dollars!’",
+      "«Два кило апельсинов. Два доллара!»"
     ],
     [
-      "We must live, Sara.",
-      "Мы должны жить, Сара."
+      "He takes two dollars from the young woman.",
+      "Он берет два доллара у молодой женщины."
     ],
     [
-      "We must eat!",
-      "Мы должны съесть!"
-    ],
-    [
-      "You’re a child.",
-      "Ты - ребенок."
-    ],
-    [
-      "You don’t understand business.",
-      "Ты не понимаешь бизнеса."
-    ],
-    [
-      "You’re a woman.",
-      "Ты - женщина."
-    ],
-    [
-      "Women don't understand business.",
-      "Женщины не понимают бизнеса."
-    ],
-    [
-      "That’s life, Sara!",
-      "Такова жизнь, Сара!"
+      "Sara sees everything.",
+      "Сара видит все."
     ]
   ]
 }

@@ -18,6 +18,9 @@ export const posts = [
             {"id": "sara-2", "title": "Part2"},
             {"id": "sara-3", "title": "Part3"},
             {"id": "sara-4", "title": "Part4"},
+            {"id": "sara-5", "title": "Part5"},
+            {"id": "sara-6", "title": "Part6"},
+            {"id": "sara-7", "title": "Part7"},
         ]
     }
 ];
