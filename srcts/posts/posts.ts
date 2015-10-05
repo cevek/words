@@ -1,4 +1,4 @@
-export const posts = [
+export const posts:{id: string; title: string; parts: {id: string; title: string}[]}[] = [
     {
         "id": "alissa",
         "title": "Alissa",

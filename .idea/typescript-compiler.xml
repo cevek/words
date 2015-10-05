@@ -3,6 +3,7 @@
   <component name="TypeScriptCompiler">
     <option name="isCompilerEnabled" value="true" />
     <option name="typeScriptCompilerParams" value="--target es6 --experimentalAsyncFunctions --module commonjs --jsx react --noEmit" />
+    <option name="nodeInterpreterTextField" value="/usr/local/bin/node " />
     <option name="generateSourceMap" value="false" />
     <option name="useConfig" value="true" />
   </component>

@@ -6,6 +6,7 @@
     "outDir": "built",
     "jsx": "react",
     "rootDir": "srcts",
+    "experimentalDecorators": true,
     "noLib": true,
     "sourceMap": true
   },
