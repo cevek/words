@@ -5,7 +5,7 @@ import {WordProcessor} from './WordProcessor';
 import {Component} from "./Component";
 import {Word} from "./WordProcessor";
 
-export class Sentence extends Component<{origin: string; userText: string;}> {
+export class Sentence extends Component<{origin: string; userText: string; key?:string}> {
     /*constructor(parentNode, svgNode, originText, userText) {
      this.originText = originText;
      this.parentNode = parentNode;

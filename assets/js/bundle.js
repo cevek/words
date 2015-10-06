@@ -20705,13 +20705,6 @@
 	var http_1 = __webpack_require__(160);
 	var Sentence_1 = __webpack_require__(161);
 	var storage_1 = __webpack_require__(165);
-	// todo: the same keys => ..s, his-him-her, at-to-into, 1 sym mistake,
-	// todo: last the a is must be separatly
-	var WordSentence = (function () {
-	    function WordSentence() {
-	    }
-	    return WordSentence;
-	})();
 	var App = (function (_super) {
 	    __extends(App, _super);
 	    function App(props) {
@@ -20801,7 +20794,7 @@
 	    };
 	    App.prototype.render = function () {
 	        return React.createElement("div", {"className": "app"}, React.createElement("a", {"href": "#/"}, "To main page"), React.createElement("svg", null), React.createElement("div", {"className": "items"}, this.sentences.map(function (sentence) {
-	            return React.createElement(SentenceBlock, {"origin": sentence.origin, "originTranslate": sentence.originTranslate, "userTranslate": sentence.userTranslate});
+	            return React.createElement(SentenceBlock, {"key": sentence.originTranslate, "origin": sentence.origin, "originTranslate": sentence.originTranslate, "userTranslate": sentence.userTranslate});
 	        })), this.isDone ?
 	            React.createElement("div", {"className": "done"}, React.createElement("h1", null, "Well Done!"), React.createElement("button", {"onClick": this.onRestart}, "Restart"))
 	            :
@@ -20818,7 +20811,7 @@
 	    SentenceBlock.prototype.render = function () {
 	        var _this = this;
 	        return React.createElement("div", {"className": "sentence-block"}, React.createElement("div", {"className": "origin-translate"}, this.props.originTranslate), this.props.userTranslate.map(function (userText) {
-	            return React.createElement(Sentence_1.Sentence, {"origin": _this.props.origin, "userText": userText});
+	            return React.createElement(Sentence_1.Sentence, {"key": userText, "origin": _this.props.origin, "userText": userText});
 	        }));
 	    };
 	    return SentenceBlock;
@@ -21797,7 +21790,6 @@
 	        return new Promise(function (resolve, reject) {
 	            if (vkDefined) {
 	                VK.Api.call(method, params, function (r) {
-	                    console.log(r);
 	                    if (r.error && r.error_code == 6) {
 	                        setTimeout(function () {
 	                            resolve(_this.apiCall(method, params, timeout * 1.5));
@@ -21985,7 +21977,7 @@
 	            { "id": "alissa-2", "title": "Part2" },
 	            { "id": "alissa-3", "title": "Part3" },
 	            { "id": "alissa-4", "title": "Part4" },
-	            { "id": "alissa-3", "title": "Part5" },
+	            { "id": "alissa-5", "title": "Part5" },
 	        ]
 	    },
 	    {

@@ -9,10 +9,11 @@ import {RealPost} from "./RealPost";
 // todo: the same keys => ..s, his-him-her, at-to-into, 1 sym mistake,
 // todo: last the a is must be separatly
 
-class WordSentence {
+interface WordSentence {
     origin:string;
     originTranslate:string;
     userTranslate:string[];
+    key?:string;
 }
 
 export class App extends Component<{params: {id: string}; resolved: {postData:RealPost}}> {
@@ -118,7 +119,7 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
             <svg/>
             <div className="items">
                 {this.sentences.map(sentence =>
-                <SentenceBlock origin={sentence.origin} originTranslate={sentence.originTranslate}
+                <SentenceBlock key={sentence.originTranslate} origin={sentence.origin} originTranslate={sentence.originTranslate}
                                userTranslate={sentence.userTranslate}/>)}
             </div>
             {
@@ -142,7 +143,7 @@ class SentenceBlock extends Component<WordSentence> {
         return <div className="sentence-block">
             <div className="origin-translate">{this.props.originTranslate}</div>
             {this.props.userTranslate.map(userText =>
-            <Sentence origin={this.props.origin} userText={userText}/>)}
+            <Sentence key={userText} origin={this.props.origin} userText={userText}/>)}
         </div>
     }
 }
