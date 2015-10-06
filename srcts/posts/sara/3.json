@@ -1,100 +1,98 @@
-{
-  "data": [
-    [
-      "It is Monday evening.",
-      "Понедельник вечер."
-    ],
-    [
-      "Sara’s father is counting his money.",
-      "Отец Сары ~считает свои деньги."
-    ],
-    [
-      "He is happy.",
-      "Он счастлив."
-    ],
-    [
-      "But Sara is not happy.",
-      "Но Сара не счастлива."
-    ],
-    [
-      "She is angry.",
-      "Она сердится."
-    ],
-    [
-      "Father! You must sell the correct weight.",
-      "Отец! Ты должен продавать правильный вес."
-    ],
-    [
-      "You must not cheat our customers.",
-      "Ты не должен обманывать наших покупателей."
-    ],
-    [
-      "Our customers are poor.",
-      "Наши покупатели бедные."
-    ],
-    [
-      "But we are poor too, Sara!",
-      "Но мы бедные тоже, Сара!"
-    ],
-    [
-      "My wife is dead.",
-      "Моя жена умерла."
-    ],
-    [
-      "You have no mother.",
-      "У тебя нет матери."
-    ],
-    [
-      "I have no sons.",
-      "У меня нет сыновей."
-    ],
-    [
-      "You have no brothers.",
-      "У тебя нет братьев."
-    ],
-    [
-      "We must make money, Sara!",
-      "Мы должны зарабатывать деньги, Сара!"
-    ],
-    [
-      "That’s life!",
-      "Такова жизнь!"
-    ],
-    [
-      "I don't want to work at the market, father.",
-      "Я не хочу работать на рынке, отец."
-    ],
-    [
-      "You must work at the market!",
-      "Ты должна работать на рынке!"
-    ],
-    [
-      "We must live, Sara.",
-      "Мы должны жить, Сара."
-    ],
-    [
-      "We must eat!",
-      "Мы должны съесть!"
-    ],
-    [
-      "You’re a child.",
-      "Ты - ребенок."
-    ],
-    [
-      "You don’t understand business.",
-      "Ты не понимаешь бизнеса."
-    ],
-    [
-      "You’re a woman.",
-      "Ты - женщина."
-    ],
-    [
-      "Women don't understand business.",
-      "Женщины не понимают бизнеса."
-    ],
-    [
-      "That’s life, Sara!",
-      "Такова жизнь, Сара!"
-    ]
+[
+  [
+    "It is Monday evening.",
+    "Понедельник вечер."
+  ],
+  [
+    "Sara’s father is counting his money.",
+    "Отец Сары ~считает свои деньги."
+  ],
+  [
+    "He is happy.",
+    "Он счастлив."
+  ],
+  [
+    "But Sara is not happy.",
+    "Но Сара не счастлива."
+  ],
+  [
+    "She is angry.",
+    "Она сердится."
+  ],
+  [
+    "Father! You must sell the correct weight.",
+    "Отец! Ты должен продавать правильный вес."
+  ],
+  [
+    "You must not cheat our customers.",
+    "Ты не должен обманывать наших покупателей."
+  ],
+  [
+    "Our customers are poor.",
+    "Наши покупатели бедные."
+  ],
+  [
+    "But we are poor too, Sara!",
+    "Но мы бедные тоже, Сара!"
+  ],
+  [
+    "My wife is dead.",
+    "Моя жена умерла."
+  ],
+  [
+    "You have no mother.",
+    "У тебя нет матери."
+  ],
+  [
+    "I have no sons.",
+    "У меня нет сыновей."
+  ],
+  [
+    "You have no brothers.",
+    "У тебя нет братьев."
+  ],
+  [
+    "We must make money, Sara!",
+    "Мы должны зарабатывать деньги, Сара!"
+  ],
+  [
+    "That’s life!",
+    "Такова жизнь!"
+  ],
+  [
+    "I don't want to work at the market, father.",
+    "Я не хочу работать на рынке, отец."
+  ],
+  [
+    "You must work at the market!",
+    "Ты должна работать на рынке!"
+  ],
+  [
+    "We must live, Sara.",
+    "Мы должны жить, Сара."
+  ],
+  [
+    "We must eat!",
+    "Мы должны съесть!"
+  ],
+  [
+    "You’re a child.",
+    "Ты - ребенок."
+  ],
+  [
+    "You don’t understand business.",
+    "Ты не понимаешь бизнеса."
+  ],
+  [
+    "You’re a woman.",
+    "Ты - женщина."
+  ],
+  [
+    "Women don't understand business.",
+    "Женщины не понимают бизнеса."
+  ],
+  [
+    "That’s life, Sara!",
+    "Такова жизнь, Сара!"
   ]
-}
+]

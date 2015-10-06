@@ -5,6 +5,7 @@ import {Sentence} from './Sentence';
 import {storage} from './storage';
 import {Post} from "./Post";
 import {RealPost} from "./RealPost";
+import {findPartById, Part, posts} from "./posts/posts";
 
 // todo: the same keys => ..s, his-him-her, at-to-into, 1 sym mistake,
 // todo: last the a is must be separatly
@@ -23,23 +24,15 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
     currentLine = 0;
     isDone = false;
     translate = '';
-    postData:RealPost;
+    postData:Part;
 
     constructor(props:any) {
         super(props);
         this.render();
 
-        this.postData = this.props.resolved.postData;
+        this.postData = findPartById(this.postId);
         this.userData = storage.get(this.postId);
         this.fill();
-    }
-
-    static resolver(params:any) {
-        const postId = params.id;
-        const http = new HTTP();
-        return Promise.all([
-            http.get('srcts/posts/' + postId.replace('-', '/') + '.json')
-        ]).then(([postData]) => ({postData}));
     }
 
     componentWillReceiveProps() {

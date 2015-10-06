@@ -14,6 +14,7 @@
     "typings/lib.es6/lib.es6.d.ts",
     "typings/react/react.d.ts",
     "typings/classnames/classnames.d.ts",
+    "typings/require/require.d.ts",
     "srcts/index.tsx"
   ],
   "exclude": [

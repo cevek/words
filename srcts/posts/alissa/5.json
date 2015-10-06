@@ -1,108 +1,106 @@
-{
-  "data": [
-    [
-      "Alissa is angry.",
-      "Алиса сердится."
-    ],
-    [
-      "‘You don’t pay me a lot of money,’ she shouts.",
-      "- Вы не платите мне много денег, - она кричит."
-    ],
-    [
-      "‘I’m a slave here.’",
-      "- Я рабыня здесь."
-    ],
-    [
-      "‘You're an ungrateful girl,’ the large woman says.",
-      "- Ты неблагодарная девушка, - говорит крупная женщина."
-    ],
-    [
-      "‘You have a bed and food and money.",
-      "- У тебя есть кровать, и питание, и деньги."
-    ],
-    [
-      "Do you want more?’",
-      "Ты хочешь больше?"
-    ],
-    [
-      "‘Yes, I do,’ Alissa says.",
-      "- Да, - говорит Алиса."
-    ],
-    [
-      "She is crying now.",
-      "Она ~плачет теперь."
-    ],
-    [
-      "‘Wait,’ a quiet voice says.",
-      "- Подожди, - говорит тихий голос."
-    ],
-    [
-      "The tall lady is standing at the door.",
-      "Высокая дама ~стоит в дверях."
-    ],
-    [
-      "‘Alissa isn’t ungrateful,’ the tall lady says.",
-      "- Алиса не неблагодарная, - говорит высокая дама."
-    ],
-    [
-      "‘She is an honest girl.’",
-      "- Она честная девушка."
-    ],
-    [
-      "The tall lady speaks to Alissa.",
-      "Высокая дама говорит Алисе."
-    ],
-    [
-      "‘Aren’t you happy here?’ she asks.",
-      "- Ты не счастлива здесь? - спрашивает она."
-    ],
-    [
-      "‘What do you want?’",
-      "- Что ты хочешь?"
-    ],
-    [
-      "Alissa says, ‘I want to go to school.’",
-      "Алиса говорит: Я хочу ходить в школу"
-    ],
-    [
-      "The tall lady turns to the shop owner.",
-      "Высокая дама поворачивается к владелице магазина."
-    ],
-    [
-      "‘Alissa will live in my house,’ she says.",
-      "- Алиса будет жить в моем доме, - говорит она."
-    ],
-    [
-      "‘She won’t work. She will go to school.’",
-      "- Она не будет работать. Она будет ходить в школу."
-    ],
-    [
-      "‘You must pay me,’ the shop owner says.",
-      "- Вы должны заплатить мне, - говорит владелица магазина."
-    ],
-    [
-      "‘No,’ the tall lady says, ‘Alissa isn’t a slave.’",
-      "- Нет, - говорит высокая дама, - Алиса не раб."
-    ],
-    [
-      "‘Pack your things, Alissa,’ she says.",
-      "- Собирай свои вещи, Алиса, - говорит она."
-    ],
-    [
-      "‘We will go home now.’",
-      "- Мы пойдем домой сейчас."
-    ],
-    [
-      "Alissa goes with the tall lady.",
-      "Алиса уходит(идет) с высокой дамой."
-    ],
-    [
-      "She is going to a new home.",
-      "Она ~собирается в новый дом."
-    ],
-    [
-      "She is going to be happy.",
-      "Она ~собирается быть счастливой."
-    ]
+[
+  [
+    "Alissa is angry.",
+    "Алиса сердится."
+  ],
+  [
+    "‘You don’t pay me a lot of money,’ she shouts.",
+    "- Вы не платите мне много денег, - она кричит."
+  ],
+  [
+    "‘I’m a slave here.’",
+    "- Я рабыня здесь."
+  ],
+  [
+    "‘You're an ungrateful girl,’ the large woman says.",
+    "- Ты неблагодарная девушка, - говорит крупная женщина."
+  ],
+  [
+    "‘You have a bed and food and money.",
+    "- У тебя есть кровать, и питание, и деньги."
+  ],
+  [
+    "Do you want more?’",
+    "Ты хочешь больше?"
+  ],
+  [
+    "‘Yes, I do,’ Alissa says.",
+    "- Да, - говорит Алиса."
+  ],
+  [
+    "She is crying now.",
+    "Она ~плачет теперь."
+  ],
+  [
+    "‘Wait,’ a quiet voice says.",
+    "- Подожди, - говорит тихий голос."
+  ],
+  [
+    "The tall lady is standing at the door.",
+    "Высокая дама ~стоит в дверях."
+  ],
+  [
+    "‘Alissa isn’t ungrateful,’ the tall lady says.",
+    "- Алиса не неблагодарная, - говорит высокая дама."
+  ],
+  [
+    "‘She is an honest girl.’",
+    "- Она честная девушка."
+  ],
+  [
+    "The tall lady speaks to Alissa.",
+    "Высокая дама говорит Алисе."
+  ],
+  [
+    "‘Aren’t you happy here?’ she asks.",
+    "- Ты не счастлива здесь? - спрашивает она."
+  ],
+  [
+    "‘What do you want?’",
+    "- Что ты хочешь?"
+  ],
+  [
+    "Alissa says, ‘I want to go to school.’",
+    "Алиса говорит: Я хочу ходить в школу"
+  ],
+  [
+    "The tall lady turns to the shop owner.",
+    "Высокая дама поворачивается к владелице магазина."
+  ],
+  [
+    "‘Alissa will live in my house,’ she says.",
+    "- Алиса будет жить в моем доме, - говорит она."
+  ],
+  [
+    "‘She won’t work. She will go to school.’",
+    "- Она не будет работать. Она будет ходить в школу."
+  ],
+  [
+    "‘You must pay me,’ the shop owner says.",
+    "- Вы должны заплатить мне, - говорит владелица магазина."
+  ],
+  [
+    "‘No,’ the tall lady says, ‘Alissa isn’t a slave.’",
+    "- Нет, - говорит высокая дама, - Алиса не раб."
+  ],
+  [
+    "‘Pack your things, Alissa,’ she says.",
+    "- Собирай свои вещи, Алиса, - говорит она."
+  ],
+  [
+    "‘We will go home now.’",
+    "- Мы пойдем домой сейчас."
+  ],
+  [
+    "Alissa goes with the tall lady.",
+    "Алиса уходит(идет) с высокой дамой."
+  ],
+  [
+    "She is going to a new home.",
+    "Она ~собирается в новый дом."
+  ],
+  [
+    "She is going to be happy.",
+    "Она ~собирается быть счастливой."
   ]
-}
+]

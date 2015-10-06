@@ -74,7 +74,7 @@
 	            ? React.createElement("div", null)
 	            : React.createElement("button", {"onClick": function () { return _this.login(); }}, "Login"), React.createElement(Router_1.Router, {"pages": [
 	            { route: routes_1.routes.index, handler: List_1.List },
-	            { route: routes_1.routes.post, handler: App_1.App, resolver: App_1.App.resolver }
+	            { route: routes_1.routes.post, handler: App_1.App }
 	        ]}));
 	    };
 	    return Main;
@@ -20702,9 +20702,9 @@
 	};
 	var Component_1 = __webpack_require__(157);
 	var React = __webpack_require__(1);
-	var http_1 = __webpack_require__(160);
 	var Sentence_1 = __webpack_require__(161);
 	var storage_1 = __webpack_require__(165);
+	var posts_1 = __webpack_require__(171);
 	var App = (function (_super) {
 	    __extends(App, _super);
 	    function App(props) {
@@ -20743,20 +20743,10 @@
 	            _this.forceUpdate();
 	        };
 	        this.render();
-	        this.postData = this.props.resolved.postData;
+	        this.postData = posts_1.findPartById(this.postId);
 	        this.userData = storage_1.storage.get(this.postId);
 	        this.fill();
 	    }
-	    App.resolver = function (params) {
-	        var postId = params.id;
-	        var http = new http_1.HTTP();
-	        return Promise.all([
-	            http.get('srcts/posts/' + postId.replace('-', '/') + '.json')
-	        ]).then(function (_a) {
-	            var postData = _a[0];
-	            return ({ postData: postData });
-	        });
-	    };
 	    App.prototype.componentWillReceiveProps = function () {
 	        this.userData = storage_1.storage.get(this.postId);
 	        this.fill();
@@ -21966,34 +21956,46 @@
 
 /***/ },
 /* 171 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	exports.posts = [
 	    {
 	        "id": "alissa",
 	        "title": "Alissa",
 	        "parts": [
-	            { "id": "alissa-1", "title": "Part1" },
-	            { "id": "alissa-2", "title": "Part2" },
-	            { "id": "alissa-3", "title": "Part3" },
-	            { "id": "alissa-4", "title": "Part4" },
-	            { "id": "alissa-5", "title": "Part5" },
-	        ]
+	            { "id": "alissa-1", "title": "Part1", "data": __webpack_require__(174) },
+	            { "id": "alissa-2", "title": "Part2", "data": __webpack_require__(175) },
+	            { "id": "alissa-3", "title": "Part3", "data": __webpack_require__(176) },
+	            { "id": "alissa-4", "title": "Part4", "data": __webpack_require__(177) },
+	            { "id": "alissa-5", "title": "Part5", "data": __webpack_require__(178) },
+	        ],
 	    },
 	    {
 	        "id": "sara",
 	        "title": "Sara",
 	        "parts": [
-	            { "id": "sara-1", "title": "Part1" },
-	            { "id": "sara-2", "title": "Part2" },
-	            { "id": "sara-3", "title": "Part3" },
-	            { "id": "sara-4", "title": "Part4" },
-	            { "id": "sara-5", "title": "Part5" },
-	            { "id": "sara-6", "title": "Part6" },
-	            { "id": "sara-7", "title": "Part7" },
+	            { "id": "sara-1", "title": "Part1", "data": __webpack_require__(179) },
+	            { "id": "sara-2", "title": "Part2", "data": __webpack_require__(180) },
+	            { "id": "sara-3", "title": "Part3", "data": __webpack_require__(181) },
+	            { "id": "sara-4", "title": "Part4", "data": __webpack_require__(182) },
+	            { "id": "sara-5", "title": "Part5", "data": __webpack_require__(183) },
+	            { "id": "sara-6", "title": "Part6", "data": __webpack_require__(184) },
+	            { "id": "sara-7", "title": "Part7", "data": __webpack_require__(185) },
 	        ]
 	    }
 	];
+	function findPartById(id) {
+	    for (var _i = 0; _i < exports.posts.length; _i++) {
+	        var post = exports.posts[_i];
+	        for (var _a = 0, _b = post.parts; _a < _b.length; _a++) {
+	            var part = _b[_a];
+	            if (part.id == id) {
+	                return part;
+	            }
+	        }
+	    }
+	}
+	exports.findPartById = findPartById;
 
 
 /***/ },
@@ -22006,6 +22008,1167 @@
 	    post: new Router_1.Route('/post/:id')
 	};
 
+
+/***/ },
+/* 173 */,
+/* 174 */
+/***/ function(module, exports) {
+
+	module.exports = [
+		[
+			"Alissa is reading.",
+			"Алиса ~читает."
+		],
+		[
+			"Her father calls to her.",
+			"Ее отец зовет ее."
+		],
+		[
+			"‘Alissa! Alissa!’",
+			"- Алиса! Алиса!"
+		],
+		[
+			"Alissa runs to the door.",
+			"Алиса бежит к двери."
+		],
+		[
+			"There is a car outside the house.",
+			"Автомобиль снаружи дома."
+		],
+		[
+			"Her father is talking to a fat man.",
+			"Ее отец ~разговаривает с толстяком."
+		],
+		[
+			"‘This is Alissa.",
+			"- Это Алиса."
+		],
+		[
+			"She reads all day,’ her father says.",
+			"Она читает весь день, - говорит ее отец."
+		],
+		[
+			"The two men laugh.",
+			"Двое мужчин смеются."
+		],
+		[
+			"‘Alissa,’ her father says.",
+			"- Алиса, - говорит ее отец."
+		],
+		[
+			"‘My friend has work for you in the city.",
+			"- У моего друга есть работа для тебя в городе."
+		],
+		[
+			"There isn’t any work here in the village.",
+			"Нет никакой работы здесь, в деревне."
+		],
+		[
+			"You must go with him.’",
+			"Ты должна отправиться с ним."
+		],
+		[
+			"The fat man smiles at Alissa.",
+			"Толстяк улыбается Алисе."
+		],
+		[
+			"‘How old are you?’ he asks.",
+			"- Сколько тебе лет? - спрашивает он."
+		],
+		[
+			"‘I’m twelve,’ she says.",
+			"- Мне двенадцать, - говорит она."
+		],
+		[
+			"The fat man laughs again.",
+			"Толстяк смеется снова."
+		],
+		[
+			"Alissa doesn’t like him.",
+			"Алисе он не нравится."
+		],
+		[
+			"She doesn’t want to go with this man.",
+			"Она не хочет ехать с этим человеком."
+		],
+		[
+			"She wants to go to school in the village.",
+			"Она хочет ходить в школу в деревне."
+		],
+		[
+			"She likes school.",
+			"Ей нравится школа."
+		],
+		[
+			"She likes ~reading.",
+			"Ей нравится читать."
+		],
+		[
+			"‘Your mother is packing your things.",
+			"- Твоя мать ~укладывает твои вещи."
+		],
+		[
+			"You must go to the city,’ her father says.",
+			"Ты должна отправиться в город, - говорит ее отец."
+		],
+		[
+			"The fat man gives some money to Alissa’s father.",
+			"Толстяк дает немного денег отцу Алисы."
+		],
+		[
+			"Alissa’s father is pleased and happy.",
+			"Отец Алисы довольный и счастливый."
+		],
+		[
+			"Alissa is angry and afraid.",
+			"Алиса сердитая и боится."
+		],
+		[
+			"Alissa does not want to go with this man.",
+			"Алиса не хочет ехать с этим человеком."
+		],
+		[
+			"But she must obey her father.",
+			"Но она должна подчиняться своему отцу."
+		]
+	];
+
+/***/ },
+/* 175 */
+/***/ function(module, exports) {
+
+	module.exports = [
+		[
+			"Alissa and the fat man arrive in the city.",
+			"Алиса и толстяк прибыли в город."
+		],
+		[
+			"They drive to a house.",
+			"Они подъехали к дому."
+		],
+		[
+			"A thin man comes to the door.",
+			"Худой мужчина подходит к двери."
+		],
+		[
+			"The two men talk.",
+			"Двое мужчин разговаривают."
+		],
+		[
+			"‘Here is your room,’ the thin man says to Alissa.",
+			"- Вот твоя комната, - худой мужчина говорит Алисе."
+		],
+		[
+			"He points to a door under the steps.",
+			"Он указывает на дверь под ступеньками."
+		],
+		[
+			"Alissa goes into the room.",
+			"Алиса идет в комнату."
+		],
+		[
+			"The room is small and dark.",
+			"Комната маленькая и темная."
+		],
+		[
+			"It is her new home.",
+			"Это ее новый дом."
+		],
+		[
+			"The next morning, the thin man takes Alissa into the house.",
+			"На следующее утро худой человек берет Алису в дом."
+		],
+		[
+			"‘This is Alissa,’ the man says to his wife.",
+			"- Это Алиса, - говорит мужчина своей жене."
+		],
+		[
+			"‘She likes reading.’",
+			"- Ей нравится ~чтение."
+		],
+		[
+			"They laugh.",
+			"Они смеются."
+		],
+		[
+			"Suddenly the woman shouts at Alissa.",
+			"Вдруг женщина кричит на Алису."
+		],
+		[
+			"‘You aren’t going to read here,’ she shouts.",
+			"- Ты не будешь(~собираешься) читать здесь, - она кричит."
+		],
+		[
+			"‘You’re going to cook and clean and wash.’",
+			"- Ты будешь(~собираешься) готовить и убирать и мыть."
+		],
+		[
+			"Alissa works fifteen hours a day.",
+			"Алиса работает по пятнадцать часов в день."
+		],
+		[
+			"The woman shouts at her every day.",
+			"Женщина кричит на нее каждый день."
+		],
+		[
+			"Alissa is very unhappy.",
+			"Алиса очень несчастна."
+		],
+		[
+			"She cries every night.",
+			"Она плачет каждую ночь."
+		]
+	];
+
+/***/ },
+/* 176 */
+/***/ function(module, exports) {
+
+	module.exports = [
+		[
+			"One day, the thin man says to Alissa,",
+			"Однажды, худой мужчина говорит Алисе:"
+		],
+		[
+			"‘Pack your things. You must go.",
+			"- Собирай свои вещи. Ты должна уйти."
+		],
+		[
+			"My wife doesn’t like you.’",
+			"Ты не нравишься моей жене."
+		],
+		[
+			"The thin man takes her to a clothes shop in the city.",
+			"Худой мужчина забирает ее в магазин одежды в городе."
+		],
+		[
+			"The shop owner is a large woman.",
+			"Владельцем магазина является крупная женщина."
+		],
+		[
+			"She gives the man some money.",
+			"Она дает мужчине немного денег"
+		],
+		[
+			"He goes away.",
+			"Он уходит прочь."
+		],
+		[
+			"He doesn’t say goodbye to Alissa.",
+			"Он не говорит до свидание Алисе."
+		],
+		[
+			"Alissa works with five other girls.",
+			"Алиса работает с пятью другими девушками."
+		],
+		[
+			"They work in a small, dark room.",
+			"Они работают в маленькой, темной комнате."
+		],
+		[
+			"The girls work all day.",
+			"Девушки работают весь день."
+		],
+		[
+			"They make clothes.",
+			"Они делают одежду."
+		],
+		[
+			"They work twelve hours a day.",
+			"Они работают по двенадцать часов в день."
+		],
+		[
+			"At midday, they eat lunch.",
+			"В полдень они едят ланч."
+		],
+		[
+			"After lunch, they rest for ten minutes.",
+			"После ланча они отдыхают в течение десяти минут."
+		],
+		[
+			"At night, they sleep on the floor.",
+			"Ночью они спят на полу."
+		],
+		[
+			"Each month, the shop owner gives the girls a little money.",
+			"Каждый месяц владелица магазина дает девушкам небольшие деньги"
+		],
+		[
+			"Alissa buys a book with her money.",
+			"Алиса покупает книгу на свои деньги."
+		],
+		[
+			"She reads the book after lunch.",
+			"Она читает книгу после обеда."
+		],
+		[
+			"The shop owner is surprised.",
+			"Владелец магазина удивлена."
+		],
+		[
+			"The other girls can’t read.",
+			"Другие девушки не умеют читать."
+		],
+		[
+			"‘Can you write? Can you count?’ the shop owner asks.",
+			"- Ты можешь писать? Ты можешь считать? - спрашивает владелица магазина."
+		],
+		[
+			"‘Yes, I can,’ Alissa says.",
+			"- Да, я умею, - говорит Алиса."
+		],
+		[
+			"‘Come,’ the shop owner says.",
+			"- Пойдем, - говорит владелица магазина."
+		],
+		[
+			"‘You are going to work in the shop.’",
+			"- Ты будешь(~собираешься) работать в магазине."
+		]
+	];
+
+/***/ },
+/* 177 */
+/***/ function(module, exports) {
+
+	module.exports = [
+		[
+			"Alissa likes working in the shop.",
+			"Алисе нравится ~работать в магазине."
+		],
+		[
+			"She serves the customers.",
+			"Она обслуживает покупателей."
+		],
+		[
+			"The customers are rich ladies.",
+			"Покупатели - богатые дамы."
+		],
+		[
+			"They buy expensive dresses.",
+			"Они покупают дорогие платья."
+		],
+		[
+			"One of the customers is a tall and pretty lady.",
+			"Одним из покупателей является высокая и красивая дама."
+		],
+		[
+			"She always smiles at Alissa.",
+			"Она всегда улыбается Алисе."
+		],
+		[
+			"She gives Alissa small presents.",
+			"Она дает Алисе маленькие подарки."
+		],
+		[
+			"One day, the tall lady leaves her purse in the shop.",
+			"Однажды высокая дама оставляет свой кошелек в магазине."
+		],
+		[
+			"Alissa runs out into the street.",
+			"Алиса выбегает на улицу."
+		],
+		[
+			"She runs after the lady.",
+			"Она бежит за дамой."
+		],
+		[
+			"‘Here is your purse,’ Alissa says.",
+			"- Вот ваш кошелек, - говорит Алиса."
+		],
+		[
+			"The lady smiles.",
+			"Дама улыбается."
+		],
+		[
+			"She takes some money from the purse.",
+			"Она берет немного денег из кошелька."
+		],
+		[
+			"‘Thank you,’ she says to Alissa.",
+			"- Спасибо тебе, - говорит она Алисе."
+		],
+		[
+			"‘You are an honest girl. Take this money.’",
+			"- Ты честная девушка. Возьми эти деньги."
+		],
+		[
+			"‘No, no,’ says Alissa.",
+			"- Нет, нет, - говорит Алиса."
+		],
+		[
+			"‘I don’t want your money.’",
+			"- Я не хочу ваши деньги."
+		],
+		[
+			"She runs back to the shop.",
+			"Она бежит обратно в магазин."
+		],
+		[
+			"The shop owner shouts at her.",
+			"Владелица магазина кричит на нее."
+		],
+		[
+			"‘Don’t leave the shop again!’ she shouts.",
+			"- Не оставляй магазин снова! - кричит она."
+		],
+		[
+			"‘I pay you a lot of money.",
+			"- Я плачу тебе много денег."
+		],
+		[
+			"I pay you to work.",
+			"Я плачу тебе, чтобы ты работала."
+		],
+		[
+			"I don’t pay you to run out into the street.’",
+			"Я не плачу тебе, чтобы ты выбегала на улицу."
+		]
+	];
+
+/***/ },
+/* 178 */
+/***/ function(module, exports) {
+
+	module.exports = [
+		[
+			"Alissa is angry.",
+			"Алиса сердится."
+		],
+		[
+			"‘You don’t pay me a lot of money,’ she shouts.",
+			"- Вы не платите мне много денег, - она кричит."
+		],
+		[
+			"‘I’m a slave here.’",
+			"- Я рабыня здесь."
+		],
+		[
+			"‘You're an ungrateful girl,’ the large woman says.",
+			"- Ты неблагодарная девушка, - говорит крупная женщина."
+		],
+		[
+			"‘You have a bed and food and money.",
+			"- У тебя есть кровать, и питание, и деньги."
+		],
+		[
+			"Do you want more?’",
+			"Ты хочешь больше?"
+		],
+		[
+			"‘Yes, I do,’ Alissa says.",
+			"- Да, - говорит Алиса."
+		],
+		[
+			"She is crying now.",
+			"Она ~плачет теперь."
+		],
+		[
+			"‘Wait,’ a quiet voice says.",
+			"- Подожди, - говорит тихий голос."
+		],
+		[
+			"The tall lady is standing at the door.",
+			"Высокая дама ~стоит в дверях."
+		],
+		[
+			"‘Alissa isn’t ungrateful,’ the tall lady says.",
+			"- Алиса не неблагодарная, - говорит высокая дама."
+		],
+		[
+			"‘She is an honest girl.’",
+			"- Она честная девушка."
+		],
+		[
+			"The tall lady speaks to Alissa.",
+			"Высокая дама говорит Алисе."
+		],
+		[
+			"‘Aren’t you happy here?’ she asks.",
+			"- Ты не счастлива здесь? - спрашивает она."
+		],
+		[
+			"‘What do you want?’",
+			"- Что ты хочешь?"
+		],
+		[
+			"Alissa says, ‘I want to go to school.’",
+			"Алиса говорит: Я хочу ходить в школу"
+		],
+		[
+			"The tall lady turns to the shop owner.",
+			"Высокая дама поворачивается к владелице магазина."
+		],
+		[
+			"‘Alissa will live in my house,’ she says.",
+			"- Алиса будет жить в моем доме, - говорит она."
+		],
+		[
+			"‘She won’t work. She will go to school.’",
+			"- Она не будет работать. Она будет ходить в школу."
+		],
+		[
+			"‘You must pay me,’ the shop owner says.",
+			"- Вы должны заплатить мне, - говорит владелица магазина."
+		],
+		[
+			"‘No,’ the tall lady says, ‘Alissa isn’t a slave.’",
+			"- Нет, - говорит высокая дама, - Алиса не раб."
+		],
+		[
+			"‘Pack your things, Alissa,’ she says.",
+			"- Собирай свои вещи, Алиса, - говорит она."
+		],
+		[
+			"‘We will go home now.’",
+			"- Мы пойдем домой сейчас."
+		],
+		[
+			"Alissa goes with the tall lady.",
+			"Алиса уходит(идет) с высокой дамой."
+		],
+		[
+			"She is going to a new home.",
+			"Она ~собирается в новый дом."
+		],
+		[
+			"She is going to be happy.",
+			"Она ~собирается быть счастливой."
+		]
+	];
+
+/***/ },
+/* 179 */
+/***/ function(module, exports) {
+
+	module.exports = [
+		[
+			"Welcome to Middletown!",
+			"Добро пожаловать в Миддлтон!"
+		],
+		[
+			"It is Monday morning.",
+			"Понедельник утро."
+		],
+		[
+			"Everybody is at the market.",
+			"Все находятся на рынке."
+		],
+		[
+			"The market is busy.",
+			"Рынок оживлённый."
+		],
+		[
+			"Today, there is a new man at the market.",
+			"Сегодня новый человек на рынке."
+		],
+		[
+			"His name is Mister Fruit.",
+			"Его зовут мистер Фрукт."
+		],
+		[
+			"His daughter is helping him.",
+			"Его дочь ~помогает ему."
+		],
+		[
+			"Her name is Sara.",
+			"Ее зовут Сара."
+		],
+		[
+			"‘Good morning,’",
+			"«Доброе утро,"
+		],
+		[
+			"Mister Fruit says to everybody.",
+			"- говорит мистер Фрукт всем."
+		],
+		[
+			"‘My fruit is fresh.",
+			"- Мои фрукты свежие."
+		],
+		[
+			"My fruit is cheap.’",
+			"Мои фрукты дешевые»."
+		],
+		[
+			"Mister Fruit is polite.",
+			"Мистер Фрукт вежливый."
+		],
+		[
+			"He is friendly.",
+			"Он дружелюбен."
+		],
+		[
+			"Everybody likes Mister Fruit.",
+			"Всем нравится мистер Фрукт."
+		],
+		[
+			"‘What a nice man!’ they say.",
+			"«Какой хороший человек!» - они говорят."
+		],
+		[
+			"Everybody likes his daughter.",
+			"Всем нравится его дочь."
+		],
+		[
+			"‘What a nice girl,’ they say.",
+			"«Что за милая девушка», - говорят они."
+		]
+	];
+
+/***/ },
+/* 180 */
+/***/ function(module, exports) {
+
+	module.exports = [
+		[
+			"A schoolboy asks for one kilo of apples.",
+			"Школьник просит один кило яблок."
+		],
+		[
+			"Mister Fruit puts some apples on the scales.",
+			"Мистер Фрукт кладет несколько яблок на весы."
+		],
+		[
+			"The scales show one kilo and one hundred grammes.",
+			"Весы показывают один кило и сто граммов."
+		],
+		[
+			"Mister Fruit takes one apple away.",
+			"Мистер Фрукт убирает одно яблоко."
+		],
+		[
+			"Now the scales show nine hundred grammes.",
+			"Теперь весы показывают девятьсот граммов."
+		],
+		[
+			"But Mister Fruit says,",
+			"Но мистер Фрукт говорит:"
+		],
+		[
+			"‘One kilo of apples! One dollar!’",
+			"\"Один кило яблок! Один доллар!»"
+		],
+		[
+			"He takes one dollar from the schoolboy.",
+			"Он берет один доллар у школьника."
+		],
+		[
+			"Sara is watching her father.",
+			"Сара ~наблюдает за ее отцом."
+		],
+		[
+			"She sees everything.",
+			"Она видит все."
+		],
+		[
+			"A young woman asks for two kilos of oranges.",
+			"Молодая женщина просит два кило апельсинов."
+		],
+		[
+			"Mister Fruit puts some oranges on the scales.",
+			"Мистер Фрукт кладет несколько апельсинов на весы."
+		],
+		[
+			"The scales show two kilos and two hundred grammes.",
+			"Весы показывают два килограмма и двести граммов."
+		],
+		[
+			"Mister Fruit takes one orange away.",
+			"Мистер Фрукт убирает один апельсин."
+		],
+		[
+			"Now the scales show one kilo and eight hundred grammes.",
+			"Теперь весы показывают один кило и восемьсот граммов."
+		],
+		[
+			"But Mister Fruit says,",
+			"Но Мистер Фрукт говорит:"
+		],
+		[
+			"‘Two kilos of oranges. Two dollars!’",
+			"«Два кило апельсинов. Два доллара!»"
+		],
+		[
+			"He takes two dollars from the young woman.",
+			"Он берет два доллара у молодой женщины."
+		],
+		[
+			"Sara sees everything.",
+			"Сара видит все."
+		]
+	];
+
+/***/ },
+/* 181 */
+/***/ function(module, exports) {
+
+	module.exports = [
+		[
+			"It is Monday evening.",
+			"Понедельник вечер."
+		],
+		[
+			"Sara’s father is counting his money.",
+			"Отец Сары ~считает свои деньги."
+		],
+		[
+			"He is happy.",
+			"Он счастлив."
+		],
+		[
+			"But Sara is not happy.",
+			"Но Сара не счастлива."
+		],
+		[
+			"She is angry.",
+			"Она сердится."
+		],
+		[
+			"Father! You must sell the correct weight.",
+			"Отец! Ты должен продавать правильный вес."
+		],
+		[
+			"You must not cheat our customers.",
+			"Ты не должен обманывать наших покупателей."
+		],
+		[
+			"Our customers are poor.",
+			"Наши покупатели бедные."
+		],
+		[
+			"But we are poor too, Sara!",
+			"Но мы бедные тоже, Сара!"
+		],
+		[
+			"My wife is dead.",
+			"Моя жена умерла."
+		],
+		[
+			"You have no mother.",
+			"У тебя нет матери."
+		],
+		[
+			"I have no sons.",
+			"У меня нет сыновей."
+		],
+		[
+			"You have no brothers.",
+			"У тебя нет братьев."
+		],
+		[
+			"We must make money, Sara!",
+			"Мы должны зарабатывать деньги, Сара!"
+		],
+		[
+			"That’s life!",
+			"Такова жизнь!"
+		],
+		[
+			"I don't want to work at the market, father.",
+			"Я не хочу работать на рынке, отец."
+		],
+		[
+			"You must work at the market!",
+			"Ты должна работать на рынке!"
+		],
+		[
+			"We must live, Sara.",
+			"Мы должны жить, Сара."
+		],
+		[
+			"We must eat!",
+			"Мы должны съесть!"
+		],
+		[
+			"You’re a child.",
+			"Ты - ребенок."
+		],
+		[
+			"You don’t understand business.",
+			"Ты не понимаешь бизнеса."
+		],
+		[
+			"You’re a woman.",
+			"Ты - женщина."
+		],
+		[
+			"Women don't understand business.",
+			"Женщины не понимают бизнеса."
+		],
+		[
+			"That’s life, Sara!",
+			"Такова жизнь, Сара!"
+		]
+	];
+
+/***/ },
+/* 182 */
+/***/ function(module, exports) {
+
+	module.exports = [
+		[
+			"It is Tuesday morning.",
+			"Вторник утро."
+		],
+		[
+			"Today, Sara's father is selling the correct weight.",
+			"Сегодня отец Сары ~продает правильный вес."
+		],
+		[
+			"He is honest.",
+			"Он честен."
+		],
+		[
+			"He takes the correct money.",
+			"Он берет правильные деньги."
+		],
+		[
+			"Sara is happy.",
+			"Сара счастлива."
+		],
+		[
+			"Today, she is proud of her father.",
+			"Сегодня она гордится своим отцом."
+		],
+		[
+			"The customers are happy too.",
+			"Покупатели счастливы тоже."
+		],
+		[
+			"They buy a lot of fruit.",
+			"Они покупают много фруктов."
+		],
+		[
+			"‘Your fruit is cheap and fresh,’ they say.",
+			"«Ваши фрукты дешевые и свежие», - говорят они."
+		],
+		[
+			"But in the afternoon, some customers come back.",
+			"Но во второй половине дня, некоторые покупатели приходят назад."
+		],
+		[
+			"They are angry.",
+			"Они сердитые."
+		],
+		[
+			"An old man brings back some apples.",
+			"Старик возвращает несколько яблок."
+		],
+		[
+			"One of his apples is bad.",
+			"Одно из его яблок плохое."
+		],
+		[
+			"A girl brings back some oranges.",
+			"Девушка возвращает несколько апельсинов."
+		],
+		[
+			"One of her oranges is bad.",
+			"Один из ее апельсинов плохой."
+		],
+		[
+			"A woman brings back some bananas.",
+			"Женщина возвращает несколько бананов."
+		],
+		[
+			"One of her bananas is bad.",
+			"Один из ее бананов плохой."
+		],
+		[
+			"It is black, and full of worms.",
+			"Он черный и полон червей."
+		],
+		[
+			"‘Look, Mister Fruit! Your fruit isn’t fresh today.",
+			"«Смотрите, мистер Фрукт! Ваши фрукты не свежие сегодня."
+		],
+		[
+			"We want our money back!’",
+			"Мы хотим наши деньги назад!»"
+		],
+		[
+			"But Mister Fruit does not listen.",
+			"Но мистер Фрукт не слушает."
+		],
+		[
+			"He does not give them any money.",
+			"Он не дает им никаких денег."
+		]
+	];
+
+/***/ },
+/* 183 */
+/***/ function(module, exports) {
+
+	module.exports = [
+		[
+			"‘You’re dishonest, father!’ says Sara.",
+			"«Ты нечестный, отец!» - говорит Сара."
+		],
+		[
+			"‘You’re cheating the customers!",
+			"- Ты ~обманываешь покупателей!"
+		],
+		[
+			"I don’t want to work for you.",
+			"Я не хочу работать на тебя."
+		],
+		[
+			"I don’t want to work at the market!’",
+			"Я не хочу работать на рынке!»"
+		],
+		[
+			"‘But you must work for me, Sara,’ says her father.",
+			"\"Но ты должна работать на меня, Сара, - говорит ее отец."
+		],
+		[
+			"‘I have no family! I have no wife, and no sons.",
+			"- У меня нет семьи! У меня нет жены и нет сыновей."
+		],
+		[
+			"Children must help their parents.",
+			"Дети должны помогать своим родителям."
+		],
+		[
+			"You are my daughter, Sara.",
+			"Ты моя дочь, Сара."
+		],
+		[
+			"You must work for me. That’s life!’",
+			"Ты должны работать на меня. Такова жизнь!»"
+		],
+		[
+			"‘No, father,’ says Sara.",
+			"«Нет, отец, - говорит Сара."
+		],
+		[
+			"‘I don’t want to clean your house.",
+			"- Я не хочу убирать твой дом."
+		],
+		[
+			"I want to leave home.",
+			"Я хочу уйти из дома."
+		],
+		[
+			"I don’t want to cook your food.",
+			"Я не хочу готовить тебе еду."
+		],
+		[
+			"I want to get a good job!",
+			"Я хочу получить хорошую работу!"
+		],
+		[
+			"I’m not going to work for you.’",
+			"Я не ~собираюсь работать на тебя»."
+		],
+		[
+			"Sara’s father is angry.",
+			"Отец Сары сердится."
+		],
+		[
+			"‘Go to bed!’ he shouts at her.",
+			"«Отправляйся в постель!» - он кричит на нее."
+		],
+		[
+			"Sara goes to bed.",
+			"Сара идет спать."
+		],
+		[
+			"She is lonely.",
+			"Ей одиноко."
+		],
+		[
+			"She is unhappy.",
+			"Она несчастна."
+		],
+		[
+			"She says a prayer.",
+			"Она произносит молитву."
+		],
+		[
+			"Please, help me.",
+			"Пожалуйста, помоги мне."
+		],
+		[
+			"Please, help my father!",
+			"Пожалуйста, помоги моему отцу!"
+		],
+		[
+			"Please, help us!",
+			"Пожалуйста, помоги нам!"
+		],
+		[
+			"What am I going to do?",
+			"Что мне делать (Что я ~собираюсь делать)?"
+		],
+		[
+			"I need a miracle.",
+			"Мне нужно чудо."
+		],
+		[
+			"Help me!",
+			"Помоги мне!"
+		]
+	];
+
+/***/ },
+/* 184 */
+/***/ function(module, exports) {
+
+	module.exports = [
+		[
+			"It is Wednesday morning.",
+			"Среда утро."
+		],
+		[
+			"Everybody is at the market.",
+			"Все находятся на рынке."
+		],
+		[
+			"Everybody is laughing.",
+			"Все ~смеются."
+		],
+		[
+			"Something strange is happening.",
+			"Что-то странное ~происходит."
+		],
+		[
+			"Mister Fruit touches an apple.",
+			"Мистер Фрукт касается яблока."
+		],
+		[
+			"The apple goes bad.",
+			"Яблоко становится плохим."
+		],
+		[
+			"Then he picks up an orange.",
+			"Затем он берет апельсин."
+		],
+		[
+			"The orange goes bad too.",
+			"Апельсин тоже становится плохим."
+		],
+		[
+			"Then he picks up some bananas.",
+			"Затем он берет несколько бананов."
+		],
+		[
+			"They go black.",
+			"Они становятся черные."
+		],
+		[
+			"Everybody laughs.",
+			"Все смеются."
+		],
+		[
+			"‘Look at Mister Fruit!",
+			"\"Посмотрите на мистера Фрукта!"
+		],
+		[
+			"He touches the fruit and it goes bad!'",
+			"Он касается фрукта, и он становится плохими!"
+		],
+		[
+			"Mister Fruit looks at his hands.",
+			"Мистер Фрукт смотрит на свои руки."
+		],
+		[
+			"‘What is happening?’ he says.",
+			"«Что ~происходит? - говорит он."
+		],
+		[
+			"‘Please, Sara.",
+			"- Пожалуйста, Сара."
+		],
+		[
+			"Please help me.’",
+			"Пожалуйста, помогите мне»."
+		],
+		[
+			"Sara touches an apple.",
+			"Сара касается яблока."
+		],
+		[
+			"She picks up an orange and some bananas.",
+			"Она берет апельсин и несколько бананов."
+		],
+		[
+			"‘Hooray!’ everybody says.",
+			"\"Ура!\" - все говорят."
+		],
+		[
+			"‘It’s a miracle!",
+			"- Это чудо!"
+		],
+		[
+			"Sara touches the fruit and it’s OK!",
+			"Сара касается фрукта, и он нормальный!"
+		],
+		[
+			"We’re going to buy our fruit from Sara!’",
+			"Мы будем(~собираемся) покупать наши фрукты у Сары!»"
+		]
+	];
+
+/***/ },
+/* 185 */
+/***/ function(module, exports) {
+
+	module.exports = [
+		[
+			"Next year, Mister Fruit is Miss Fruit.",
+			"В следующем году Мистером Фрукт это Мисс Фрукт."
+		],
+		[
+			"Sara is honest.",
+			"Сара честная."
+		],
+		[
+			"She does not cheat.",
+			"Она не обманывает."
+		],
+		[
+			"She always sells the correct weight.",
+			"Она всегда продает правильный вес."
+		],
+		[
+			"She sells good, fresh fruit.",
+			"Она продает хорошие, свежие фрукты."
+		],
+		[
+			"She understands business.",
+			"Она понимает бизнес."
+		],
+		[
+			"Sara is making a lot of money.",
+			"Сара ~зарабатывает много денег."
+		],
+		[
+			"She has a good job now.",
+			"У нее есть хорошая работа сейчас."
+		],
+		[
+			"Sara’s father stays at home.",
+			"Отец Сары остается дома."
+		],
+		[
+			"He cleans the house.",
+			"Он убирает дом."
+		],
+		[
+			"He cooks the food.",
+			"Он готовит еду."
+		],
+		[
+			"He is very happy!",
+			"Он очень доволен!"
+		],
+		[
+			"‘That’s life!’ he says.",
+			"«Такова жизнь!» - говорит он."
+		]
+	];
 
 /***/ }
 /******/ ]);

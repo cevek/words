@@ -1,80 +1,78 @@
-{
-  "data": [
-    [
-      "A schoolboy asks for one kilo of apples.",
-      "Школьник просит один кило яблок."
-    ],
-    [
-      "Mister Fruit puts some apples on the scales.",
-      "Мистер Фрукт кладет несколько яблок на весы."
-    ],
-    [
-      "The scales show one kilo and one hundred grammes.",
-      "Весы показывают один кило и сто граммов."
-    ],
-    [
-      "Mister Fruit takes one apple away.",
-      "Мистер Фрукт убирает одно яблоко."
-    ],
-    [
-      "Now the scales show nine hundred grammes.",
-      "Теперь весы показывают девятьсот граммов."
-    ],
-    [
-      "But Mister Fruit says,",
-      "Но мистер Фрукт говорит:"
-    ],
-    [
-      "‘One kilo of apples! One dollar!’",
-      "\"Один кило яблок! Один доллар!»"
-    ],
-    [
-      "He takes one dollar from the schoolboy.",
-      "Он берет один доллар у школьника."
-    ],
-    [
-      "Sara is watching her father.",
-      "Сара ~наблюдает за ее отцом."
-    ],
-    [
-      "She sees everything.",
-      "Она видит все."
-    ],
-    [
-      "A young woman asks for two kilos of oranges.",
-      "Молодая женщина просит два кило апельсинов."
-    ],
-    [
-      "Mister Fruit puts some oranges on the scales.",
-      "Мистер Фрукт кладет несколько апельсинов на весы."
-    ],
-    [
-      "The scales show two kilos and two hundred grammes.",
-      "Весы показывают два килограмма и двести граммов."
-    ],
-    [
-      "Mister Fruit takes one orange away.",
-      "Мистер Фрукт убирает один апельсин."
-    ],
-    [
-      "Now the scales show one kilo and eight hundred grammes.",
-      "Теперь весы показывают один кило и восемьсот граммов."
-    ],
-    [
-      "But Mister Fruit says,",
-      "Но Мистер Фрукт говорит:"
-    ],
-    [
-      "‘Two kilos of oranges. Two dollars!’",
-      "«Два кило апельсинов. Два доллара!»"
-    ],
-    [
-      "He takes two dollars from the young woman.",
-      "Он берет два доллара у молодой женщины."
-    ],
-    [
-      "Sara sees everything.",
-      "Сара видит все."
-    ]
+[
+  [
+    "A schoolboy asks for one kilo of apples.",
+    "Школьник просит один кило яблок."
+  ],
+  [
+    "Mister Fruit puts some apples on the scales.",
+    "Мистер Фрукт кладет несколько яблок на весы."
+  ],
+  [
+    "The scales show one kilo and one hundred grammes.",
+    "Весы показывают один кило и сто граммов."
+  ],
+  [
+    "Mister Fruit takes one apple away.",
+    "Мистер Фрукт убирает одно яблоко."
+  ],
+  [
+    "Now the scales show nine hundred grammes.",
+    "Теперь весы показывают девятьсот граммов."
+  ],
+  [
+    "But Mister Fruit says,",
+    "Но мистер Фрукт говорит:"
+  ],
+  [
+    "‘One kilo of apples! One dollar!’",
+    "\"Один кило яблок! Один доллар!»"
+  ],
+  [
+    "He takes one dollar from the schoolboy.",
+    "Он берет один доллар у школьника."
+  ],
+  [
+    "Sara is watching her father.",
+    "Сара ~наблюдает за ее отцом."
+  ],
+  [
+    "She sees everything.",
+    "Она видит все."
+  ],
+  [
+    "A young woman asks for two kilos of oranges.",
+    "Молодая женщина просит два кило апельсинов."
+  ],
+  [
+    "Mister Fruit puts some oranges on the scales.",
+    "Мистер Фрукт кладет несколько апельсинов на весы."
+  ],
+  [
+    "The scales show two kilos and two hundred grammes.",
+    "Весы показывают два килограмма и двести граммов."
+  ],
+  [
+    "Mister Fruit takes one orange away.",
+    "Мистер Фрукт убирает один апельсин."
+  ],
+  [
+    "Now the scales show one kilo and eight hundred grammes.",
+    "Теперь весы показывают один кило и восемьсот граммов."
+  ],
+  [
+    "But Mister Fruit says,",
+    "Но Мистер Фрукт говорит:"
+  ],
+  [
+    "‘Two kilos of oranges. Two dollars!’",
+    "«Два кило апельсинов. Два доллара!»"
+  ],
+  [
+    "He takes two dollars from the young woman.",
+    "Он берет два доллара у молодой женщины."
+  ],
+  [
+    "Sara sees everything.",
+    "Сара видит все."
   ]
-}
+]

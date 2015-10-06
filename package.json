@@ -18,6 +18,7 @@
   "homepage": "https://github.com/cevek/words",
   "dependencies": {
     "classnames": "^2.1.5",
+    "json-loader": "^0.5.3",
     "ts-loader": "^0.5.5"
   },
   "devDependencies": {

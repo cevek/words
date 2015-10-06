@@ -1,92 +1,90 @@
-{
-  "data": [
-    [
-      "It is Tuesday morning.",
-      "Вторник утро."
-    ],
-    [
-      "Today, Sara's father is selling the correct weight.",
-      "Сегодня отец Сары ~продает правильный вес."
-    ],
-    [
-      "He is honest.",
-      "Он честен."
-    ],
-    [
-      "He takes the correct money.",
-      "Он берет правильные деньги."
-    ],
-    [
-      "Sara is happy.",
-      "Сара счастлива."
-    ],
-    [
-      "Today, she is proud of her father.",
-      "Сегодня она гордится своим отцом."
-    ],
-    [
-      "The customers are happy too.",
-      "Покупатели счастливы тоже."
-    ],
-    [
-      "They buy a lot of fruit.",
-      "Они покупают много фруктов."
-    ],
-    [
-      "‘Your fruit is cheap and fresh,’ they say.",
-      "«Ваши фрукты дешевые и свежие», - говорят они."
-    ],
-    [
-      "But in the afternoon, some customers come back.",
-      "Но во второй половине дня, некоторые покупатели приходят назад."
-    ],
-    [
-      "They are angry.",
-      "Они сердитые."
-    ],
-    [
-      "An old man brings back some apples.",
-      "Старик возвращает несколько яблок."
-    ],
-    [
-      "One of his apples is bad.",
-      "Одно из его яблок плохое."
-    ],
-    [
-      "A girl brings back some oranges.",
-      "Девушка возвращает несколько апельсинов."
-    ],
-    [
-      "One of her oranges is bad.",
-      "Один из ее апельсинов плохой."
-    ],
-    [
-      "A woman brings back some bananas.",
-      "Женщина возвращает несколько бананов."
-    ],
-    [
-      "One of her bananas is bad.",
-      "Один из ее бананов плохой."
-    ],
-    [
-      "It is black, and full of worms.",
-      "Он черный и полон червей."
-    ],
-    [
-      "‘Look, Mister Fruit! Your fruit isn’t fresh today.",
-      "«Смотрите, мистер Фрукт! Ваши фрукты не свежие сегодня."
-    ],
-    [
-      "We want our money back!’",
-      "Мы хотим наши деньги назад!»"
-    ],
-    [
-      "But Mister Fruit does not listen.",
-      "Но мистер Фрукт не слушает."
-    ],
-    [
-      "He does not give them any money.",
-      "Он не дает им никаких денег."
-    ]
+[
+  [
+    "It is Tuesday morning.",
+    "Вторник утро."
+  ],
+  [
+    "Today, Sara's father is selling the correct weight.",
+    "Сегодня отец Сары ~продает правильный вес."
+  ],
+  [
+    "He is honest.",
+    "Он честен."
+  ],
+  [
+    "He takes the correct money.",
+    "Он берет правильные деньги."
+  ],
+  [
+    "Sara is happy.",
+    "Сара счастлива."
+  ],
+  [
+    "Today, she is proud of her father.",
+    "Сегодня она гордится своим отцом."
+  ],
+  [
+    "The customers are happy too.",
+    "Покупатели счастливы тоже."
+  ],
+  [
+    "They buy a lot of fruit.",
+    "Они покупают много фруктов."
+  ],
+  [
+    "‘Your fruit is cheap and fresh,’ they say.",
+    "«Ваши фрукты дешевые и свежие», - говорят они."
+  ],
+  [
+    "But in the afternoon, some customers come back.",
+    "Но во второй половине дня, некоторые покупатели приходят назад."
+  ],
+  [
+    "They are angry.",
+    "Они сердитые."
+  ],
+  [
+    "An old man brings back some apples.",
+    "Старик возвращает несколько яблок."
+  ],
+  [
+    "One of his apples is bad.",
+    "Одно из его яблок плохое."
+  ],
+  [
+    "A girl brings back some oranges.",
+    "Девушка возвращает несколько апельсинов."
+  ],
+  [
+    "One of her oranges is bad.",
+    "Один из ее апельсинов плохой."
+  ],
+  [
+    "A woman brings back some bananas.",
+    "Женщина возвращает несколько бананов."
+  ],
+  [
+    "One of her bananas is bad.",
+    "Один из ее бананов плохой."
+  ],
+  [
+    "It is black, and full of worms.",
+    "Он черный и полон червей."
+  ],
+  [
+    "‘Look, Mister Fruit! Your fruit isn’t fresh today.",
+    "«Смотрите, мистер Фрукт! Ваши фрукты не свежие сегодня."
+  ],
+  [
+    "We want our money back!’",
+    "Мы хотим наши деньги назад!»"
+  ],
+  [
+    "But Mister Fruit does not listen.",
+    "Но мистер Фрукт не слушает."
+  ],
+  [
+    "He does not give them any money.",
+    "Он не дает им никаких денег."
   ]
-}
+]

@@ -1,120 +1,118 @@
-{
-  "data": [
-    [
-      "Alissa is reading.",
-      "Алиса ~читает."
-    ],
-    [
-      "Her father calls to her.",
-      "Ее отец зовет ее."
-    ],
-    [
-      "‘Alissa! Alissa!’",
-      "- Алиса! Алиса!"
-    ],
-    [
-      "Alissa runs to the door.",
-      "Алиса бежит к двери."
-    ],
-    [
-      "There is a car outside the house.",
-      "Автомобиль снаружи дома."
-    ],
-    [
-      "Her father is talking to a fat man.",
-      "Ее отец ~разговаривает с толстяком."
-    ],
-    [
-      "‘This is Alissa.",
-      "- Это Алиса."
-    ],
-    [
-      "She reads all day,’ her father says.",
-      "Она читает весь день, - говорит ее отец."
-    ],
-    [
-      "The two men laugh.",
-      "Двое мужчин смеются."
-    ],
-    [
-      "‘Alissa,’ her father says.",
-      "- Алиса, - говорит ее отец."
-    ],
-    [
-      "‘My friend has work for you in the city.",
-      "- У моего друга есть работа для тебя в городе."
-    ],
-    [
-      "There isn’t any work here in the village.",
-      "Нет никакой работы здесь, в деревне."
-    ],
-    [
-      "You must go with him.’",
-      "Ты должна отправиться с ним."
-    ],
-    [
-      "The fat man smiles at Alissa.",
-      "Толстяк улыбается Алисе."
-    ],
-    [
-      "‘How old are you?’ he asks.",
-      "- Сколько тебе лет? - спрашивает он."
-    ],
-    [
-      "‘I’m twelve,’ she says.",
-      "- Мне двенадцать, - говорит она."
-    ],
-    [
-      "The fat man laughs again.",
-      "Толстяк смеется снова."
-    ],
-    [
-      "Alissa doesn’t like him.",
-      "Алисе он не нравится."
-    ],
-    [
-      "She doesn’t want to go with this man.",
-      "Она не хочет ехать с этим человеком."
-    ],
-    [
-      "She wants to go to school in the village.",
-      "Она хочет ходить в школу в деревне."
-    ],
-    [
-      "She likes school.",
-      "Ей нравится школа."
-    ],
-    [
-      "She likes ~reading.",
-      "Ей нравится читать."
-    ],
-    [
-      "‘Your mother is packing your things.",
-      "- Твоя мать ~укладывает твои вещи."
-    ],
-    [
-      "You must go to the city,’ her father says.",
-      "Ты должна отправиться в город, - говорит ее отец."
-    ],
-    [
-      "The fat man gives some money to Alissa’s father.",
-      "Толстяк дает немного денег отцу Алисы."
-    ],
-    [
-      "Alissa’s father is pleased and happy.",
-      "Отец Алисы довольный и счастливый."
-    ],
-    [
-      "Alissa is angry and afraid.",
-      "Алиса сердитая и боится."
-    ],
-    [
-      "Alissa does not want to go with this man.",
-      "Алиса не хочет ехать с этим человеком."
-    ],
-    [
-      "But she must obey her father.",
-      "Но она должна подчиняться своему отцу."
-    ]
+[
+  [
+    "Alissa is reading.",
+    "Алиса ~читает."
+  ],
+  [
+    "Her father calls to her.",
+    "Ее отец зовет ее."
+  ],
+  [
+    "‘Alissa! Alissa!’",
+    "- Алиса! Алиса!"
+  ],
+  [
+    "Alissa runs to the door.",
+    "Алиса бежит к двери."
+  ],
+  [
+    "There is a car outside the house.",
+    "Автомобиль снаружи дома."
+  ],
+  [
+    "Her father is talking to a fat man.",
+    "Ее отец ~разговаривает с толстяком."
+  ],
+  [
+    "‘This is Alissa.",
+    "- Это Алиса."
+  ],
+  [
+    "She reads all day,’ her father says.",
+    "Она читает весь день, - говорит ее отец."
+  ],
+  [
+    "The two men laugh.",
+    "Двое мужчин смеются."
+  ],
+  [
+    "‘Alissa,’ her father says.",
+    "- Алиса, - говорит ее отец."
+  ],
+  [
+    "‘My friend has work for you in the city.",
+    "- У моего друга есть работа для тебя в городе."
+  ],
+  [
+    "There isn’t any work here in the village.",
+    "Нет никакой работы здесь, в деревне."
+  ],
+  [
+    "You must go with him.’",
+    "Ты должна отправиться с ним."
+  ],
+  [
+    "The fat man smiles at Alissa.",
+    "Толстяк улыбается Алисе."
+  ],
+  [
+    "‘How old are you?’ he asks.",
+    "- Сколько тебе лет? - спрашивает он."
+  ],
+  [
+    "‘I’m twelve,’ she says.",
+    "- Мне двенадцать, - говорит она."
+  ],
+  [
+    "The fat man laughs again.",
+    "Толстяк смеется снова."
+  ],
+  [
+    "Alissa doesn’t like him.",
+    "Алисе он не нравится."
+  ],
+  [
+    "She doesn’t want to go with this man.",
+    "Она не хочет ехать с этим человеком."
+  ],
+  [
+    "She wants to go to school in the village.",
+    "Она хочет ходить в школу в деревне."
+  ],
+  [
+    "She likes school.",
+    "Ей нравится школа."
+  ],
+  [
+    "She likes ~reading.",
+    "Ей нравится читать."
+  ],
+  [
+    "‘Your mother is packing your things.",
+    "- Твоя мать ~укладывает твои вещи."
+  ],
+  [
+    "You must go to the city,’ her father says.",
+    "Ты должна отправиться в город, - говорит ее отец."
+  ],
+  [
+    "The fat man gives some money to Alissa’s father.",
+    "Толстяк дает немного денег отцу Алисы."
+  ],
+  [
+    "Alissa’s father is pleased and happy.",
+    "Отец Алисы довольный и счастливый."
+  ],
+  [
+    "Alissa is angry and afraid.",
+    "Алиса сердитая и боится."
+  ],
+  [
+    "Alissa does not want to go with this man.",
+    "Алиса не хочет ехать с этим человеком."
+  ],
+  [
+    "But she must obey her father.",
+    "Но она должна подчиняться своему отцу."
   ]
-}
+]

@@ -1,84 +1,82 @@
-{
-  "data": [
-    [
-      "Alissa and the fat man arrive in the city.",
-      "Алиса и толстяк прибыли в город."
-    ],
-    [
-      "They drive to a house.",
-      "Они подъехали к дому."
-    ],
-    [
-      "A thin man comes to the door.",
-      "Худой мужчина подходит к двери."
-    ],
-    [
-      "The two men talk.",
-      "Двое мужчин разговаривают."
-    ],
-    [
-      "‘Here is your room,’ the thin man says to Alissa.",
-      "- Вот твоя комната, - худой мужчина говорит Алисе."
-    ],
-    [
-      "He points to a door under the steps.",
-      "Он указывает на дверь под ступеньками."
-    ],
-    [
-      "Alissa goes into the room.",
-      "Алиса идет в комнату."
-    ],
-    [
-      "The room is small and dark.",
-      "Комната маленькая и темная."
-    ],
-    [
-      "It is her new home.",
-      "Это ее новый дом."
-    ],
-    [
-      "The next morning, the thin man takes Alissa into the house.",
-      "На следующее утро худой человек берет Алису в дом."
-    ],
-    [
-      "‘This is Alissa,’ the man says to his wife.",
-      "- Это Алиса, - говорит мужчина своей жене."
-    ],
-    [
-      "‘She likes reading.’",
-      "- Ей нравится ~чтение."
-    ],
-    [
-      "They laugh.",
-      "Они смеются."
-    ],
-    [
-      "Suddenly the woman shouts at Alissa.",
-      "Вдруг женщина кричит на Алису."
-    ],
-    [
-      "‘You aren’t going to read here,’ she shouts.",
-      "- Ты не будешь(~собираешься) читать здесь, - она кричит."
-    ],
-    [
-      "‘You’re going to cook and clean and wash.’",
-      "- Ты будешь(~собираешься) готовить и убирать и мыть."
-    ],
-    [
-      "Alissa works fifteen hours a day.",
-      "Алиса работает по пятнадцать часов в день."
-    ],
-    [
-      "The woman shouts at her every day.",
-      "Женщина кричит на нее каждый день."
-    ],
-    [
-      "Alissa is very unhappy.",
-      "Алиса очень несчастна."
-    ],
-    [
-      "She cries every night.",
-      "Она плачет каждую ночь."
-    ]
+[
+  [
+    "Alissa and the fat man arrive in the city.",
+    "Алиса и толстяк прибыли в город."
+  ],
+  [
+    "They drive to a house.",
+    "Они подъехали к дому."
+  ],
+  [
+    "A thin man comes to the door.",
+    "Худой мужчина подходит к двери."
+  ],
+  [
+    "The two men talk.",
+    "Двое мужчин разговаривают."
+  ],
+  [
+    "‘Here is your room,’ the thin man says to Alissa.",
+    "- Вот твоя комната, - худой мужчина говорит Алисе."
+  ],
+  [
+    "He points to a door under the steps.",
+    "Он указывает на дверь под ступеньками."
+  ],
+  [
+    "Alissa goes into the room.",
+    "Алиса идет в комнату."
+  ],
+  [
+    "The room is small and dark.",
+    "Комната маленькая и темная."
+  ],
+  [
+    "It is her new home.",
+    "Это ее новый дом."
+  ],
+  [
+    "The next morning, the thin man takes Alissa into the house.",
+    "На следующее утро худой человек берет Алису в дом."
+  ],
+  [
+    "‘This is Alissa,’ the man says to his wife.",
+    "- Это Алиса, - говорит мужчина своей жене."
+  ],
+  [
+    "‘She likes reading.’",
+    "- Ей нравится ~чтение."
+  ],
+  [
+    "They laugh.",
+    "Они смеются."
+  ],
+  [
+    "Suddenly the woman shouts at Alissa.",
+    "Вдруг женщина кричит на Алису."
+  ],
+  [
+    "‘You aren’t going to read here,’ she shouts.",
+    "- Ты не будешь(~собираешься) читать здесь, - она кричит."
+  ],
+  [
+    "‘You’re going to cook and clean and wash.’",
+    "- Ты будешь(~собираешься) готовить и убирать и мыть."
+  ],
+  [
+    "Alissa works fifteen hours a day.",
+    "Алиса работает по пятнадцать часов в день."
+  ],
+  [
+    "The woman shouts at her every day.",
+    "Женщина кричит на нее каждый день."
+  ],
+  [
+    "Alissa is very unhappy.",
+    "Алиса очень несчастна."
+  ],
+  [
+    "She cries every night.",
+    "Она плачет каждую ночь."
   ]
-}
+]

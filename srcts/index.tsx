@@ -24,7 +24,7 @@ class Main extends Component<{}> {
 
             <Router pages={[
                         {route: routes.index, handler: List},
-                        {route: routes.post, handler: App, resolver: App.resolver}
+                        {route: routes.post, handler: App}
                     ]}/>
         </div>
     }

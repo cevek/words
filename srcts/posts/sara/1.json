@@ -1,76 +1,74 @@
-{
-  "data": [
-    [
-      "Welcome to Middletown!",
-      "Добро пожаловать в Миддлтон!"
-    ],
-    [
-      "It is Monday morning.",
-      "Понедельник утро."
-    ],
-    [
-      "Everybody is at the market.",
-      "Все находятся на рынке."
-    ],
-    [
-      "The market is busy.",
-      "Рынок оживлённый."
-    ],
-    [
-      "Today, there is a new man at the market.",
-      "Сегодня новый человек на рынке."
-    ],
-    [
-      "His name is Mister Fruit.",
-      "Его зовут мистер Фрукт."
-    ],
-    [
-      "His daughter is helping him.",
-      "Его дочь ~помогает ему."
-    ],
-    [
-      "Her name is Sara.",
-      "Ее зовут Сара."
-    ],
-    [
-      "‘Good morning,’",
-      "«Доброе утро,"
-    ],
-    [
-      "Mister Fruit says to everybody.",
-      "- говорит мистер Фрукт всем."
-    ],
-    [
-      "‘My fruit is fresh.",
-      "- Мои фрукты свежие."
-    ],
-    [
-      "My fruit is cheap.’",
-      "Мои фрукты дешевые»."
-    ],
-    [
-      "Mister Fruit is polite.",
-      "Мистер Фрукт вежливый."
-    ],
-    [
-      "He is friendly.",
-      "Он дружелюбен."
-    ],
-    [
-      "Everybody likes Mister Fruit.",
-      "Всем нравится мистер Фрукт."
-    ],
-    [
-      "‘What a nice man!’ they say.",
-      "«Какой хороший человек!» - они говорят."
-    ],
-    [
-      "Everybody likes his daughter.",
-      "Всем нравится его дочь."
-    ],
-    [
-      "‘What a nice girl,’ they say.",
-      "«Что за милая девушка», - говорят они."
-    ]
+[
+  [
+    "Welcome to Middletown!",
+    "Добро пожаловать в Миддлтон!"
+  ],
+  [
+    "It is Monday morning.",
+    "Понедельник утро."
+  ],
+  [
+    "Everybody is at the market.",
+    "Все находятся на рынке."
+  ],
+  [
+    "The market is busy.",
+    "Рынок оживлённый."
+  ],
+  [
+    "Today, there is a new man at the market.",
+    "Сегодня новый человек на рынке."
+  ],
+  [
+    "His name is Mister Fruit.",
+    "Его зовут мистер Фрукт."
+  ],
+  [
+    "His daughter is helping him.",
+    "Его дочь ~помогает ему."
+  ],
+  [
+    "Her name is Sara.",
+    "Ее зовут Сара."
+  ],
+  [
+    "‘Good morning,’",
+    "«Доброе утро,"
+  ],
+  [
+    "Mister Fruit says to everybody.",
+    "- говорит мистер Фрукт всем."
+  ],
+  [
+    "‘My fruit is fresh.",
+    "- Мои фрукты свежие."
+  ],
+  [
+    "My fruit is cheap.’",
+    "Мои фрукты дешевые»."
+  ],
+  [
+    "Mister Fruit is polite.",
+    "Мистер Фрукт вежливый."
+  ],
+  [
+    "He is friendly.",
+    "Он дружелюбен."
+  ],
+  [
+    "Everybody likes Mister Fruit.",
+    "Всем нравится мистер Фрукт."
+  ],
+  [
+    "‘What a nice man!’ they say.",
+    "«Какой хороший человек!» - они говорят."
+  ],
+  [
+    "Everybody likes his daughter.",
+    "Всем нравится его дочь."
+  ],
+  [
+    "‘What a nice girl,’ they say.",
+    "«Что за милая девушка», - говорят они."
   ]
-}
+]
