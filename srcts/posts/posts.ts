@@ -29,7 +29,20 @@ export const posts:{id: string; title: string; parts: Part[]}[] = [
             {"id": "sara-6", "title": "Part6", "data": require<PartData>("json!./sara/6.json")},
             {"id": "sara-7", "title": "Part7", "data": require<PartData>("json!./sara/7.json")},
         ]
-    }
+    },
+    {
+        "id": "animal",
+        "title": "Animal Life Cycles",
+        "parts": [
+            {"id": "animal-1", "title": "Part1", "data": require<PartData>("json!./animal/1.json")},
+            {"id": "animal-2", "title": "Part2", "data": require<PartData>("json!./animal/2.json")},
+            {"id": "animal-3", "title": "Part3", "data": require<PartData>("json!./animal/3.json")},
+            //{"id": "animal-4", "title": "Part4", "data": require<PartData>("json!./sara/4.json")},
+            //{"id": "animal-5", "title": "Part5", "data": require<PartData>("json!./sara/5.json")},
+            //{"id": "animal-6", "title": "Part6", "data": require<PartData>("json!./sara/6.json")},
+            //{"id": "animal-7", "title": "Part7", "data": require<PartData>("json!./sara/7.json")},
+        ]
+    },
 ];
 
 export function findPartById(id:string):Part {

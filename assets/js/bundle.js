@@ -53,10 +53,10 @@
 	var Component_1 = __webpack_require__(157);
 	var Router_1 = __webpack_require__(158);
 	var App_1 = __webpack_require__(159);
-	var List_1 = __webpack_require__(170);
-	var routes_1 = __webpack_require__(172);
+	var List_1 = __webpack_require__(186);
+	var routes_1 = __webpack_require__(187);
 	var Account_1 = __webpack_require__(168);
-	var WordProcessor_1 = __webpack_require__(163);
+	var WordProcessor_1 = __webpack_require__(162);
 	var Main = (function (_super) {
 	    __extends(Main, _super);
 	    function Main() {
@@ -20702,9 +20702,9 @@
 	};
 	var Component_1 = __webpack_require__(157);
 	var React = __webpack_require__(1);
-	var Sentence_1 = __webpack_require__(161);
-	var storage_1 = __webpack_require__(165);
-	var posts_1 = __webpack_require__(171);
+	var Sentence_1 = __webpack_require__(160);
+	var storage_1 = __webpack_require__(164);
+	var posts_1 = __webpack_require__(170);
 	var App = (function (_super) {
 	    __extends(App, _super);
 	    function App(props) {
@@ -20810,86 +20810,6 @@
 
 /***/ },
 /* 160 */
-/***/ function(module, exports) {
-
-	var HTTP = (function () {
-	    function HTTP(prefix, throttle) {
-	        if (prefix === void 0) { prefix = ''; }
-	        if (throttle === void 0) { throttle = false; }
-	        this.prefix = prefix;
-	        this.throttle = throttle;
-	        this.cache = {};
-	    }
-	    HTTP.prototype.request = function (method, url, params, data, useCache) {
-	        var _this = this;
-	        if (useCache === void 0) { useCache = false; }
-	        var pUrl = this.prefix + url;
-	        if (params) {
-	            pUrl += '?' + this.paramsToUrl(params);
-	        }
-	        return new Promise(function (resolve, reject) {
-	            if (useCache && _this.cache[pUrl]) {
-	                resolve(_this.cache[pUrl]);
-	            }
-	            else {
-	                var req = new XMLHttpRequest();
-	                req.open(method, pUrl, true);
-	                req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-	                //req.withCredentials = true;
-	                req.onreadystatechange = function () {
-	                    if (req.readyState == 4) {
-	                        var responseData = req.responseText;
-	                        try {
-	                            responseData = JSON.parse(req.responseText);
-	                        }
-	                        catch (e) {
-	                            console.error('HTTP answer is not JSON:', responseData);
-	                        }
-	                        var done = function () {
-	                            if (req.status == 200) {
-	                                resolve(responseData);
-	                                _this.cache[pUrl] = responseData;
-	                            }
-	                            else {
-	                                reject({ data: responseData, status: req.status });
-	                            }
-	                            //console.log("http done", url);
-	                        };
-	                        if (_this.throttle) {
-	                            setTimeout(done, _this.throttle);
-	                        }
-	                        else {
-	                            done();
-	                        }
-	                    }
-	                };
-	                req.send(JSON.stringify(data));
-	            }
-	        });
-	    };
-	    HTTP.prototype.get = function (url, params, useCache) {
-	        if (useCache === void 0) { useCache = false; }
-	        return this.request('GET', url, params, null, useCache);
-	    };
-	    HTTP.prototype.post = function (url, params, data) {
-	        return this.request('POST', url, params, data);
-	    };
-	    HTTP.prototype.put = function (url, params, data) {
-	        return this.request('PUT', url, params, data);
-	    };
-	    HTTP.prototype.paramsToUrl = function (obj) {
-	        return Object.keys(obj).map(function (key) { return key + '=' + obj[key]; }).join('&');
-	    };
-	    HTTP.prototype.clearCache = function () {
-	        this.cache = {};
-	    };
-	    return HTTP;
-	})();
-	exports.HTTP = HTTP;
-
-
-/***/ },
-/* 161 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __extends = (this && this.__extends) || function (d, b) {
@@ -20898,8 +20818,8 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var React = __webpack_require__(1);
-	var classNames = __webpack_require__(162);
-	var WordProcessor_1 = __webpack_require__(163);
+	var classNames = __webpack_require__(161);
+	var WordProcessor_1 = __webpack_require__(162);
 	var Component_1 = __webpack_require__(157);
 	var Sentence = (function (_super) {
 	    __extends(Sentence, _super);
@@ -20983,7 +20903,7 @@
 
 
 /***/ },
-/* 162 */
+/* 161 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -21037,11 +20957,11 @@
 
 
 /***/ },
-/* 163 */
+/* 162 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	var lis_1 = __webpack_require__(164);
+	var lis_1 = __webpack_require__(163);
 	var SyncTypes = {
 	    added: 'added',
 	    removed: 'removed',
@@ -21423,7 +21343,7 @@
 
 
 /***/ },
-/* 164 */
+/* 163 */
 /***/ function(module, exports) {
 
 	/*function remove(node) {
@@ -21644,10 +21564,10 @@
 
 
 /***/ },
-/* 165 */
+/* 164 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var http_1 = __webpack_require__(160);
+	var http_1 = __webpack_require__(165);
 	var vk_1 = __webpack_require__(166);
 	var Account_1 = __webpack_require__(168);
 	var Post_1 = __webpack_require__(169);
@@ -21761,6 +21681,86 @@
 
 
 /***/ },
+/* 165 */
+/***/ function(module, exports) {
+
+	var HTTP = (function () {
+	    function HTTP(prefix, throttle) {
+	        if (prefix === void 0) { prefix = ''; }
+	        if (throttle === void 0) { throttle = false; }
+	        this.prefix = prefix;
+	        this.throttle = throttle;
+	        this.cache = {};
+	    }
+	    HTTP.prototype.request = function (method, url, params, data, useCache) {
+	        var _this = this;
+	        if (useCache === void 0) { useCache = false; }
+	        var pUrl = this.prefix + url;
+	        if (params) {
+	            pUrl += '?' + this.paramsToUrl(params);
+	        }
+	        return new Promise(function (resolve, reject) {
+	            if (useCache && _this.cache[pUrl]) {
+	                resolve(_this.cache[pUrl]);
+	            }
+	            else {
+	                var req = new XMLHttpRequest();
+	                req.open(method, pUrl, true);
+	                req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+	                //req.withCredentials = true;
+	                req.onreadystatechange = function () {
+	                    if (req.readyState == 4) {
+	                        var responseData = req.responseText;
+	                        try {
+	                            responseData = JSON.parse(req.responseText);
+	                        }
+	                        catch (e) {
+	                            console.error('HTTP answer is not JSON:', responseData);
+	                        }
+	                        var done = function () {
+	                            if (req.status == 200) {
+	                                resolve(responseData);
+	                                _this.cache[pUrl] = responseData;
+	                            }
+	                            else {
+	                                reject({ data: responseData, status: req.status });
+	                            }
+	                            //console.log("http done", url);
+	                        };
+	                        if (_this.throttle) {
+	                            setTimeout(done, _this.throttle);
+	                        }
+	                        else {
+	                            done();
+	                        }
+	                    }
+	                };
+	                req.send(JSON.stringify(data));
+	            }
+	        });
+	    };
+	    HTTP.prototype.get = function (url, params, useCache) {
+	        if (useCache === void 0) { useCache = false; }
+	        return this.request('GET', url, params, null, useCache);
+	    };
+	    HTTP.prototype.post = function (url, params, data) {
+	        return this.request('POST', url, params, data);
+	    };
+	    HTTP.prototype.put = function (url, params, data) {
+	        return this.request('PUT', url, params, data);
+	    };
+	    HTTP.prototype.paramsToUrl = function (obj) {
+	        return Object.keys(obj).map(function (key) { return key + '=' + obj[key]; }).join('&');
+	    };
+	    HTTP.prototype.clearCache = function () {
+	        this.cache = {};
+	    };
+	    return HTTP;
+	})();
+	exports.HTTP = HTTP;
+
+
+/***/ },
 /* 166 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -21869,7 +21869,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var vk_1 = __webpack_require__(166);
-	var storage_1 = __webpack_require__(165);
+	var storage_1 = __webpack_require__(164);
 	if (!localStorage['userId']) {
 	    localStorage['userId'] = Math.random().toString(33).substr(2, 20);
 	}
@@ -21927,62 +21927,40 @@
 /* 170 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
-	var React = __webpack_require__(1);
-	var posts_1 = __webpack_require__(171);
-	var routes_1 = __webpack_require__(172);
-	var Component_1 = __webpack_require__(157);
-	var List = (function (_super) {
-	    __extends(List, _super);
-	    function List() {
-	        _super.apply(this, arguments);
-	    }
-	    List.prototype.render = function () {
-	        console.log(posts_1.posts);
-	        return React.createElement("div", {"className": "posts"}, posts_1.posts.map(function (post) {
-	            return React.createElement("div", {"className": "post"}, React.createElement("h1", null, post.title), post.parts.map(function (part) {
-	                return React.createElement("div", {"className": "part"}, React.createElement("div", {"className": "part-link", "onClick": function () { return routes_1.routes.post.goto({ id: part.id }); }}, part.title));
-	            }));
-	        }));
-	    };
-	    return List;
-	})(Component_1.Component);
-	exports.List = List;
-
-
-/***/ },
-/* 171 */
-/***/ function(module, exports, __webpack_require__) {
-
 	exports.posts = [
 	    {
 	        "id": "alissa",
 	        "title": "Alissa",
 	        "parts": [
-	            { "id": "alissa-1", "title": "Part1", "data": __webpack_require__(174) },
-	            { "id": "alissa-2", "title": "Part2", "data": __webpack_require__(175) },
-	            { "id": "alissa-3", "title": "Part3", "data": __webpack_require__(176) },
-	            { "id": "alissa-4", "title": "Part4", "data": __webpack_require__(177) },
-	            { "id": "alissa-5", "title": "Part5", "data": __webpack_require__(178) },
+	            { "id": "alissa-1", "title": "Part1", "data": __webpack_require__(171) },
+	            { "id": "alissa-2", "title": "Part2", "data": __webpack_require__(172) },
+	            { "id": "alissa-3", "title": "Part3", "data": __webpack_require__(173) },
+	            { "id": "alissa-4", "title": "Part4", "data": __webpack_require__(174) },
+	            { "id": "alissa-5", "title": "Part5", "data": __webpack_require__(175) },
 	        ],
 	    },
 	    {
 	        "id": "sara",
 	        "title": "Sara",
 	        "parts": [
-	            { "id": "sara-1", "title": "Part1", "data": __webpack_require__(179) },
-	            { "id": "sara-2", "title": "Part2", "data": __webpack_require__(180) },
-	            { "id": "sara-3", "title": "Part3", "data": __webpack_require__(181) },
-	            { "id": "sara-4", "title": "Part4", "data": __webpack_require__(182) },
-	            { "id": "sara-5", "title": "Part5", "data": __webpack_require__(183) },
-	            { "id": "sara-6", "title": "Part6", "data": __webpack_require__(184) },
-	            { "id": "sara-7", "title": "Part7", "data": __webpack_require__(185) },
+	            { "id": "sara-1", "title": "Part1", "data": __webpack_require__(176) },
+	            { "id": "sara-2", "title": "Part2", "data": __webpack_require__(177) },
+	            { "id": "sara-3", "title": "Part3", "data": __webpack_require__(178) },
+	            { "id": "sara-4", "title": "Part4", "data": __webpack_require__(179) },
+	            { "id": "sara-5", "title": "Part5", "data": __webpack_require__(180) },
+	            { "id": "sara-6", "title": "Part6", "data": __webpack_require__(181) },
+	            { "id": "sara-7", "title": "Part7", "data": __webpack_require__(182) },
 	        ]
-	    }
+	    },
+	    {
+	        "id": "animal",
+	        "title": "Animal Life Cycles",
+	        "parts": [
+	            { "id": "animal-1", "title": "Part1", "data": __webpack_require__(183) },
+	            { "id": "animal-2", "title": "Part2", "data": __webpack_require__(184) },
+	            { "id": "animal-3", "title": "Part3", "data": __webpack_require__(185) },
+	        ]
+	    },
 	];
 	function findPartById(id) {
 	    for (var _i = 0; _i < exports.posts.length; _i++) {
@@ -21999,19 +21977,7 @@
 
 
 /***/ },
-/* 172 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Router_1 = __webpack_require__(158);
-	exports.routes = {
-	    index: new Router_1.Route('/'),
-	    post: new Router_1.Route('/post/:id')
-	};
-
-
-/***/ },
-/* 173 */,
-/* 174 */
+/* 171 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22134,7 +22100,7 @@
 	];
 
 /***/ },
-/* 175 */
+/* 172 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22221,7 +22187,7 @@
 	];
 
 /***/ },
-/* 176 */
+/* 173 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22328,7 +22294,7 @@
 	];
 
 /***/ },
-/* 177 */
+/* 174 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22427,7 +22393,7 @@
 	];
 
 /***/ },
-/* 178 */
+/* 175 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22538,7 +22504,7 @@
 	];
 
 /***/ },
-/* 179 */
+/* 176 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22617,7 +22583,7 @@
 	];
 
 /***/ },
-/* 180 */
+/* 177 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22700,7 +22666,7 @@
 	];
 
 /***/ },
-/* 181 */
+/* 178 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22803,7 +22769,7 @@
 	];
 
 /***/ },
-/* 182 */
+/* 179 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22898,7 +22864,7 @@
 	];
 
 /***/ },
-/* 183 */
+/* 180 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23013,7 +22979,7 @@
 	];
 
 /***/ },
-/* 184 */
+/* 181 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23112,7 +23078,7 @@
 	];
 
 /***/ },
-/* 185 */
+/* 182 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23169,6 +23135,397 @@
 			"«Такова жизнь!» - говорит он."
 		]
 	];
+
+/***/ },
+/* 183 */
+/***/ function(module, exports) {
+
+	module.exports = [
+		[
+			"Introduction",
+			"Введение. "
+		],
+		[
+			"Animals grow and change during their life. ",
+			"Животные растут и меняются в течение их жизни. "
+		],
+		[
+			"To produce young, some animals have babies, and others lay eggs.",
+			"Чтобы произвести потомство (молодняк), некоторые животные рожают (имеют) детенышей, а другие откладывают яйца. "
+		],
+		[
+			"These young animals then grow up and produce young, too. ",
+			"Эти молодые животные затем вырастут и тоже произведут потомство. "
+		],
+		[
+			"This journey from being born to producing young is called a life cycle. ",
+			"Это путешествие от рождения к производству потомства называется жизненным циклом. "
+		],
+		[
+			"Animal life cycles are amazing.",
+			"Жизненные циклы животных поразительны. "
+		],
+		[
+			"How do male birds find a mate?",
+			"Как самцы у птиц находят пару? "
+		],
+		[
+			"How big is a baby kangaroo when it's born?",
+			"Насколько велик детеныш кенгуру, когда он рождается? "
+		],
+		[
+			"How does a crocodile carry her babies? ",
+			"Как крокодил переносит своих детенышей? "
+		],
+		[
+			"What does a tadpole grow into?",
+			"Во что вырастает головастик? "
+		],
+		[
+			"Now read and discover more about some amazing animal life cycles!",
+			"Теперь читайте и узнавайте больше о некоторых поразительных жизненных циклах животных!"
+		],
+		[
+			"Life Cycles",
+			"Жизненные циклы. "
+		],
+		[
+			"There are millions of different species of animal in the world. ",
+			"Есть миллионы разных видов животных в мире. "
+		],
+		[
+			"Some animals, like the blue whale, are very big.",
+			"Некоторые животные, такие как голубой кит, очень большие. "
+		],
+		[
+			"Others are so small that we almost can't see them.",
+			"Другие настолько малы, что мы почти не можем их видеть. "
+		],
+		[
+			"These animals all have very different life cycles.",
+			"Эти животные имеют очень разные жизненные циклы."
+		],
+		[
+			"Animal Groups",
+			"Группы животных. "
+		],
+		[
+			"Scientists put animals into groups.",
+			"Ученые подразделяют животных на группы. "
+		],
+		[
+			"The animals in each group are the same in many ways, and they often have very similar life cycles. ",
+			"Животные в каждой группе похожи во многих отношениях, и они часто имеют очень похожие жизненные циклы. "
+		],
+		[
+			"The two biggest animal groups are invertebrates and vertebrates.",
+			"Две крупнейшие группы животных - беспозвоночные и позвоночные. "
+		],
+		[
+			"Invertebrates are animals that have no backbone.",
+			"Беспозвоночные - это животные, которые не имеют позвоночника. "
+		],
+		[
+			"More than 95% of the animal species in the world are invertebrates, and most of them are very small.",
+			"Более 95 % видов животных в мире - беспозвоночные и большинство из них очень маленькие."
+		],
+		[
+			"There are many different groups of invertebrates.",
+			"Есть много различных групп беспозвоночных. "
+		],
+		[
+			"The biggest group is called arthropods. ",
+			"Самая большая группа называется членистоногие. "
+		],
+		[
+			"Insects, spiders, and animals like crabs that have a hard shell, are all arthropods.",
+			"Насекомые, пауки и такие животные как крабы, которые имеют твердый панцирь, все они членистоногие. "
+		],
+		[
+			"Animals that have a backbone are called vertebrates.",
+			"Животные, которые имеют позвоночник, называются позвоночным. "
+		],
+		[
+			"Only a few percent of the animals in the world are vertebrates, and most of them are much bigger than invertebrates. ",
+			"Лишь несколько процентов животных в мире являются позвоночными и большинство из них гораздо крупнее, чем беспозвоночные. "
+		],
+		[
+			"Because of this, we see vertebrates more often than invertebrates. ",
+			"Из-за этого мы видим позвоночных чаще, чем беспозвоночных. "
+		],
+		[
+			"Scientists put vertebrates into five big groups - they are called fish, amphibians, reptiles, birds, and mammals.",
+			"Ученые подразделяют позвоночных на пять больших групп - они называются рыбы, амфибии, рептилии, птицы и млекопитающие."
+		]
+	];
+
+/***/ },
+/* 184 */
+/***/ function(module, exports) {
+
+	module.exports = [
+		[
+			"Staying Alive",
+			"Остаться в живых. "
+		],
+		[
+			"All animals need to find food to stay alive. ",
+			"Всем животным нужно искать пищу, чтобы остаться в живых. "
+		],
+		[
+			"Some animals are carnivores. ",
+			"Некоторые животные являются хищниками. "
+		],
+		[
+			"This means that they eat other animals. ",
+			"Это означает, что они едят других животных. "
+		],
+		[
+			"Herbivores eat plants, and omnivores eat plants and animals.",
+			"Травоядные поедают растения, а всеядные едят растения и животных. "
+		],
+		[
+			"There are many dangers for animals. ",
+			"Есть много опасностей для животных. "
+		],
+		[
+			"They have to keep safe from predators - animals that hunt and eat other animals. ",
+			"Они должны держать в стороне (безопасности) от хищников - животных, которые охотятся и едят других животных."
+		],
+		[
+			"People hunt birds and other animals.",
+			"Люди охотятся на птиц и других животных. "
+		],
+		[
+			"People also cut down trees and build houses and roads on land. ",
+			"Люди также рубят деревья и строят дома и дороги на земле. "
+		],
+		[
+			"When they do this, animals lose their homes and their food. ",
+			"Когда они это делают, животные теряют свои дома и свою пищу. "
+		],
+		[
+			"Many animals also become sick or die because of pollution of the land, oceans, rivers, and air. ",
+			"Многие животные также становятся больными или умирают из-за загрязнения земли, океанов, рек и воздуха. "
+		],
+		[
+			"Life is very dangerous for animals. ",
+			"Жизнь очень опасна для животных. "
+		],
+		[
+			"Many animals die before they are old enough to produce young.",
+			"Многие животные умирают прежде, чем станут достаточно взрослыми, чтобы произвести потомство. "
+		],
+		[
+			"Different animals live for different amounts of time. ",
+			"Различные животные живут в течении различного количества времени. "
+		],
+		[
+			"A Galapagos tortoise can live for 150 years, but an adult mayfly usually lives for just a few hours.",
+			"Галапагосская черепаха может жить в течение 150 лет, но взрослая муха-однодневка обычно живет в течении только нескольких часов."
+		],
+		[
+			"Breeding",
+			"Размножение. "
+		],
+		[
+			"Most species of animal have males and females.",
+			"У большинства видов животных есть самцы и самки. "
+		],
+		[
+			"Males produce sperm, and females produce eggs.",
+			"Самцы производят сперму, а самки производят яйца. "
+		],
+		[
+			"Baby animals are made when sperm from the male joins together with an egg from the female. ",
+			"У животных детеныши появляются (создаются), когда сперматозоид от самца объединяется вместе с яйцом от самки. "
+		],
+		[
+			"This is called fertilization.",
+			"Это называется оплодотворением. "
+		],
+		[
+			"Some animals give birth to baby animals. ",
+			"Некоторые животные рожают (дают рождение) детенышей(детей животных). "
+		],
+		[
+			"Other animals, like reptiles and birds, lay eggs. ",
+			"Другие животные, например рептилии и птицы, откладывают яйца. "
+		],
+		[
+			"Their babies hatch - they break the egg open and come out.",
+			"У них детеныши вылупляются - они проламывают яйцо и выходят наружу. "
+		],
+		[
+			"Most reptiles and birds care for their babies. ",
+			"Большинство рептилий и птиц заботятся о своих детенышах. "
+		],
+		[
+			"Most insects and fish do not care for their eggs or their babies. ",
+			"Большинство насекомых и рыб не заботятся о своих яйцах или своих детенышах. "
+		],
+		[
+			"All mammals care for their babies and feed them milk. ",
+			"Все млекопитающие заботятся о своих детенышах и кормят их молоком. "
+		],
+		[
+			"Some big mammals stay with their babies for many years.",
+			"Некоторые крупные млекопитающие остаются со своими детенышами на протяжении многих лет."
+		]
+	];
+
+/***/ },
+/* 185 */
+/***/ function(module, exports) {
+
+	module.exports = [
+		[
+			"Insects",
+			"Насекомые. "
+		],
+		[
+			"Insects are small animals like butterflies, beetles, flies, bees, and ants. ",
+			"Насекомые - это маленькие животные, такие как бабочки, жуки, мухи, пчелы и муравьи. "
+		],
+		[
+			"There are more than a million species of insect in the world. ",
+			"Существует более чем миллион видов насекомых в мире. "
+		],
+		[
+			"Many insects change in amazing ways during their life.",
+			"Многие насекомые изменяются удивительными способами в течение своей жизни."
+		],
+		[
+			"Larvae and Nymphs",
+			"Личинки и нимфы. "
+		],
+		[
+			"Almost all insects start their life in an egg. ",
+			"Почти все насекомые начинают свою жизнь в яйце. "
+		],
+		[
+			"The young insect grows inside the egg and then it hatches. ",
+			"Молодое насекомое растет в яйце, а затем оно вылупляется. "
+		],
+		[
+			"Some baby insects, like bees, look very different from their parents. ",
+			"Некоторые детеныши насекомых, таких как пчелы, внешне (выглядят) очень отличаются от своих родителей. "
+		],
+		[
+			"These baby insects are called larvae. ",
+			"Эти детеныши насекомых называются личинками. "
+		],
+		[
+			"Other baby insects, like locusts, look more like their parents.",
+			"Другие детеныши насекомых, таких как саранча, больше похожи на своих родителей. "
+		],
+		[
+			"These baby insects are called nymphs. ",
+			"Эти детеныши насекомых называются нимфами. "
+		],
+		[
+			"Larvae and nymphs are very small when they hatch.",
+			"Личинки и нимфы очень маленькие, когда они вылупляются."
+		],
+		[
+			"Growing Up",
+			"Рост. "
+		],
+		[
+			"A young insect eats a lot of food and grows very quickly. ",
+			"Молодое насекомое ест много пищи и растет очень быстро. "
+		],
+		[
+			"It has a hard cover, called an exoskeleton.",
+			"Оно имеет твердую оболочку, называемую экзоскелет. "
+		],
+		[
+			"When the exoskeleton is too small for the young insect, it breaks open and comes off. ",
+			"Когда экзоскелет становится слишком мал для молодого насекомого, он разрывается и сходит. "
+		],
+		[
+			"A new exoskeleton grows under the old one.",
+			"Новый экзоскелет растет под старым. "
+		],
+		[
+			"This is called molting.",
+			"Это называется линькой. "
+		],
+		[
+			"Some insects grow wings that get bigger every time they molt. ",
+			"У некоторых насекомых вырастают крылья, которые становятся больше каждый раз, когда они линяют."
+		],
+		[
+			"After the insect molts for the last time, it becomes an adult that can fly and produce young.",
+			"После того как насекомое линяет в последний раз оно становится взрослым, так что может летать и производить потомство. "
+		],
+		[
+			"This is called incomplete metamorphosis.",
+			"Это называется неполным метаморфозом. "
+		],
+		[
+			"Most insects change by complete metamorphosis.",
+			"Большинство насекомых изменяются полным метаморфозом. "
+		],
+		[
+			"When the larva is ready to change into an adult, its exoskeleton comes off. ",
+			"Когда личинка готова превратиться во взрослого, ее экзоскелет сходит. "
+		],
+		[
+			"Under the exoskeleton there's a pupa - it's like a closed case. ",
+			"Под экзоскелетом есть куколка - это как закрытый чехол. "
+		],
+		[
+			"Inside the pupa, an amazing change happens. ",
+			"Внутри куколки происходит удивительное изменение. "
+		],
+		[
+			"The larva changes into an adult that looks completely different!",
+			"Личинка превращается во взрослую, которое выглядит совершенно иначе!"
+		]
+	];
+
+/***/ },
+/* 186 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var React = __webpack_require__(1);
+	var posts_1 = __webpack_require__(170);
+	var routes_1 = __webpack_require__(187);
+	var Component_1 = __webpack_require__(157);
+	var List = (function (_super) {
+	    __extends(List, _super);
+	    function List() {
+	        _super.apply(this, arguments);
+	    }
+	    List.prototype.render = function () {
+	        console.log(posts_1.posts);
+	        return React.createElement("div", {"className": "posts"}, posts_1.posts.map(function (post) {
+	            return React.createElement("div", {"className": "post"}, React.createElement("h1", null, post.title), post.parts.map(function (part) {
+	                return React.createElement("div", {"className": "part"}, React.createElement("div", {"className": "part-link", "onClick": function () { return routes_1.routes.post.goto({ id: part.id }); }}, part.title));
+	            }));
+	        }));
+	    };
+	    return List;
+	})(Component_1.Component);
+	exports.List = List;
+
+
+/***/ },
+/* 187 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Router_1 = __webpack_require__(158);
+	exports.routes = {
+	    index: new Router_1.Route('/'),
+	    post: new Router_1.Route('/post/:id')
+	};
+
 
 /***/ }
 /******/ ]);
