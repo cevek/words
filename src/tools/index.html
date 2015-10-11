@@ -56,7 +56,7 @@
         var s = textTextarea.value;
         var res = '';
         try {
-            res = JSON.stringify({data: prepare(s)}, null, 2);
+            res = JSON.stringify(prepare(s), null, 2);
         }
         catch (e) {
             res = e.toString();
