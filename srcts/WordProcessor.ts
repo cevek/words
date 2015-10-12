@@ -44,7 +44,6 @@ export class Word {
     type:TOKEN;
     replacedWith:Word;
     replaceFor:Word;
-    replaceFor:Word;
     excluded:boolean;
     movedFrom:Word;
     movedTo:Word;

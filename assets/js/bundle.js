@@ -20717,9 +20717,17 @@
 	        this.isDone = false;
 	        this.translate = '';
 	        this.onSubmit = function () {
+	            var input = React.findDOMNode(_this.refs['userText']);
+	            var wordProcessor = new WordProcessor_1.WordProcessor(_this.getCurrentOrigin(), input.value);
+	            _this.inputErrorsCount = wordProcessor.errorsCount;
+	            if (!_this.showError && _this.inputErrorsCount > 0) {
+	                _this.showError = true;
+	                _this.forceUpdate();
+	                return false;
+	            }
+	            _this.showError = false;
 	            var line = _this.userData.lines[_this.currentLine] || (_this.userData.lines[_this.currentLine] = []);
 	            _this.userData.currentLine += 1;
-	            var input = React.findDOMNode(_this.refs['userText']);
 	            line.push(input.value);
 	            input.value = '';
 	            window.scrollTo(0, 100000);
@@ -20744,12 +20752,11 @@
 	            _this.forceUpdate();
 	        };
 	        this.onInput = function () {
-	            var input = React.findDOMNode(_this.refs['userText']);
-	            var wordProcessor = new WordProcessor_1.WordProcessor(_this.getCurrentOrigin(), input.value);
-	            _this.inputErrorsCount = wordProcessor.errorsCount;
+	            _this.showError = false;
 	            _this.forceUpdate();
 	        };
 	        this.inputErrorsCount = 0;
+	        this.showError = false;
 	        this.render();
 	        this.postData = posts_1.findPartById(this.postId);
 	        this.userData = storage_1.storage.get(this.postId);
@@ -20796,7 +20803,10 @@
 	        })), this.isDone ?
 	            React.createElement("div", {"className": "done"}, React.createElement("h1", null, "Well Done!"), React.createElement("button", {"onClick": this.onRestart}, "Restart"))
 	            :
-	                React.createElement("form", {"onSubmit": this.onSubmit}, React.createElement("div", {"className": "translate"}, this.translate), React.createElement("div", {"className": "errors-count"}, this.inputErrorsCount), React.createElement("input", {"ref": "userText", "onInput": this.onInput, "className": "text", "type": "text", "required": true})));
+	                React.createElement("form", {"onSubmit": this.onSubmit}, React.createElement("div", {"className": "translate"}, this.translate), React.createElement("input", {"ref": "userText", "onInput": this.onInput, "className": "text", "type": "text", "required": true}), this.showError
+	                    ?
+	                        React.createElement("div", {"className": "errors-count"}, "There ", this.inputErrorsCount == 1 ? "is 1 error" : "are " + this.inputErrorsCount + " errors", ", press Enter to continue")
+	                    : null));
 	    };
 	    return App;
 	})(Component_1.Component);
@@ -21044,9 +21054,6 @@
 	            //removed.movedTo = added;
 	            removed.replacedWith = added;
 	            added.replaceFor = removed;
-	            //todo: set move flag to replaced words, but need to turn off moved flag when only replaced
-	            //removed.movedTo = added;
-	            //added.movedFrom = removed;
 	            //removed.excluded = true;
 	            return true;
 	        }
@@ -21169,12 +21176,7 @@
 	        //console.log(mergedCount, "mergedCount");
 	        // if we have merged pairs try again
 	        if (mergedCount > 0) {
-	            try {
-	                return this.prepareSync(userWords, originWords);
-	            }
-	            catch (e) {
-	                console.log(e, userWords, originWords);
-	            }
+	            return this.prepareSync(userWords, originWords);
 	        }
 	        return this.filter(newWords);
 	    };

@@ -78,9 +78,18 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
     }
 
     onSubmit = () => {
+        const input = React.findDOMNode(this.refs['userText']) as HTMLInputElement;
+        const wordProcessor = new WordProcessor(this.getCurrentOrigin(), input.value);
+        this.inputErrorsCount = wordProcessor.errorsCount;
+        if (!this.showError && this.inputErrorsCount > 0) {
+            this.showError = true;
+            this.forceUpdate();
+            return false;
+        }
+        this.showError = false;
+
         const line = this.userData.lines[this.currentLine] || (this.userData.lines[this.currentLine] = []);
         this.userData.currentLine += 1;
-        const input = React.findDOMNode(this.refs['userText']) as HTMLInputElement;
         line.push(input.value);
         input.value = '';
         window.scrollTo(0, 100000);
@@ -108,13 +117,12 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
     };
 
     onInput = ()=> {
-        const input = React.findDOMNode(this.refs['userText']) as HTMLInputElement;
-        const wordProcessor = new WordProcessor(this.getCurrentOrigin(), input.value);
-        this.inputErrorsCount = wordProcessor.errorsCount;
+        this.showError = false;
         this.forceUpdate();
     };
 
     inputErrorsCount = 0;
+    showError = false;
 
     render() {
         return <div className="app">
@@ -135,8 +143,16 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
                     :
                 <form onSubmit={this.onSubmit}>
                     <div className="translate">{this.translate}</div>
-                    <div className="errors-count">{this.inputErrorsCount}</div>
                     <input ref="userText" onInput={this.onInput} className="text" type="text" required/>
+                    {
+                        this.showError
+                            ?
+                        <div className="errors-count">
+                            There {this.inputErrorsCount == 1 ? `is 1 error` : `are ${this.inputErrorsCount} errors`}, press Enter to continue
+                        </div>
+                            : null
+
+                        }
                 </form>
                 }
         </div>
