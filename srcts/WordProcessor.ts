@@ -42,7 +42,9 @@ export class Word {
     key:string;
     cleanText:string;
     type:TOKEN;
-    replacedWith: Word;
+    replacedWith:Word;
+    replaceFor:Word;
+    replaceFor:Word;
     excluded:boolean;
     movedFrom:Word;
     movedTo:Word;
@@ -64,12 +66,15 @@ export class Word {
 }
 
 export class WordProcessor {
-    words: Word[];
+    words:Word[];
+    errorsCount = 0;
+
     constructor(public originText:string, public userText:string) {
         this.words = this.parseWords(userText, true);
         const originWords = this.parseWords(originText);
 
         this.words = this.prepareSync(this.words, originWords);
+        this.calcErrors();
         //this.modify();
         //this.fixO§rder();
         //this.merge();
@@ -87,13 +92,13 @@ export class WordProcessor {
             removed.key = added.key;
             //removed.movedTo = added;
             removed.replacedWith = added;
-            //added.replaced = removed;
+            added.replaceFor = removed;
+
             //removed.excluded = true;
             return true;
         }
         return false;
     }
-
 
     compareWords(a:Word, b:Word) {
         return a.key === b.key;
@@ -141,9 +146,8 @@ export class WordProcessor {
                 const userWord = newUserWords.find(w => w.key == origWord.key && !w.original);
                 userWord.type = null;
 
-
                 const canMove = !noMovedWords[origWord.cleanText];
-                if (canMove){
+                if (canMove) {
                     origWord.movedFrom = userWord;
                     userWord.movedTo = origWord;
                 }
@@ -181,13 +185,13 @@ export class WordProcessor {
             //const canMove = !noMovedWords[newWord.cleanText];
             //newWord.type = canMove ? TOKEN.movedTo : TOKEN.added;
 
-
         }
         return newUserWords;
     }
 
-
     prepareSync(userWords:Word[], originWords:Word[]):Word[] {
+        //console.log(userWords, originWords);
+
         const newWords = this.modify(sync(userWords, originWords, this.compareWords), userWords);
 
         let mergedCount = 0;
@@ -209,7 +213,7 @@ export class WordProcessor {
             }
 
             // find only added words
-            if (word.type == TOKEN.added) {
+            if (word.type == TOKEN.added && !word.replaceFor) {
                 //console.log('removed', word);
                 let j = removedAddedPartStartPos;
                 while (true) {
@@ -221,7 +225,7 @@ export class WordProcessor {
                         continue;
                     }
                     // find removed pair
-                    if (nextWord.type == TOKEN.removed) {
+                    if (nextWord.type == TOKEN.removed && !word.replacedWith) {
                         if (this.tryToReplace(word, nextWord)) {
                             mergedCount++;
                             break;
@@ -236,10 +240,10 @@ export class WordProcessor {
         //in finally we try to find pair(added,removed) in other parts of the sentence
         for (let i = 0; i < newWords.length; i++) {
             const word = newWords[i];
-            if (word.type == TOKEN.added && !word.replacedWith) {
+            if (word.type == TOKEN.added && !word.replaceFor) {
                 for (let j = 0; j < newWords.length; j++) {
                     const word2 = newWords[j];
-                    if (word2.type == TOKEN.removed) {
+                    if (word2.type == TOKEN.removed && !word2.replacedWith) {
                         if (this.tryToReplace(word, word2)) {
                             mergedCount++;
                         }
@@ -272,11 +276,37 @@ export class WordProcessor {
                     word.type = null;
                 }
             }
+            // set moved flag to added & replaced words
+            if (word.replaceFor) {
+                word.movedFrom = word.replaceFor;
+                word.replaceFor.movedTo = word;
+            }
             newWords.push(word);
         }
         return newWords;
     }
 
+    calcErrors() {
+        var errors  = 0;
+        for (var i = 0; i < this.words.length; i++) {
+            var w = this.words[i];
+            let s = '';
+            if (w.type == TOKEN.added) {
+                errors++;
+            }
+            if (w.type == TOKEN.removed) {
+                errors++;
+            }
+
+            if (w.replacedWith) {
+                errors++;
+            }
+            if (w.movedTo) {
+                errors++;
+            }
+        }
+        this.errorsCount = errors;
+    }
 
     parseWords(str:string, isUserText = false) {
         const wordChunks = this.prepareStr(str).split(/ /);
@@ -310,7 +340,6 @@ export class WordProcessor {
         //str = str[0].toUpperCase() + str.slice(1);
         return str.trim();
     }
-
 
     canMove(word:Word) {
         return !word.cleanText.match(/^(a|the|and|to)$/);
@@ -354,7 +383,6 @@ export class WordProcessor {
         }
         this.words = newWords;
     }
-
 
     fixOrder() {
         for (let i = this.words.length - 1; i >= 1; i--) {
@@ -453,7 +481,6 @@ export class WordProcessor {
             if (w.movedTo) {
                 s += '~>';
             }
-
 
             return s;
         }).join(','), ' pp(\'' + this.originText + '\', \'' + this.userText + '\')'/*,this.words*/);

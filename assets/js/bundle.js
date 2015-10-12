@@ -20705,6 +20705,7 @@
 	var Sentence_1 = __webpack_require__(160);
 	var storage_1 = __webpack_require__(164);
 	var posts_1 = __webpack_require__(170);
+	var WordProcessor_1 = __webpack_require__(162);
 	var App = (function (_super) {
 	    __extends(App, _super);
 	    function App(props) {
@@ -20742,6 +20743,13 @@
 	            _this.translate = _this.getCurrentTranslate();
 	            _this.forceUpdate();
 	        };
+	        this.onInput = function () {
+	            var input = React.findDOMNode(_this.refs['userText']);
+	            var wordProcessor = new WordProcessor_1.WordProcessor(_this.getCurrentOrigin(), input.value);
+	            _this.inputErrorsCount = wordProcessor.errorsCount;
+	            _this.forceUpdate();
+	        };
+	        this.inputErrorsCount = 0;
 	        this.render();
 	        this.postData = posts_1.findPartById(this.postId);
 	        this.userData = storage_1.storage.get(this.postId);
@@ -20788,7 +20796,7 @@
 	        })), this.isDone ?
 	            React.createElement("div", {"className": "done"}, React.createElement("h1", null, "Well Done!"), React.createElement("button", {"onClick": this.onRestart}, "Restart"))
 	            :
-	                React.createElement("form", {"onSubmit": this.onSubmit}, React.createElement("div", {"className": "translate"}, this.translate), React.createElement("input", {"ref": "userText", "className": "text", "type": "text", "required": true})));
+	                React.createElement("form", {"onSubmit": this.onSubmit}, React.createElement("div", {"className": "translate"}, this.translate), React.createElement("div", {"className": "errors-count"}, this.inputErrorsCount), React.createElement("input", {"ref": "userText", "onInput": this.onInput, "className": "text", "type": "text", "required": true})));
 	    };
 	    return App;
 	})(Component_1.Component);
@@ -21015,9 +21023,11 @@
 	    function WordProcessor(originText, userText) {
 	        this.originText = originText;
 	        this.userText = userText;
+	        this.errorsCount = 0;
 	        this.words = this.parseWords(userText, true);
 	        var originWords = this.parseWords(originText);
 	        this.words = this.prepareSync(this.words, originWords);
+	        this.calcErrors();
 	        //this.modify();
 	        //this.fixO§rder();
 	        //this.merge();
@@ -21033,7 +21043,10 @@
 	            removed.key = added.key;
 	            //removed.movedTo = added;
 	            removed.replacedWith = added;
-	            //added.replaced = removed;
+	            added.replaceFor = removed;
+	            //todo: set move flag to replaced words, but need to turn off moved flag when only replaced
+	            //removed.movedTo = added;
+	            //added.movedFrom = removed;
 	            //removed.excluded = true;
 	            return true;
 	        }
@@ -21096,6 +21109,7 @@
 	        return newUserWords;
 	    };
 	    WordProcessor.prototype.prepareSync = function (userWords, originWords) {
+	        //console.log(userWords, originWords);
 	        var newWords = this.modify(lis_1.sync(userWords, originWords, this.compareWords), userWords);
 	        var mergedCount = 0;
 	        var removedAddedPartStartPos = -1;
@@ -21113,7 +21127,7 @@
 	                removedAddedPartStartPos = -1;
 	            }
 	            // find only added words
-	            if (word.type == 1 /* added */) {
+	            if (word.type == 1 /* added */ && !word.replaceFor) {
 	                //console.log('removed', word);
 	                var j = removedAddedPartStartPos;
 	                while (true) {
@@ -21125,7 +21139,7 @@
 	                        continue;
 	                    }
 	                    // find removed pair
-	                    if (nextWord.type == 0 /* removed */) {
+	                    if (nextWord.type == 0 /* removed */ && !word.replacedWith) {
 	                        if (this.tryToReplace(word, nextWord)) {
 	                            mergedCount++;
 	                            break;
@@ -21140,10 +21154,10 @@
 	        //in finally we try to find pair(added,removed) in other parts of the sentence
 	        for (var i = 0; i < newWords.length; i++) {
 	            var word = newWords[i];
-	            if (word.type == 1 /* added */ && !word.replacedWith) {
+	            if (word.type == 1 /* added */ && !word.replaceFor) {
 	                for (var j = 0; j < newWords.length; j++) {
 	                    var word2 = newWords[j];
-	                    if (word2.type == 0 /* removed */) {
+	                    if (word2.type == 0 /* removed */ && !word2.replacedWith) {
 	                        if (this.tryToReplace(word, word2)) {
 	                            mergedCount++;
 	                        }
@@ -21155,7 +21169,12 @@
 	        //console.log(mergedCount, "mergedCount");
 	        // if we have merged pairs try again
 	        if (mergedCount > 0) {
-	            return this.prepareSync(userWords, originWords);
+	            try {
+	                return this.prepareSync(userWords, originWords);
+	            }
+	            catch (e) {
+	                console.log(e, userWords, originWords);
+	            }
 	        }
 	        return this.filter(newWords);
 	    };
@@ -21174,9 +21193,34 @@
 	                    word.type = null;
 	                }
 	            }
+	            // set moved flag to added & replaced words
+	            if (word.replaceFor) {
+	                word.movedFrom = word.replaceFor;
+	                word.replaceFor.movedTo = word;
+	            }
 	            newWords.push(word);
 	        }
 	        return newWords;
+	    };
+	    WordProcessor.prototype.calcErrors = function () {
+	        var errors = 0;
+	        for (var i = 0; i < this.words.length; i++) {
+	            var w = this.words[i];
+	            var s = '';
+	            if (w.type == 1 /* added */) {
+	                errors++;
+	            }
+	            if (w.type == 0 /* removed */) {
+	                errors++;
+	            }
+	            if (w.replacedWith) {
+	                errors++;
+	            }
+	            if (w.movedTo) {
+	                errors++;
+	            }
+	        }
+	        this.errorsCount = errors;
 	    };
 	    WordProcessor.prototype.parseWords = function (str, isUserText) {
 	        if (isUserText === void 0) { isUserText = false; }

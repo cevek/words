@@ -6,6 +6,7 @@ import {storage} from './storage';
 import {Post} from "./Post";
 import {RealPost} from "./RealPost";
 import {findPartById, Part, posts} from "./posts/posts";
+import {WordProcessor} from "./WordProcessor";
 
 // todo: the same keys => ..s, his-him-her, at-to-into, 1 sym mistake,
 // todo: last the a is must be separatly
@@ -106,13 +107,23 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
         this.forceUpdate();
     };
 
+    onInput = ()=> {
+        const input = React.findDOMNode(this.refs['userText']) as HTMLInputElement;
+        const wordProcessor = new WordProcessor(this.getCurrentOrigin(), input.value);
+        this.inputErrorsCount = wordProcessor.errorsCount;
+        this.forceUpdate();
+    };
+
+    inputErrorsCount = 0;
+
     render() {
         return <div className="app">
             <a href="#/">To main page</a>
             <svg/>
             <div className="items">
                 {this.sentences.map(sentence =>
-                <SentenceBlock key={sentence.originTranslate} origin={sentence.origin} originTranslate={sentence.originTranslate}
+                <SentenceBlock key={sentence.originTranslate} origin={sentence.origin}
+                               originTranslate={sentence.originTranslate}
                                userTranslate={sentence.userTranslate}/>)}
             </div>
             {
@@ -124,7 +135,8 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
                     :
                 <form onSubmit={this.onSubmit}>
                     <div className="translate">{this.translate}</div>
-                    <input ref="userText" className="text" type="text" required/>
+                    <div className="errors-count">{this.inputErrorsCount}</div>
+                    <input ref="userText" onInput={this.onInput} className="text" type="text" required/>
                 </form>
                 }
         </div>
