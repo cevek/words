@@ -1,10 +1,11 @@
-type PartData = [string,string][];
+type PartData = [string, string][];
 
 export interface Part {
     id: string;
     title: string;
-    data: [string,string][];
+    data: PartData;
 }
+const nextId = 352;
 export const posts:{id: string; title: string; parts: Part[]}[] = [
     {
         "id": "alissa",
@@ -44,6 +45,10 @@ export const posts:{id: string; title: string; parts: Part[]}[] = [
         ]
     },
 ];
+
+//var id = 1; posts.forEach(item => item.parts.forEach(part => part.data.forEach(line => line.unshift(id++))));
+//posts.forEach(item => item.parts.forEach(part => console.log(part.id, JSON.stringify(part.data))));
+//console.log(posts);
 
 export function findPartById(id:string):Part {
     for (var post of posts) {

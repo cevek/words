@@ -20726,16 +20726,16 @@
 	                return false;
 	            }
 	            _this.showError = false;
-	            var line = _this.userData.lines[_this.currentLine] || (_this.userData.lines[_this.currentLine] = []);
+	            var line = _this.userData.lines[_this.currentLine] || (_this.userData.lines[_this.currentLine] = { id: _this.getCurrentLineId(), items: [] });
 	            _this.userData.currentLine += 1;
-	            line.push(input.value);
+	            line.items.push(input.value);
 	            input.value = '';
 	            window.scrollTo(0, 100000);
 	            _this.saveUserData();
 	            _this.sentences.push({
 	                origin: _this.getCurrentOrigin(),
 	                originTranslate: _this.getCurrentTranslate(),
-	                userTranslate: _this.userData.lines[_this.currentLine]
+	                userTranslate: _this.userData.lines[_this.currentLine].items
 	            });
 	            _this.setNextSentence();
 	            _this.translate = _this.getCurrentTranslate();
@@ -20769,11 +20769,14 @@
 	    App.prototype.saveUserData = function () {
 	        return storage_1.storage.set(this.postId, this.userData);
 	    };
-	    App.prototype.getCurrentOrigin = function () {
+	    App.prototype.getCurrentLineId = function () {
 	        return this.postData.data[this.currentLine][0];
 	    };
-	    App.prototype.getCurrentTranslate = function () {
+	    App.prototype.getCurrentOrigin = function () {
 	        return this.postData.data[this.currentLine][1];
+	    };
+	    App.prototype.getCurrentTranslate = function () {
+	        return this.postData.data[this.currentLine][2];
 	    };
 	    App.prototype.fill = function () {
 	        this.sentences = [];
@@ -20783,7 +20786,7 @@
 	            this.sentences.push({
 	                origin: this.getCurrentOrigin(),
 	                originTranslate: this.getCurrentTranslate(),
-	                userTranslate: line
+	                userTranslate: line.items
 	            });
 	            this.setNextSentence();
 	        }
@@ -21617,8 +21620,10 @@
 	var vk_1 = __webpack_require__(166);
 	var Account_1 = __webpack_require__(168);
 	var Post_1 = __webpack_require__(169);
+	var posts_1 = __webpack_require__(170);
 	var assign = Object.assign;
 	var prefix = 'post-';
+	var currentVersion = 1;
 	var Storage = (function () {
 	    function Storage() {
 	        this.data = {};
@@ -21679,16 +21684,19 @@
 	    Storage.prototype.checkKey = function (key) {
 	        return key.substr(0, prefix.length) == prefix;
 	    };
+	    Storage.prototype.getPostIdFromKey = function (key) {
+	        return key.substr(prefix.length);
+	    };
 	    Storage.prototype.merge = function (key, localData, serverData) {
 	        if (!localData || localData.revision == null || localData.revision < serverData.revision) {
-	            this.data[key] = serverData;
+	            this.data[key] = this.migrate(key, serverData);
 	            console.log("New data from vk", key, localData, serverData);
 	            serverData.revision = serverData.revision || 0;
 	            serverData.serverRevision = serverData.revision;
 	            this.saveToLocalStorage(key, serverData);
 	            return serverData;
 	        }
-	        this.data[key] = localData;
+	        this.data[key] = this.migrate(key, localData);
 	        return localData;
 	    };
 	    Storage.prototype.fetchAll = function () {
@@ -21700,7 +21708,7 @@
 	                var data = JSON.parse(localStorage[key] || "{}");
 	                data.revision = data.revision || 0;
 	                data.serverRevision = data.serverRevision || 0;
-	                this.data[key] = data;
+	                this.data[key] = this.migrate(key, data);
 	            }
 	        }
 	        if (Account_1.account.isAuthorized) {
@@ -21714,8 +21722,42 @@
 	        }
 	        return Promise.resolve(this.data);
 	    };
+	    Storage.prototype.migrate = function (key, data) {
+	        var postId = this.getPostIdFromKey(key);
+	        if (!data.version) {
+	            data = migrations[0].up(key, postId, data);
+	            this.save(key, data);
+	        }
+	        return data;
+	    };
 	    return Storage;
 	})();
+	var postsIds = {};
+	for (var i = 0; i < posts_1.posts.length; i++) {
+	    var post = posts_1.posts[i];
+	    for (var j = 0; j < post.parts.length; j++) {
+	        var part = post.parts[j];
+	        postsIds[part.id] = part;
+	    }
+	}
+	var migrations = [
+	    {
+	        version: 1,
+	        up: function (key, postId, data) {
+	            data.version = 1;
+	            data.revision++;
+	            data.postId = postId;
+	            for (var i = 0; i < data.lines.length; i++) {
+	                var line = data.lines[i];
+	                data.lines[i] = {
+	                    id: postsIds[postId].data[i][0],
+	                    items: line
+	                };
+	            }
+	            return data;
+	        }
+	    }
+	];
 	exports.storage = new Storage();
 	window.stor = exports.storage;
 	setInterval(function () {
@@ -21973,6 +22015,7 @@
 /* 170 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var nextId = 352;
 	exports.posts = [
 	    {
 	        "id": "alissa",
@@ -22008,6 +22051,9 @@
 	        ]
 	    },
 	];
+	//var id = 1; posts.forEach(item => item.parts.forEach(part => part.data.forEach(line => line.unshift(id++))));
+	//posts.forEach(item => item.parts.forEach(part => console.log(part.id, JSON.stringify(part.data))));
+	//console.log(posts);
 	function findPartById(id) {
 	    for (var _i = 0; _i < exports.posts.length; _i++) {
 	        var post = exports.posts[_i];
@@ -22028,118 +22074,147 @@
 
 	module.exports = [
 		[
+			1,
 			"Alissa is reading.",
 			"Алиса ~читает."
 		],
 		[
+			2,
 			"Her father calls to her.",
 			"Ее отец зовет ее."
 		],
 		[
+			3,
 			"‘Alissa! Alissa!’",
 			"- Алиса! Алиса!"
 		],
 		[
+			4,
 			"Alissa runs to the door.",
 			"Алиса бежит к двери."
 		],
 		[
+			5,
 			"There is a car outside the house.",
 			"Автомобиль снаружи дома."
 		],
 		[
+			6,
 			"Her father is talking to a fat man.",
 			"Ее отец ~разговаривает с толстяком."
 		],
 		[
+			7,
 			"‘This is Alissa.",
 			"- Это Алиса."
 		],
 		[
+			8,
 			"She reads all day,’ her father says.",
 			"Она читает весь день, - говорит ее отец."
 		],
 		[
+			9,
 			"The two men laugh.",
 			"Двое мужчин смеются."
 		],
 		[
+			10,
 			"‘Alissa,’ her father says.",
 			"- Алиса, - говорит ее отец."
 		],
 		[
+			11,
 			"‘My friend has work for you in the city.",
 			"- У моего друга есть работа для тебя в городе."
 		],
 		[
+			12,
 			"There isn’t any work here in the village.",
 			"Нет никакой работы здесь, в деревне."
 		],
 		[
+			13,
 			"You must go with him.’",
 			"Ты должна отправиться с ним."
 		],
 		[
+			14,
 			"The fat man smiles at Alissa.",
 			"Толстяк улыбается Алисе."
 		],
 		[
+			15,
 			"‘How old are you?’ he asks.",
 			"- Сколько тебе лет? - спрашивает он."
 		],
 		[
+			16,
 			"‘I’m twelve,’ she says.",
 			"- Мне двенадцать, - говорит она."
 		],
 		[
+			17,
 			"The fat man laughs again.",
 			"Толстяк смеется снова."
 		],
 		[
+			18,
 			"Alissa doesn’t like him.",
 			"Алисе он не нравится."
 		],
 		[
+			19,
 			"She doesn’t want to go with this man.",
 			"Она не хочет ехать с этим человеком."
 		],
 		[
+			20,
 			"She wants to go to school in the village.",
 			"Она хочет ходить в школу в деревне."
 		],
 		[
+			21,
 			"She likes school.",
 			"Ей нравится школа."
 		],
 		[
+			22,
 			"She likes ~reading.",
 			"Ей нравится читать."
 		],
 		[
+			23,
 			"‘Your mother is packing your things.",
 			"- Твоя мать ~укладывает твои вещи."
 		],
 		[
+			24,
 			"You must go to the city,’ her father says.",
 			"Ты должна отправиться в город, - говорит ее отец."
 		],
 		[
+			25,
 			"The fat man gives some money to Alissa’s father.",
 			"Толстяк дает немного денег отцу Алисы."
 		],
 		[
+			26,
 			"Alissa’s father is pleased and happy.",
 			"Отец Алисы довольный и счастливый."
 		],
 		[
+			27,
 			"Alissa is angry and afraid.",
 			"Алиса сердитая и боится."
 		],
 		[
+			28,
 			"Alissa does not want to go with this man.",
 			"Алиса не хочет ехать с этим человеком."
 		],
 		[
+			29,
 			"But she must obey her father.",
 			"Но она должна подчиняться своему отцу."
 		]
@@ -22151,82 +22226,102 @@
 
 	module.exports = [
 		[
+			30,
 			"Alissa and the fat man arrive in the city.",
 			"Алиса и толстяк прибыли в город."
 		],
 		[
+			31,
 			"They drive to a house.",
 			"Они подъехали к дому."
 		],
 		[
+			32,
 			"A thin man comes to the door.",
 			"Худой мужчина подходит к двери."
 		],
 		[
+			33,
 			"The two men talk.",
 			"Двое мужчин разговаривают."
 		],
 		[
+			34,
 			"‘Here is your room,’ the thin man says to Alissa.",
 			"- Вот твоя комната, - худой мужчина говорит Алисе."
 		],
 		[
+			35,
 			"He points to a door under the steps.",
 			"Он указывает на дверь под ступеньками."
 		],
 		[
+			36,
 			"Alissa goes into the room.",
 			"Алиса идет в комнату."
 		],
 		[
+			37,
 			"The room is small and dark.",
 			"Комната маленькая и темная."
 		],
 		[
+			38,
 			"It is her new home.",
 			"Это ее новый дом."
 		],
 		[
+			39,
 			"The next morning, the thin man takes Alissa into the house.",
 			"На следующее утро худой человек берет Алису в дом."
 		],
 		[
+			40,
 			"‘This is Alissa,’ the man says to his wife.",
 			"- Это Алиса, - говорит мужчина своей жене."
 		],
 		[
+			41,
 			"‘She likes reading.’",
 			"- Ей нравится ~чтение."
 		],
 		[
+			42,
 			"They laugh.",
 			"Они смеются."
 		],
 		[
+			43,
 			"Suddenly the woman shouts at Alissa.",
 			"Вдруг женщина кричит на Алису."
 		],
 		[
+			44,
 			"‘You aren’t going to read here,’ she shouts.",
 			"- Ты не будешь(~собираешься) читать здесь, - она кричит."
 		],
 		[
+			45,
 			"‘You’re going to cook and clean and wash.’",
 			"- Ты будешь(~собираешься) готовить и убирать и мыть."
 		],
 		[
+			46,
 			"Alissa works fifteen hours a day.",
 			"Алиса работает по пятнадцать часов в день."
 		],
 		[
+			47,
 			"The woman shouts at her every day.",
 			"Женщина кричит на нее каждый день."
 		],
 		[
+			48,
 			"Alissa is very unhappy.",
 			"Алиса очень несчастна."
 		],
 		[
+			49,
 			"She cries every night.",
 			"Она плачет каждую ночь."
 		]
@@ -22238,102 +22333,127 @@
 
 	module.exports = [
 		[
+			50,
 			"One day, the thin man says to Alissa,",
 			"Однажды, худой мужчина говорит Алисе:"
 		],
 		[
+			51,
 			"‘Pack your things. You must go.",
 			"- Собирай свои вещи. Ты должна уйти."
 		],
 		[
+			52,
 			"My wife doesn’t like you.’",
 			"Ты не нравишься моей жене."
 		],
 		[
+			53,
 			"The thin man takes her to a clothes shop in the city.",
 			"Худой мужчина забирает ее в магазин одежды в городе."
 		],
 		[
+			54,
 			"The shop owner is a large woman.",
 			"Владельцем магазина является крупная женщина."
 		],
 		[
+			55,
 			"She gives the man some money.",
 			"Она дает мужчине немного денег"
 		],
 		[
+			56,
 			"He goes away.",
 			"Он уходит прочь."
 		],
 		[
+			57,
 			"He doesn’t say goodbye to Alissa.",
 			"Он не говорит до свидание Алисе."
 		],
 		[
+			58,
 			"Alissa works with five other girls.",
 			"Алиса работает с пятью другими девушками."
 		],
 		[
+			59,
 			"They work in a small, dark room.",
 			"Они работают в маленькой, темной комнате."
 		],
 		[
+			60,
 			"The girls work all day.",
 			"Девушки работают весь день."
 		],
 		[
+			61,
 			"They make clothes.",
 			"Они делают одежду."
 		],
 		[
+			62,
 			"They work twelve hours a day.",
 			"Они работают по двенадцать часов в день."
 		],
 		[
+			63,
 			"At midday, they eat lunch.",
 			"В полдень они едят ланч."
 		],
 		[
+			64,
 			"After lunch, they rest for ten minutes.",
 			"После ланча они отдыхают в течение десяти минут."
 		],
 		[
+			65,
 			"At night, they sleep on the floor.",
 			"Ночью они спят на полу."
 		],
 		[
+			66,
 			"Each month, the shop owner gives the girls a little money.",
 			"Каждый месяц владелица магазина дает девушкам небольшие деньги"
 		],
 		[
+			67,
 			"Alissa buys a book with her money.",
 			"Алиса покупает книгу на свои деньги."
 		],
 		[
+			68,
 			"She reads the book after lunch.",
 			"Она читает книгу после обеда."
 		],
 		[
+			69,
 			"The shop owner is surprised.",
 			"Владелец магазина удивлена."
 		],
 		[
+			70,
 			"The other girls can’t read.",
 			"Другие девушки не умеют читать."
 		],
 		[
+			71,
 			"‘Can you write? Can you count?’ the shop owner asks.",
 			"- Ты можешь писать? Ты можешь считать? - спрашивает владелица магазина."
 		],
 		[
+			72,
 			"‘Yes, I can,’ Alissa says.",
 			"- Да, я умею, - говорит Алиса."
 		],
 		[
+			73,
 			"‘Come,’ the shop owner says.",
 			"- Пойдем, - говорит владелица магазина."
 		],
 		[
+			74,
 			"‘You are going to work in the shop.’",
 			"- Ты будешь(~собираешься) работать в магазине."
 		]
@@ -22345,94 +22465,117 @@
 
 	module.exports = [
 		[
+			75,
 			"Alissa likes working in the shop.",
 			"Алисе нравится ~работать в магазине."
 		],
 		[
+			76,
 			"She serves the customers.",
 			"Она обслуживает покупателей."
 		],
 		[
+			77,
 			"The customers are rich ladies.",
 			"Покупатели - богатые дамы."
 		],
 		[
+			78,
 			"They buy expensive dresses.",
 			"Они покупают дорогие платья."
 		],
 		[
+			79,
 			"One of the customers is a tall and pretty lady.",
 			"Одним из покупателей является высокая и красивая дама."
 		],
 		[
+			80,
 			"She always smiles at Alissa.",
 			"Она всегда улыбается Алисе."
 		],
 		[
+			81,
 			"She gives Alissa small presents.",
 			"Она дает Алисе маленькие подарки."
 		],
 		[
+			82,
 			"One day, the tall lady leaves her purse in the shop.",
 			"Однажды высокая дама оставляет свой кошелек в магазине."
 		],
 		[
+			83,
 			"Alissa runs out into the street.",
 			"Алиса выбегает на улицу."
 		],
 		[
+			84,
 			"She runs after the lady.",
 			"Она бежит за дамой."
 		],
 		[
+			85,
 			"‘Here is your purse,’ Alissa says.",
 			"- Вот ваш кошелек, - говорит Алиса."
 		],
 		[
+			86,
 			"The lady smiles.",
 			"Дама улыбается."
 		],
 		[
+			87,
 			"She takes some money from the purse.",
 			"Она берет немного денег из кошелька."
 		],
 		[
+			88,
 			"‘Thank you,’ she says to Alissa.",
 			"- Спасибо тебе, - говорит она Алисе."
 		],
 		[
+			89,
 			"‘You are an honest girl. Take this money.’",
 			"- Ты честная девушка. Возьми эти деньги."
 		],
 		[
+			90,
 			"‘No, no,’ says Alissa.",
 			"- Нет, нет, - говорит Алиса."
 		],
 		[
+			91,
 			"‘I don’t want your money.’",
 			"- Я не хочу ваши деньги."
 		],
 		[
+			92,
 			"She runs back to the shop.",
 			"Она бежит обратно в магазин."
 		],
 		[
+			93,
 			"The shop owner shouts at her.",
 			"Владелица магазина кричит на нее."
 		],
 		[
+			94,
 			"‘Don’t leave the shop again!’ she shouts.",
 			"- Не оставляй магазин снова! - кричит она."
 		],
 		[
+			95,
 			"‘I pay you a lot of money.",
 			"- Я плачу тебе много денег."
 		],
 		[
+			96,
 			"I pay you to work.",
 			"Я плачу тебе, чтобы ты работала."
 		],
 		[
+			97,
 			"I don’t pay you to run out into the street.’",
 			"Я не плачу тебе, чтобы ты выбегала на улицу."
 		]
@@ -22444,106 +22587,132 @@
 
 	module.exports = [
 		[
+			98,
 			"Alissa is angry.",
 			"Алиса сердится."
 		],
 		[
+			99,
 			"‘You don’t pay me a lot of money,’ she shouts.",
 			"- Вы не платите мне много денег, - она кричит."
 		],
 		[
+			100,
 			"‘I’m a slave here.’",
 			"- Я рабыня здесь."
 		],
 		[
+			101,
 			"‘You're an ungrateful girl,’ the large woman says.",
 			"- Ты неблагодарная девушка, - говорит крупная женщина."
 		],
 		[
+			102,
 			"‘You have a bed and food and money.",
 			"- У тебя есть кровать, и питание, и деньги."
 		],
 		[
+			103,
 			"Do you want more?’",
 			"Ты хочешь больше?"
 		],
 		[
+			104,
 			"‘Yes, I do,’ Alissa says.",
 			"- Да, - говорит Алиса."
 		],
 		[
+			105,
 			"She is crying now.",
 			"Она ~плачет теперь."
 		],
 		[
+			106,
 			"‘Wait,’ a quiet voice says.",
 			"- Подожди, - говорит тихий голос."
 		],
 		[
+			107,
 			"The tall lady is standing at the door.",
 			"Высокая дама ~стоит в дверях."
 		],
 		[
+			108,
 			"‘Alissa isn’t ungrateful,’ the tall lady says.",
 			"- Алиса не неблагодарная, - говорит высокая дама."
 		],
 		[
+			109,
 			"‘She is an honest girl.’",
 			"- Она честная девушка."
 		],
 		[
+			110,
 			"The tall lady speaks to Alissa.",
 			"Высокая дама говорит Алисе."
 		],
 		[
+			111,
 			"‘Aren’t you happy here?’ she asks.",
 			"- Ты не счастлива здесь? - спрашивает она."
 		],
 		[
+			112,
 			"‘What do you want?’",
 			"- Что ты хочешь?"
 		],
 		[
+			113,
 			"Alissa says, ‘I want to go to school.’",
 			"Алиса говорит: Я хочу ходить в школу"
 		],
 		[
+			114,
 			"The tall lady turns to the shop owner.",
 			"Высокая дама поворачивается к владелице магазина."
 		],
 		[
+			115,
 			"‘Alissa will live in my house,’ she says.",
 			"- Алиса будет жить в моем доме, - говорит она."
 		],
 		[
+			116,
 			"‘She won’t work. She will go to school.’",
 			"- Она не будет работать. Она будет ходить в школу."
 		],
 		[
+			117,
 			"‘You must pay me,’ the shop owner says.",
 			"- Вы должны заплатить мне, - говорит владелица магазина."
 		],
 		[
+			118,
 			"‘No,’ the tall lady says, ‘Alissa isn’t a slave.’",
 			"- Нет, - говорит высокая дама, - Алиса не раб."
 		],
 		[
+			119,
 			"‘Pack your things, Alissa,’ she says.",
 			"- Собирай свои вещи, Алиса, - говорит она."
 		],
 		[
+			120,
 			"‘We will go home now.’",
 			"- Мы пойдем домой сейчас."
 		],
 		[
+			121,
 			"Alissa goes with the tall lady.",
 			"Алиса уходит(идет) с высокой дамой."
 		],
 		[
+			122,
 			"She is going to a new home.",
 			"Она ~собирается в новый дом."
 		],
 		[
+			123,
 			"She is going to be happy.",
 			"Она ~собирается быть счастливой."
 		]
@@ -22555,74 +22724,92 @@
 
 	module.exports = [
 		[
+			124,
 			"Welcome to Middletown!",
 			"Добро пожаловать в Миддлтон!"
 		],
 		[
+			125,
 			"It is Monday morning.",
 			"Понедельник утро."
 		],
 		[
+			126,
 			"Everybody is at the market.",
 			"Все находятся на рынке."
 		],
 		[
+			127,
 			"The market is busy.",
 			"Рынок оживлённый."
 		],
 		[
+			128,
 			"Today, there is a new man at the market.",
 			"Сегодня новый человек на рынке."
 		],
 		[
+			129,
 			"His name is Mister Fruit.",
 			"Его зовут мистер Фрукт."
 		],
 		[
+			130,
 			"His daughter is helping him.",
 			"Его дочь ~помогает ему."
 		],
 		[
+			131,
 			"Her name is Sara.",
 			"Ее зовут Сара."
 		],
 		[
+			132,
 			"‘Good morning,’",
 			"«Доброе утро,"
 		],
 		[
+			133,
 			"Mister Fruit says to everybody.",
 			"- говорит мистер Фрукт всем."
 		],
 		[
+			134,
 			"‘My fruit is fresh.",
 			"- Мои фрукты свежие."
 		],
 		[
+			135,
 			"My fruit is cheap.’",
 			"Мои фрукты дешевые»."
 		],
 		[
+			136,
 			"Mister Fruit is polite.",
 			"Мистер Фрукт вежливый."
 		],
 		[
+			137,
 			"He is friendly.",
 			"Он дружелюбен."
 		],
 		[
+			138,
 			"Everybody likes Mister Fruit.",
 			"Всем нравится мистер Фрукт."
 		],
 		[
+			139,
 			"‘What a nice man!’ they say.",
 			"«Какой хороший человек!» - они говорят."
 		],
 		[
+			140,
 			"Everybody likes his daughter.",
 			"Всем нравится его дочь."
 		],
 		[
+			141,
 			"‘What a nice girl,’ they say.",
 			"«Что за милая девушка», - говорят они."
 		]
@@ -22634,78 +22821,97 @@
 
 	module.exports = [
 		[
+			142,
 			"A schoolboy asks for one kilo of apples.",
 			"Школьник просит один кило яблок."
 		],
 		[
+			143,
 			"Mister Fruit puts some apples on the scales.",
 			"Мистер Фрукт кладет несколько яблок на весы."
 		],
 		[
+			144,
 			"The scales show one kilo and one hundred grammes.",
 			"Весы показывают один кило и сто граммов."
 		],
 		[
+			145,
 			"Mister Fruit takes one apple away.",
 			"Мистер Фрукт убирает одно яблоко."
 		],
 		[
+			146,
 			"Now the scales show nine hundred grammes.",
 			"Теперь весы показывают девятьсот граммов."
 		],
 		[
+			147,
 			"But Mister Fruit says,",
 			"Но мистер Фрукт говорит:"
 		],
 		[
+			148,
 			"‘One kilo of apples! One dollar!’",
 			"\"Один кило яблок! Один доллар!»"
 		],
 		[
+			149,
 			"He takes one dollar from the schoolboy.",
 			"Он берет один доллар у школьника."
 		],
 		[
+			150,
 			"Sara is watching her father.",
 			"Сара ~наблюдает за ее отцом."
 		],
 		[
+			151,
 			"She sees everything.",
 			"Она видит все."
 		],
 		[
+			152,
 			"A young woman asks for two kilos of oranges.",
 			"Молодая женщина просит два кило апельсинов."
 		],
 		[
+			153,
 			"Mister Fruit puts some oranges on the scales.",
 			"Мистер Фрукт кладет несколько апельсинов на весы."
 		],
 		[
+			154,
 			"The scales show two kilos and two hundred grammes.",
 			"Весы показывают два килограмма и двести граммов."
 		],
 		[
+			155,
 			"Mister Fruit takes one orange away.",
 			"Мистер Фрукт убирает один апельсин."
 		],
 		[
+			156,
 			"Now the scales show one kilo and eight hundred grammes.",
 			"Теперь весы показывают один кило и восемьсот граммов."
 		],
 		[
+			157,
 			"But Mister Fruit says,",
 			"Но Мистер Фрукт говорит:"
 		],
 		[
+			158,
 			"‘Two kilos of oranges. Two dollars!’",
 			"«Два кило апельсинов. Два доллара!»"
 		],
 		[
+			159,
 			"He takes two dollars from the young woman.",
 			"Он берет два доллара у молодой женщины."
 		],
 		[
+			160,
 			"Sara sees everything.",
 			"Сара видит все."
 		]
@@ -22717,98 +22923,122 @@
 
 	module.exports = [
 		[
+			161,
 			"It is Monday evening.",
 			"Понедельник вечер."
 		],
 		[
+			162,
 			"Sara’s father is counting his money.",
 			"Отец Сары ~считает свои деньги."
 		],
 		[
+			163,
 			"He is happy.",
 			"Он счастлив."
 		],
 		[
+			164,
 			"But Sara is not happy.",
 			"Но Сара не счастлива."
 		],
 		[
+			165,
 			"She is angry.",
 			"Она сердится."
 		],
 		[
+			166,
 			"Father! You must sell the correct weight.",
 			"Отец! Ты должен продавать правильный вес."
 		],
 		[
+			167,
 			"You must not cheat our customers.",
 			"Ты не должен обманывать наших покупателей."
 		],
 		[
+			168,
 			"Our customers are poor.",
 			"Наши покупатели бедные."
 		],
 		[
+			169,
 			"But we are poor too, Sara!",
 			"Но мы бедные тоже, Сара!"
 		],
 		[
+			170,
 			"My wife is dead.",
 			"Моя жена умерла."
 		],
 		[
+			171,
 			"You have no mother.",
 			"У тебя нет матери."
 		],
 		[
+			172,
 			"I have no sons.",
 			"У меня нет сыновей."
 		],
 		[
+			173,
 			"You have no brothers.",
 			"У тебя нет братьев."
 		],
 		[
+			174,
 			"We must make money, Sara!",
 			"Мы должны зарабатывать деньги, Сара!"
 		],
 		[
+			175,
 			"That’s life!",
 			"Такова жизнь!"
 		],
 		[
+			176,
 			"I don't want to work at the market, father.",
 			"Я не хочу работать на рынке, отец."
 		],
 		[
+			177,
 			"You must work at the market!",
 			"Ты должна работать на рынке!"
 		],
 		[
+			178,
 			"We must live, Sara.",
 			"Мы должны жить, Сара."
 		],
 		[
+			179,
 			"We must eat!",
 			"Мы должны съесть!"
 		],
 		[
+			180,
 			"You’re a child.",
 			"Ты - ребенок."
 		],
 		[
+			181,
 			"You don’t understand business.",
 			"Ты не понимаешь бизнеса."
 		],
 		[
+			182,
 			"You’re a woman.",
 			"Ты - женщина."
 		],
 		[
+			183,
 			"Women don't understand business.",
 			"Женщины не понимают бизнеса."
 		],
 		[
+			184,
 			"That’s life, Sara!",
 			"Такова жизнь, Сара!"
 		]
@@ -22820,90 +23050,112 @@
 
 	module.exports = [
 		[
+			185,
 			"It is Tuesday morning.",
 			"Вторник утро."
 		],
 		[
+			186,
 			"Today, Sara's father is selling the correct weight.",
 			"Сегодня отец Сары ~продает правильный вес."
 		],
 		[
+			187,
 			"He is honest.",
 			"Он честен."
 		],
 		[
+			188,
 			"He takes the correct money.",
 			"Он берет правильные деньги."
 		],
 		[
+			189,
 			"Sara is happy.",
 			"Сара счастлива."
 		],
 		[
+			190,
 			"Today, she is proud of her father.",
 			"Сегодня она гордится своим отцом."
 		],
 		[
+			191,
 			"The customers are happy too.",
 			"Покупатели счастливы тоже."
 		],
 		[
+			192,
 			"They buy a lot of fruit.",
 			"Они покупают много фруктов."
 		],
 		[
+			193,
 			"‘Your fruit is cheap and fresh,’ they say.",
 			"«Ваши фрукты дешевые и свежие», - говорят они."
 		],
 		[
+			194,
 			"But in the afternoon, some customers come back.",
 			"Но во второй половине дня, некоторые покупатели приходят назад."
 		],
 		[
+			195,
 			"They are angry.",
 			"Они сердитые."
 		],
 		[
+			196,
 			"An old man brings back some apples.",
 			"Старик возвращает несколько яблок."
 		],
 		[
+			197,
 			"One of his apples is bad.",
 			"Одно из его яблок плохое."
 		],
 		[
+			198,
 			"A girl brings back some oranges.",
 			"Девушка возвращает несколько апельсинов."
 		],
 		[
+			199,
 			"One of her oranges is bad.",
 			"Один из ее апельсинов плохой."
 		],
 		[
+			200,
 			"A woman brings back some bananas.",
 			"Женщина возвращает несколько бананов."
 		],
 		[
+			201,
 			"One of her bananas is bad.",
 			"Один из ее бананов плохой."
 		],
 		[
+			202,
 			"It is black, and full of worms.",
 			"Он черный и полон червей."
 		],
 		[
+			203,
 			"‘Look, Mister Fruit! Your fruit isn’t fresh today.",
 			"«Смотрите, мистер Фрукт! Ваши фрукты не свежие сегодня."
 		],
 		[
+			204,
 			"We want our money back!’",
 			"Мы хотим наши деньги назад!»"
 		],
 		[
+			205,
 			"But Mister Fruit does not listen.",
 			"Но мистер Фрукт не слушает."
 		],
 		[
+			206,
 			"He does not give them any money.",
 			"Он не дает им никаких денег."
 		]
@@ -22915,110 +23167,137 @@
 
 	module.exports = [
 		[
+			207,
 			"‘You’re dishonest, father!’ says Sara.",
 			"«Ты нечестный, отец!» - говорит Сара."
 		],
 		[
+			208,
 			"‘You’re cheating the customers!",
 			"- Ты ~обманываешь покупателей!"
 		],
 		[
+			209,
 			"I don’t want to work for you.",
 			"Я не хочу работать на тебя."
 		],
 		[
+			210,
 			"I don’t want to work at the market!’",
 			"Я не хочу работать на рынке!»"
 		],
 		[
+			211,
 			"‘But you must work for me, Sara,’ says her father.",
 			"\"Но ты должна работать на меня, Сара, - говорит ее отец."
 		],
 		[
+			212,
 			"‘I have no family! I have no wife, and no sons.",
 			"- У меня нет семьи! У меня нет жены и нет сыновей."
 		],
 		[
+			213,
 			"Children must help their parents.",
 			"Дети должны помогать своим родителям."
 		],
 		[
+			214,
 			"You are my daughter, Sara.",
 			"Ты моя дочь, Сара."
 		],
 		[
+			215,
 			"You must work for me. That’s life!’",
 			"Ты должны работать на меня. Такова жизнь!»"
 		],
 		[
+			216,
 			"‘No, father,’ says Sara.",
 			"«Нет, отец, - говорит Сара."
 		],
 		[
+			217,
 			"‘I don’t want to clean your house.",
 			"- Я не хочу убирать твой дом."
 		],
 		[
+			218,
 			"I want to leave home.",
 			"Я хочу уйти из дома."
 		],
 		[
+			219,
 			"I don’t want to cook your food.",
 			"Я не хочу готовить тебе еду."
 		],
 		[
+			220,
 			"I want to get a good job!",
 			"Я хочу получить хорошую работу!"
 		],
 		[
+			221,
 			"I’m not going to work for you.’",
 			"Я не ~собираюсь работать на тебя»."
 		],
 		[
+			222,
 			"Sara’s father is angry.",
 			"Отец Сары сердится."
 		],
 		[
+			223,
 			"‘Go to bed!’ he shouts at her.",
 			"«Отправляйся в постель!» - он кричит на нее."
 		],
 		[
+			224,
 			"Sara goes to bed.",
 			"Сара идет спать."
 		],
 		[
+			225,
 			"She is lonely.",
 			"Ей одиноко."
 		],
 		[
+			226,
 			"She is unhappy.",
 			"Она несчастна."
 		],
 		[
+			227,
 			"She says a prayer.",
 			"Она произносит молитву."
 		],
 		[
+			228,
 			"Please, help me.",
 			"Пожалуйста, помоги мне."
 		],
 		[
+			229,
 			"Please, help my father!",
 			"Пожалуйста, помоги моему отцу!"
 		],
 		[
+			230,
 			"Please, help us!",
 			"Пожалуйста, помоги нам!"
 		],
 		[
+			231,
 			"What am I going to do?",
 			"Что мне делать (Что я ~собираюсь делать)?"
 		],
 		[
+			232,
 			"I need a miracle.",
 			"Мне нужно чудо."
 		],
 		[
+			233,
 			"Help me!",
 			"Помоги мне!"
 		]
@@ -23030,94 +23309,117 @@
 
 	module.exports = [
 		[
+			234,
 			"It is Wednesday morning.",
 			"Среда утро."
 		],
 		[
+			235,
 			"Everybody is at the market.",
 			"Все находятся на рынке."
 		],
 		[
+			236,
 			"Everybody is laughing.",
 			"Все ~смеются."
 		],
 		[
+			237,
 			"Something strange is happening.",
 			"Что-то странное ~происходит."
 		],
 		[
+			238,
 			"Mister Fruit touches an apple.",
 			"Мистер Фрукт касается яблока."
 		],
 		[
+			239,
 			"The apple goes bad.",
 			"Яблоко становится плохим."
 		],
 		[
+			240,
 			"Then he picks up an orange.",
 			"Затем он берет апельсин."
 		],
 		[
+			241,
 			"The orange goes bad too.",
 			"Апельсин тоже становится плохим."
 		],
 		[
+			242,
 			"Then he picks up some bananas.",
 			"Затем он берет несколько бананов."
 		],
 		[
+			243,
 			"They go black.",
 			"Они становятся черные."
 		],
 		[
+			244,
 			"Everybody laughs.",
 			"Все смеются."
 		],
 		[
+			245,
 			"‘Look at Mister Fruit!",
 			"\"Посмотрите на мистера Фрукта!"
 		],
 		[
+			246,
 			"He touches the fruit and it goes bad!'",
 			"Он касается фрукта, и он становится плохими!"
 		],
 		[
+			247,
 			"Mister Fruit looks at his hands.",
 			"Мистер Фрукт смотрит на свои руки."
 		],
 		[
+			248,
 			"‘What is happening?’ he says.",
 			"«Что ~происходит? - говорит он."
 		],
 		[
+			249,
 			"‘Please, Sara.",
 			"- Пожалуйста, Сара."
 		],
 		[
+			250,
 			"Please help me.’",
 			"Пожалуйста, помогите мне»."
 		],
 		[
+			251,
 			"Sara touches an apple.",
 			"Сара касается яблока."
 		],
 		[
+			252,
 			"She picks up an orange and some bananas.",
 			"Она берет апельсин и несколько бананов."
 		],
 		[
+			253,
 			"‘Hooray!’ everybody says.",
 			"\"Ура!\" - все говорят."
 		],
 		[
+			254,
 			"‘It’s a miracle!",
 			"- Это чудо!"
 		],
 		[
+			255,
 			"Sara touches the fruit and it’s OK!",
 			"Сара касается фрукта, и он нормальный!"
 		],
 		[
+			256,
 			"We’re going to buy our fruit from Sara!’",
 			"Мы будем(~собираемся) покупать наши фрукты у Сары!»"
 		]
@@ -23129,54 +23431,67 @@
 
 	module.exports = [
 		[
+			257,
 			"Next year, Mister Fruit is Miss Fruit.",
 			"В следующем году Мистером Фрукт это Мисс Фрукт."
 		],
 		[
+			258,
 			"Sara is honest.",
 			"Сара честная."
 		],
 		[
+			259,
 			"She does not cheat.",
 			"Она не обманывает."
 		],
 		[
+			260,
 			"She always sells the correct weight.",
 			"Она всегда продает правильный вес."
 		],
 		[
+			261,
 			"She sells good, fresh fruit.",
 			"Она продает хорошие, свежие фрукты."
 		],
 		[
+			262,
 			"She understands business.",
 			"Она понимает бизнес."
 		],
 		[
+			263,
 			"Sara is making a lot of money.",
 			"Сара ~зарабатывает много денег."
 		],
 		[
+			264,
 			"She has a good job now.",
 			"У нее есть хорошая работа сейчас."
 		],
 		[
+			265,
 			"Sara’s father stays at home.",
 			"Отец Сары остается дома."
 		],
 		[
+			266,
 			"He cleans the house.",
 			"Он убирает дом."
 		],
 		[
+			267,
 			"He cooks the food.",
 			"Он готовит еду."
 		],
 		[
+			268,
 			"He is very happy!",
 			"Он очень доволен!"
 		],
 		[
+			269,
 			"‘That’s life!’ he says.",
 			"«Такова жизнь!» - говорит он."
 		]
@@ -23188,118 +23503,147 @@
 
 	module.exports = [
 		[
+			270,
 			"Introduction",
 			"Введение. "
 		],
 		[
+			271,
 			"Animals grow and change during their life. ",
 			"Животные растут и меняются в течение их жизни. "
 		],
 		[
+			272,
 			"To produce young, some animals have babies, and others lay eggs.",
 			"Чтобы произвести потомство (молодняк), некоторые животные рожают (имеют) детенышей, а другие откладывают яйца. "
 		],
 		[
+			273,
 			"These young animals then grow up and produce young, too. ",
 			"Эти молодые животные затем вырастут и тоже произведут потомство. "
 		],
 		[
+			274,
 			"This journey from being born to producing young is called a life cycle. ",
 			"Это путешествие от рождения к производству потомства называется жизненным циклом. "
 		],
 		[
+			275,
 			"Animal life cycles are amazing.",
 			"Жизненные циклы животных поразительны. "
 		],
 		[
+			276,
 			"How do male birds find a mate?",
 			"Как самцы у птиц находят пару? "
 		],
 		[
+			277,
 			"How big is a baby kangaroo when it's born?",
 			"Насколько велик детеныш кенгуру, когда он рождается? "
 		],
 		[
+			278,
 			"How does a crocodile carry her babies? ",
 			"Как крокодил переносит своих детенышей? "
 		],
 		[
+			279,
 			"What does a tadpole grow into?",
 			"Во что вырастает головастик? "
 		],
 		[
+			280,
 			"Now read and discover more about some amazing animal life cycles!",
 			"Теперь читайте и узнавайте больше о некоторых поразительных жизненных циклах животных!"
 		],
 		[
+			281,
 			"Life Cycles",
 			"Жизненные циклы. "
 		],
 		[
+			282,
 			"There are millions of different species of animal in the world. ",
 			"Есть миллионы разных видов животных в мире. "
 		],
 		[
+			283,
 			"Some animals, like the blue whale, are very big.",
 			"Некоторые животные, такие как голубой кит, очень большие. "
 		],
 		[
+			284,
 			"Others are so small that we almost can't see them.",
 			"Другие настолько малы, что мы почти не можем их видеть. "
 		],
 		[
+			285,
 			"These animals all have very different life cycles.",
 			"Эти животные имеют очень разные жизненные циклы."
 		],
 		[
+			286,
 			"Animal Groups",
 			"Группы животных. "
 		],
 		[
+			287,
 			"Scientists put animals into groups.",
 			"Ученые подразделяют животных на группы. "
 		],
 		[
+			288,
 			"The animals in each group are the same in many ways, and they often have very similar life cycles. ",
 			"Животные в каждой группе похожи во многих отношениях, и они часто имеют очень похожие жизненные циклы. "
 		],
 		[
+			289,
 			"The two biggest animal groups are invertebrates and vertebrates.",
 			"Две крупнейшие группы животных - беспозвоночные и позвоночные. "
 		],
 		[
+			290,
 			"Invertebrates are animals that have no backbone.",
 			"Беспозвоночные - это животные, которые не имеют позвоночника. "
 		],
 		[
+			291,
 			"More than 95% of the animal species in the world are invertebrates, and most of them are very small.",
 			"Более 95 % видов животных в мире - беспозвоночные и большинство из них очень маленькие."
 		],
 		[
+			292,
 			"There are many different groups of invertebrates.",
 			"Есть много различных групп беспозвоночных. "
 		],
 		[
+			293,
 			"The biggest group is called arthropods. ",
 			"Самая большая группа называется членистоногие. "
 		],
 		[
+			294,
 			"Insects, spiders, and animals like crabs that have a hard shell, are all arthropods.",
 			"Насекомые, пауки и такие животные как крабы, которые имеют твердый панцирь, все они членистоногие. "
 		],
 		[
+			295,
 			"Animals that have a backbone are called vertebrates.",
 			"Животные, которые имеют позвоночник, называются позвоночным. "
 		],
 		[
+			296,
 			"Only a few percent of the animals in the world are vertebrates, and most of them are much bigger than invertebrates. ",
 			"Лишь несколько процентов животных в мире являются позвоночными и большинство из них гораздо крупнее, чем беспозвоночные. "
 		],
 		[
+			297,
 			"Because of this, we see vertebrates more often than invertebrates. ",
 			"Из-за этого мы видим позвоночных чаще, чем беспозвоночных. "
 		],
 		[
+			298,
 			"Scientists put vertebrates into five big groups - they are called fish, amphibians, reptiles, birds, and mammals.",
 			"Ученые подразделяют позвоночных на пять больших групп - они называются рыбы, амфибии, рептилии, птицы и млекопитающие."
 		]
@@ -23311,110 +23655,137 @@
 
 	module.exports = [
 		[
+			299,
 			"Staying Alive",
 			"Остаться в живых. "
 		],
 		[
+			300,
 			"All animals need to find food to stay alive. ",
 			"Всем животным нужно искать пищу, чтобы остаться в живых. "
 		],
 		[
+			301,
 			"Some animals are carnivores. ",
 			"Некоторые животные являются хищниками. "
 		],
 		[
+			302,
 			"This means that they eat other animals. ",
 			"Это означает, что они едят других животных. "
 		],
 		[
+			303,
 			"Herbivores eat plants, and omnivores eat plants and animals.",
 			"Травоядные поедают растения, а всеядные едят растения и животных. "
 		],
 		[
+			304,
 			"There are many dangers for animals. ",
 			"Есть много опасностей для животных. "
 		],
 		[
+			305,
 			"They have to keep safe from predators - animals that hunt and eat other animals. ",
 			"Они должны держать в стороне (безопасности) от хищников - животных, которые охотятся и едят других животных."
 		],
 		[
+			306,
 			"People hunt birds and other animals.",
 			"Люди охотятся на птиц и других животных. "
 		],
 		[
+			307,
 			"People also cut down trees and build houses and roads on land. ",
 			"Люди также рубят деревья и строят дома и дороги на земле. "
 		],
 		[
+			308,
 			"When they do this, animals lose their homes and their food. ",
 			"Когда они это делают, животные теряют свои дома и свою пищу. "
 		],
 		[
+			309,
 			"Many animals also become sick or die because of pollution of the land, oceans, rivers, and air. ",
 			"Многие животные также становятся больными или умирают из-за загрязнения земли, океанов, рек и воздуха. "
 		],
 		[
+			310,
 			"Life is very dangerous for animals. ",
 			"Жизнь очень опасна для животных. "
 		],
 		[
+			311,
 			"Many animals die before they are old enough to produce young.",
 			"Многие животные умирают прежде, чем станут достаточно взрослыми, чтобы произвести потомство. "
 		],
 		[
+			312,
 			"Different animals live for different amounts of time. ",
 			"Различные животные живут в течении различного количества времени. "
 		],
 		[
+			313,
 			"A Galapagos tortoise can live for 150 years, but an adult mayfly usually lives for just a few hours.",
 			"Галапагосская черепаха может жить в течение 150 лет, но взрослая муха-однодневка обычно живет в течении только нескольких часов."
 		],
 		[
+			314,
 			"Breeding",
 			"Размножение. "
 		],
 		[
+			315,
 			"Most species of animal have males and females.",
 			"У большинства видов животных есть самцы и самки. "
 		],
 		[
+			316,
 			"Males produce sperm, and females produce eggs.",
 			"Самцы производят сперму, а самки производят яйца. "
 		],
 		[
+			317,
 			"Baby animals are made when sperm from the male joins together with an egg from the female. ",
 			"У животных детеныши появляются (создаются), когда сперматозоид от самца объединяется вместе с яйцом от самки. "
 		],
 		[
+			318,
 			"This is called fertilization.",
 			"Это называется оплодотворением. "
 		],
 		[
+			319,
 			"Some animals give birth to baby animals. ",
 			"Некоторые животные рожают (дают рождение) детенышей(детей животных). "
 		],
 		[
+			320,
 			"Other animals, like reptiles and birds, lay eggs. ",
 			"Другие животные, например рептилии и птицы, откладывают яйца. "
 		],
 		[
+			321,
 			"Their babies hatch - they break the egg open and come out.",
 			"У них детеныши вылупляются - они проламывают яйцо и выходят наружу. "
 		],
 		[
+			322,
 			"Most reptiles and birds care for their babies. ",
 			"Большинство рептилий и птиц заботятся о своих детенышах. "
 		],
 		[
+			323,
 			"Most insects and fish do not care for their eggs or their babies. ",
 			"Большинство насекомых и рыб не заботятся о своих яйцах или своих детенышах. "
 		],
 		[
+			324,
 			"All mammals care for their babies and feed them milk. ",
 			"Все млекопитающие заботятся о своих детенышах и кормят их молоком. "
 		],
 		[
+			325,
 			"Some big mammals stay with their babies for many years.",
 			"Некоторые крупные млекопитающие остаются со своими детенышами на протяжении многих лет."
 		]
@@ -23426,106 +23797,132 @@
 
 	module.exports = [
 		[
+			326,
 			"Insects",
 			"Насекомые. "
 		],
 		[
+			327,
 			"Insects are small animals like butterflies, beetles, flies, bees, and ants. ",
 			"Насекомые - это маленькие животные, такие как бабочки, жуки, мухи, пчелы и муравьи. "
 		],
 		[
+			328,
 			"There are more than a million species of insect in the world. ",
 			"Существует более чем миллион видов насекомых в мире. "
 		],
 		[
+			329,
 			"Many insects change in amazing ways during their life.",
 			"Многие насекомые изменяются удивительными способами в течение своей жизни."
 		],
 		[
+			330,
 			"Larvae and Nymphs",
 			"Личинки и нимфы. "
 		],
 		[
+			331,
 			"Almost all insects start their life in an egg. ",
 			"Почти все насекомые начинают свою жизнь в яйце. "
 		],
 		[
+			332,
 			"The young insect grows inside the egg and then it hatches. ",
 			"Молодое насекомое растет в яйце, а затем оно вылупляется. "
 		],
 		[
+			333,
 			"Some baby insects, like bees, look very different from their parents. ",
 			"Некоторые детеныши насекомых, таких как пчелы, внешне (выглядят) очень отличаются от своих родителей. "
 		],
 		[
+			334,
 			"These baby insects are called larvae. ",
 			"Эти детеныши насекомых называются личинками. "
 		],
 		[
+			335,
 			"Other baby insects, like locusts, look more like their parents.",
 			"Другие детеныши насекомых, таких как саранча, больше похожи на своих родителей. "
 		],
 		[
+			336,
 			"These baby insects are called nymphs. ",
 			"Эти детеныши насекомых называются нимфами. "
 		],
 		[
+			337,
 			"Larvae and nymphs are very small when they hatch.",
 			"Личинки и нимфы очень маленькие, когда они вылупляются."
 		],
 		[
+			338,
 			"Growing Up",
 			"Рост. "
 		],
 		[
+			339,
 			"A young insect eats a lot of food and grows very quickly. ",
 			"Молодое насекомое ест много пищи и растет очень быстро. "
 		],
 		[
+			340,
 			"It has a hard cover, called an exoskeleton.",
 			"Оно имеет твердую оболочку, называемую экзоскелет. "
 		],
 		[
+			341,
 			"When the exoskeleton is too small for the young insect, it breaks open and comes off. ",
 			"Когда экзоскелет становится слишком мал для молодого насекомого, он разрывается и сходит. "
 		],
 		[
+			342,
 			"A new exoskeleton grows under the old one.",
 			"Новый экзоскелет растет под старым. "
 		],
 		[
+			343,
 			"This is called molting.",
 			"Это называется линькой. "
 		],
 		[
+			344,
 			"Some insects grow wings that get bigger every time they molt. ",
 			"У некоторых насекомых вырастают крылья, которые становятся больше каждый раз, когда они линяют."
 		],
 		[
+			345,
 			"After the insect molts for the last time, it becomes an adult that can fly and produce young.",
 			"После того как насекомое линяет в последний раз оно становится взрослым, так что может летать и производить потомство. "
 		],
 		[
+			346,
 			"This is called incomplete metamorphosis.",
 			"Это называется неполным метаморфозом. "
 		],
 		[
+			347,
 			"Most insects change by complete metamorphosis.",
 			"Большинство насекомых изменяются полным метаморфозом. "
 		],
 		[
+			348,
 			"When the larva is ready to change into an adult, its exoskeleton comes off. ",
 			"Когда личинка готова превратиться во взрослого, ее экзоскелет сходит. "
 		],
 		[
+			349,
 			"Under the exoskeleton there's a pupa - it's like a closed case. ",
 			"Под экзоскелетом есть куколка - это как закрытый чехол. "
 		],
 		[
+			350,
 			"Inside the pupa, an amazing change happens. ",
 			"Внутри куколки происходит удивительное изменение. "
 		],
 		[
+			351,
 			"The larva changes into an adult that looks completely different!",
 			"Личинка превращается во взрослую, которое выглядит совершенно иначе!"
 		]

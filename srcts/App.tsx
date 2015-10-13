@@ -45,12 +45,16 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
         return storage.set(this.postId, this.userData);
     }
 
-    getCurrentOrigin() {
+    getCurrentLineId() {
         return this.postData.data[this.currentLine][0];
     }
 
-    getCurrentTranslate() {
+    getCurrentOrigin() {
         return this.postData.data[this.currentLine][1];
+    }
+
+    getCurrentTranslate() {
+        return this.postData.data[this.currentLine][2];
     }
 
     fill() {
@@ -61,7 +65,7 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
             this.sentences.push({
                 origin: this.getCurrentOrigin(),
                 originTranslate: this.getCurrentTranslate(),
-                userTranslate: line
+                userTranslate: line.items
             });
             this.setNextSentence();
         }
@@ -88,9 +92,9 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
         }
         this.showError = false;
 
-        const line = this.userData.lines[this.currentLine] || (this.userData.lines[this.currentLine] = []);
+        const line = this.userData.lines[this.currentLine] || (this.userData.lines[this.currentLine] = {id: this.getCurrentLineId(), items: []});
         this.userData.currentLine += 1;
-        line.push(input.value);
+        line.items.push(input.value);
         input.value = '';
         window.scrollTo(0, 100000);
         this.saveUserData();
@@ -98,7 +102,7 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
         this.sentences.push({
             origin: this.getCurrentOrigin(),
             originTranslate: this.getCurrentTranslate(),
-            userTranslate: this.userData.lines[this.currentLine]
+            userTranslate: this.userData.lines[this.currentLine].items
         });
         this.setNextSentence();
         this.translate = this.getCurrentTranslate();
