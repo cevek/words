@@ -46,15 +46,15 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
     }
 
     getCurrentLineId() {
-        return this.postData.data[this.currentLine][0];
+        return this.postData.data[this.currentLine].id;
     }
 
     getCurrentOrigin() {
-        return this.postData.data[this.currentLine][1];
+        return this.postData.data[this.currentLine].origin;
     }
 
     getCurrentTranslate() {
-        return this.postData.data[this.currentLine][2];
+        return this.postData.data[this.currentLine].translate;
     }
 
     fill() {

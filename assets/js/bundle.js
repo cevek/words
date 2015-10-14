@@ -20770,13 +20770,13 @@
 	        return storage_1.storage.set(this.postId, this.userData);
 	    };
 	    App.prototype.getCurrentLineId = function () {
-	        return this.postData.data[this.currentLine][0];
+	        return this.postData.data[this.currentLine].id;
 	    };
 	    App.prototype.getCurrentOrigin = function () {
-	        return this.postData.data[this.currentLine][1];
+	        return this.postData.data[this.currentLine].origin;
 	    };
 	    App.prototype.getCurrentTranslate = function () {
-	        return this.postData.data[this.currentLine][2];
+	        return this.postData.data[this.currentLine].translate;
 	    };
 	    App.prototype.fill = function () {
 	        this.sentences = [];
@@ -21624,10 +21624,126 @@
 	var assign = Object.assign;
 	var prefix = 'post-';
 	var currentVersion = 1;
+	var UserInput = (function () {
+	    function UserInput(id, textId, text) {
+	        this.id = id;
+	        this.textId = textId;
+	        this.text = text;
+	        shardStore.getShard(id).addUserText(this);
+	    }
+	    UserInput.prototype.save = function () {
+	        return shardStore.getShard(this.id).save();
+	    };
+	    return UserInput;
+	})();
+	var userInputStore = new (function () {
+	    function class_1() {
+	        this.userInputs = [];
+	        this.autoIncrementId = 1;
+	    }
+	    class_1.prototype.create = function (textId, text) {
+	        var userInput = new UserInput(this.autoIncrementId++, textId, text);
+	        this.userInputs.push(userInput);
+	        return userInput;
+	    };
+	    class_1.prototype.saveAll = function () {
+	        var queue = [];
+	        for (var _i = 0, _a = this.userInputs; _i < _a.length; _i++) {
+	            var userInput = _a[_i];
+	            queue.push(userInput.save());
+	        }
+	        return Promise.all(queue);
+	    };
+	    return class_1;
+	})();
+	var shardStore = new (function () {
+	    function class_2() {
+	    }
+	    class_2.prototype.getShard = function (userInputId) {
+	        var id = userInputId / 30 | 0;
+	        var shard = this.shards.filter(function (shard) { return shard.id == id; }).pop();
+	        if (!shard) {
+	            shard = new Shard(id);
+	        }
+	        return shard;
+	    };
+	    class_2.prototype.findAll = function () {
+	    };
+	    return class_2;
+	})();
+	var Shard = (function () {
+	    function Shard(id) {
+	        this.id = id;
+	        this.texts = [];
+	    }
+	    Shard.prototype.addUserText = function (userInput) {
+	        this.texts.push(userInput);
+	        return this;
+	    };
+	    Shard.prototype.getKey = function () {
+	        return 'shard-' + this.id;
+	    };
+	    Shard.prototype.update = function () {
+	        localStorage[this.getKey()] = JSON.stringify(this);
+	    };
+	    Shard.prototype.toJson = function () {
+	        return {
+	            revision: this.revision,
+	            version: this.version,
+	            texts: this.texts.map(function (userInput) { return [userInput.id, userInput.textId, userInput.text]; })
+	        };
+	    };
+	    Shard.prototype.fromJson = function (serverData) {
+	        if (this.revision < serverData.revision) {
+	            this.revision = serverData.revision;
+	            this.version = serverData.version;
+	            this.texts = serverData.texts.map(function (json) { return new UserInput(json[0], json[1], json[2]); });
+	            this.update();
+	        }
+	    };
+	    Shard.prototype.save = function () {
+	        var _this = this;
+	        if (this.savingPromise) {
+	            return this.savingPromise;
+	        }
+	        return this.savingPromise = Promise.resolve().then(function () {
+	            var key = _this.getKey();
+	            if (Account_1.account.isAuthorized) {
+	                if (_this.serverRevision < _this.revision) {
+	                    var revision = _this.revision;
+	                    _this.fetch().then(function () {
+	                        if (revision === _this.revision) {
+	                            return vk_1.vk.setKey(key, _this.toJson()).then(function () {
+	                                _this.serverRevision = revision;
+	                                _this.update();
+	                            });
+	                        }
+	                    });
+	                }
+	            }
+	        }).then(function () {
+	            _this.savingPromise = null;
+	        });
+	    };
+	    Shard.prototype.fetch = function () {
+	        var _this = this;
+	        return vk_1.vk.getKey(this.getKey()).then(function (serverData) { return _this.fromJson(serverData); });
+	    };
+	    return Shard;
+	})();
 	var Storage = (function () {
 	    function Storage() {
 	        this.data = {};
 	    }
+	    /*
+	        save(id)
+	            shard = getShard(id)
+	            shard.save()
+	            get(id)
+	
+	
+	
+	     */
 	    Storage.prototype.set = function (postId, data) {
 	        var key = prefix + postId;
 	        data.revision++;
@@ -21644,6 +21760,7 @@
 	        }
 	        return data;
 	    };
+	    //[1111,1111,"Today, there is a new man at the market.asdf asfd asf af"],
 	    Storage.prototype.save = function (key, data) {
 	        var _this = this;
 	        if (Account_1.account.isAuthorized) {
@@ -21750,7 +21867,7 @@
 	            for (var i = 0; i < data.lines.length; i++) {
 	                var line = data.lines[i];
 	                data.lines[i] = {
-	                    id: postsIds[postId].data[i][0],
+	                    id: postsIds[postId].data[i].id,
 	                    items: line
 	                };
 	            }
@@ -22021,38 +22138,45 @@
 	        "id": "alissa",
 	        "title": "Alissa",
 	        "parts": [
-	            { "id": "alissa-1", "title": "Part1", "data": __webpack_require__(171) },
-	            { "id": "alissa-2", "title": "Part2", "data": __webpack_require__(172) },
-	            { "id": "alissa-3", "title": "Part3", "data": __webpack_require__(173) },
-	            { "id": "alissa-4", "title": "Part4", "data": __webpack_require__(174) },
-	            { "id": "alissa-5", "title": "Part5", "data": __webpack_require__(175) },
+	            { "id": "alissa-1", "title": "Part1", "data": null, "rawData": __webpack_require__(171) },
+	            { "id": "alissa-2", "title": "Part2", "data": null, "rawData": __webpack_require__(172) },
+	            { "id": "alissa-3", "title": "Part3", "data": null, "rawData": __webpack_require__(173) },
+	            { "id": "alissa-4", "title": "Part4", "data": null, "rawData": __webpack_require__(174) },
+	            { "id": "alissa-5", "title": "Part5", "data": null, "rawData": __webpack_require__(175) },
 	        ],
 	    },
 	    {
 	        "id": "sara",
 	        "title": "Sara",
 	        "parts": [
-	            { "id": "sara-1", "title": "Part1", "data": __webpack_require__(176) },
-	            { "id": "sara-2", "title": "Part2", "data": __webpack_require__(177) },
-	            { "id": "sara-3", "title": "Part3", "data": __webpack_require__(178) },
-	            { "id": "sara-4", "title": "Part4", "data": __webpack_require__(179) },
-	            { "id": "sara-5", "title": "Part5", "data": __webpack_require__(180) },
-	            { "id": "sara-6", "title": "Part6", "data": __webpack_require__(181) },
-	            { "id": "sara-7", "title": "Part7", "data": __webpack_require__(182) },
+	            { "id": "sara-1", "title": "Part1", "data": null, "rawData": __webpack_require__(176) },
+	            { "id": "sara-2", "title": "Part2", "data": null, "rawData": __webpack_require__(177) },
+	            { "id": "sara-3", "title": "Part3", "data": null, "rawData": __webpack_require__(178) },
+	            { "id": "sara-4", "title": "Part4", "data": null, "rawData": __webpack_require__(179) },
+	            { "id": "sara-5", "title": "Part5", "data": null, "rawData": __webpack_require__(180) },
+	            { "id": "sara-6", "title": "Part6", "data": null, "rawData": __webpack_require__(181) },
+	            { "id": "sara-7", "title": "Part7", "data": null, "rawData": __webpack_require__(182) },
 	        ]
 	    },
 	    {
 	        "id": "animal",
 	        "title": "Animal Life Cycles",
 	        "parts": [
-	            { "id": "animal-1", "title": "Part1", "data": __webpack_require__(183) },
-	            { "id": "animal-2", "title": "Part2", "data": __webpack_require__(184) },
-	            { "id": "animal-3", "title": "Part3", "data": __webpack_require__(185) },
+	            { "id": "animal-1", "title": "Part1", "data": null, "rawData": __webpack_require__(183) },
+	            { "id": "animal-2", "title": "Part2", "data": null, "rawData": __webpack_require__(184) },
+	            { "id": "animal-3", "title": "Part3", "data": null, "rawData": __webpack_require__(185) },
 	        ]
 	    },
 	];
 	//var id = 1; posts.forEach(item => item.parts.forEach(part => part.data.forEach(line => line.unshift(id++))));
-	//posts.forEach(item => item.parts.forEach(part => console.log(part.id, JSON.stringify(part.data))));
+	exports.posts.forEach(function (item) { return item.parts.forEach(function (part) {
+	    part.data = part.rawData.map(function (rawData) { return ({
+	        id: rawData[0],
+	        partId: part.id,
+	        origin: rawData[1],
+	        translate: rawData[2],
+	    }); });
+	}); });
 	//console.log(posts);
 	function findPartById(id) {
 	    for (var _i = 0; _i < exports.posts.length; _i++) {
