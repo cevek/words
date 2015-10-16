@@ -36,7 +36,7 @@ function prepareNoMoved(rule:string) {
     return blockMap;
 }
 const noMovedWords = prepareNoMoved('a,the,are,is,do,on,in,at');
-const rules = prepareRules('a,the|are,is|dinner,lunch|every,each|his,her,him|big,large');
+const rules = prepareRules('a,the|are,is|dinner,lunch|every,each|his,her,him|big,large|for,during|hard,strong|about,for');
 
 export class Word {
     key:string;
