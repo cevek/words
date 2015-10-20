@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <title></title>
     <style type="text/css">
-        html, body { padding: 0; margin: 0 }
+        html, body {
+            padding: 0;
+            margin: 0
+        }
+
         textarea {
             position: absolute;
             box-sizing: border-box;
@@ -16,9 +20,17 @@
             border: none;
             padding: 5px 10px;
         }
+
         textarea#result {
             border-left: 1px solid silver;
             left: 50%;
+        }
+
+        #startPos{
+            position: absolute;
+            top: 0;
+            left: calc(50% - 55px);
+            width: 50px;
         }
     </style>
 </head>
@@ -26,12 +38,15 @@
 <div>
     <textarea id="text"></textarea>
     <textarea id="result"></textarea>
+    <input id="startPos"/>
 </div>
 
 
 <script type="text/javascript">
 
-    function prepare(s) {
+    var startPos = 374;
+
+    function prepare(s, startPos) {
         var ss = s.trim().replace(/\n\s*\n+\s*/, '\n\n').trim();
 
         var blocks = ss.split(/\n\s*\n/);
@@ -43,7 +58,7 @@
                 if (!translateLines[j]) {
                     throw new Error('translateLines not found: ' + originLines[j]);
                 }
-                lines.push([originLines[j], translateLines[j]]);
+                lines.push([startPos++, originLines[j], translateLines[j]]);
             }
         }
         return lines;
@@ -51,12 +66,16 @@
 
     var textTextarea = document.getElementById('text');
     var resultTextarea = document.getElementById('result');
+    var startPosInput = document.getElementById('startPos');
+    textTextarea.oninput = change;
+    startPosInput.oninput = change;
 
-    textTextarea.oninput = function () {
+    function change() {
         var s = textTextarea.value;
+        var startPos = startPos;//startPosInput.value;
         var res = '';
         try {
-            res = JSON.stringify({data: prepare(s)}, null, 2);
+            res = JSON.stringify(prepare(s, startPos), null, 2);
         }
         catch (e) {
             res = e.toString();

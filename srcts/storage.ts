@@ -253,23 +253,17 @@ class Storage {
     }
 
     migrate(key:string, data:any) {
-        var postId = this.getPostIdFromKey(key);
-
-        if (!data.version) {
-            data = migrations[0].up(key, postId, data);
-            this.save(key, data);
-        }
         return data;
     }
 }
 
 var migrations:{version: number; up: (key:string, postId:string, data:any)=>any}[] = [
-    {
+    /*{
         version: 1,
         up: (key:string, postId:string, data:any)=> {
 
         }
-    }
+    }*/
 ];
 export const storage = new Storage();
 (<any>window).stor = storage;

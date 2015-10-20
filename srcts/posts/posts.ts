@@ -11,8 +11,10 @@ export class Post {
     constructor(rawPost:RawPost) {
         this.id = rawPost.id;
         this.title = rawPost.title;
-        this.lines = rawPost.rawData.map(item => new PostLine(item[0], this.id, item[1], item[2]));
-        if (rawPost.parts){
+        if (rawPost.rawData) {
+            this.lines = rawPost.rawData.map(item => new PostLine(item[0], this.id, item[1], item[2]));
+        }
+        if (rawPost.parts) {
             this.parts = rawPost.parts.map(rawPost => new Post(rawPost));
         }
     }
@@ -45,6 +47,19 @@ const posts:RawPost[] = [
         ]
     },
     {
+        "id": "luckynumber",
+        "title": "Lucky Number",
+        "parts": [
+            {"id": "luckynumber-1", "title": "Part1", "rawData": require<RawData>("json!./luckynumber/1.json")},
+            //{"id": "luckynumber-2", "title": "Part2", "rawData": require<RawData>("json!./sara/2.json")},
+            //{"id": "luckynumber-3", "title": "Part3", "rawData": require<RawData>("json!./sara/3.json")},
+            //{"id": "luckynumber-4", "title": "Part4", "rawData": require<RawData>("json!./sara/4.json")},
+            //{"id": "luckynumber-5", "title": "Part5", "rawData": require<RawData>("json!./sara/5.json")},
+            //{"id": "luckynumber-6", "title": "Part6", "rawData": require<RawData>("json!./sara/6.json")},
+            //{"id": "luckynumber-7", "title": "Part7", "rawData": require<RawData>("json!./sara/7.json")},
+        ]
+    },
+    {
         "id": "animal",
         "title": "Animal Life Cycles",
         "parts": [
@@ -59,23 +74,30 @@ const posts:RawPost[] = [
     },
 ];
 
-export const postStorage = new class {
-    posts:Post[];
+export const postStorage = new (class {
+    posts:Post[] = [];
 
     addRawPosts(rawPosts:RawPost[]) {
-        this.posts = rawPosts.map(rawPost => new Post(rawPost));
+        rawPosts.map(rawPost => {
+            const post = new Post(rawPost);
+            this.posts.push(post);
+            this.posts.push(...post.parts);
+        });
     }
 
     getPostById(id:string):Post {
         return this.posts.filter(post => post.id == id).pop();
     }
-};
+});
+
 postStorage.addRawPosts(posts);
 
-export const postLineStorage = new class {
+
+class PostLineStorage {
     lines:PostLine[];
 
     getPostLineById(id:string) {
         return this.lines.filter(line => line.id == id).pop();
     }
-};
+}
+export const postLineStorage = new PostLineStorage;
