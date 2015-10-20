@@ -1,9 +1,10 @@
 import {HTTP} from './http';
 import {vk} from './vk';
 import {account} from './Account';
-import {Post} from './Post';
-import {posts} from './posts/posts';
-import {Part} from "./posts/posts";
+import {UserPost} from './UserPost';
+import {postStorage} from './posts/posts';
+import {Post} from "./posts/posts";
+import {PostLine} from "./PostLine";
 
 const assign:(target:any, ...sources:any[])=>any = (<any>Object).assign;
 
@@ -37,6 +38,16 @@ var userInputStore = new class {
         }
         return Promise.all(queue);
     }
+
+    getByPostLineId(id:number) {
+        return this.userInputs.filter(ui => ui.textId == id);
+    }
+
+    getLastInPost(postId:string) {
+        postStorage.getPostById(postId).lines.forEach(line => {
+
+        })
+    }
 };
 
 var shardStore = new class {
@@ -61,9 +72,10 @@ class Shard {
     revision:number;
     version:number;
     texts:UserInput[] = [];
-    savingPromise: Promise<void>;
+    savingPromise:Promise<void>;
 
-    constructor(public id:number) {}
+    constructor(public id:number) {
+    }
 
     addUserText(userInput:UserInput) {
         this.texts.push(userInput);
@@ -96,7 +108,7 @@ class Shard {
     }
 
     save() {
-        if (this.savingPromise){
+        if (this.savingPromise) {
             return this.savingPromise;
         }
         return this.savingPromise = Promise.resolve().then(()=> {
@@ -125,19 +137,19 @@ class Shard {
 }
 
 class Storage {
-    data:{[key: string]: Post} = {};
+    data:{[key: string]: UserPost} = {};
 
     /*
-        save(id)
-            shard = getShard(id)
-            shard.save()
-            get(id)
+     save(id)
+     shard = getShard(id)
+     shard.save()
+     get(id)
 
 
 
      */
 
-    set(postId:string, data:Post) {
+    set(postId:string, data:UserPost) {
         const key = prefix + postId;
         data.revision++;
         this.data[key] = data;
@@ -150,13 +162,13 @@ class Storage {
         const key = prefix + postId;
         let data = this.data[key];
         if (!data) {
-            this.data[key] = data = new Post(postId);
+            this.data[key] = data = new UserPost(postId);
         }
         return data;
     }
 
 //[1111,1111,"Today, there is a new man at the market.asdf asfd asf af"],
-    save(key:string, data:Post) {
+    save(key:string, data:UserPost) {
         if (account.isAuthorized) {
             if (data.serverRevision < data.revision) {
                 console.log("Save", key, data);
@@ -192,7 +204,7 @@ class Storage {
         http.put('https://wordss.firebaseio.com/web/data/users/' + account.userId + '/' + key + '.json', null, JSON.stringify(value));
     }
 
-    saveToLocalStorage(key:string, data:Post) {
+    saveToLocalStorage(key:string, data:UserPost) {
         localStorage[key] = JSON.stringify(data);
     }
 
@@ -204,7 +216,7 @@ class Storage {
         return key.substr(prefix.length);
     }
 
-    merge(key:string, localData:Post, serverData:Post) {
+    merge(key:string, localData:UserPost, serverData:UserPost) {
         if (!localData || localData.revision == null || localData.revision < serverData.revision) {
             this.data[key] = this.migrate(key, serverData);
             console.log("New data from vk", key, localData, serverData);
@@ -251,29 +263,11 @@ class Storage {
     }
 }
 
-var postsIds:{[index:string]:Part} = {};
-for (var i = 0; i < posts.length; i++) {
-    var post = posts[i];
-    for (var j = 0; j < post.parts.length; j++) {
-        var part = post.parts[j];
-        postsIds[part.id] = part;
-    }
-}
 var migrations:{version: number; up: (key:string, postId:string, data:any)=>any}[] = [
     {
         version: 1,
         up: (key:string, postId:string, data:any)=> {
-            data.version = 1;
-            data.revision++;
-            data.postId = postId;
-            for (var i = 0; i < data.lines.length; i++) {
-                var line = data.lines[i];
-                data.lines[i] = {
-                    id: postsIds[postId].data[i].id,
-                    items: line
-                }
-            }
-            return data;
+
         }
     }
 ];

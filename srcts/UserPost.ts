@@ -1,4 +1,4 @@
-export class Post {
+export class UserPost {
     revision = 0;
     serverRevision = 0;
     currentLine = 0;

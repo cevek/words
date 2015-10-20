@@ -3,9 +3,9 @@ import * as React from "react";
 import {HTTP} from './http';
 import {Sentence} from './Sentence';
 import {storage} from './storage';
-import {Post} from "./Post";
+import {UserPost} from "./UserPost";
 import {RealPost} from "./RealPost";
-import {findPartById, Part, posts} from "./posts/posts";
+import {Post, postStorage} from "./posts/posts";
 import {WordProcessor} from "./WordProcessor";
 
 // todo: the same keys => ..s, his-him-her, at-to-into, 1 sym mistake,
@@ -19,19 +19,19 @@ interface WordSentence {
 }
 
 export class App extends Component<{params: {id: string}; resolved: {postData:RealPost}}> {
-    userData:Post;
+    userData:UserPost;
     postId = this.props.params.id;
     sentences:WordSentence[] = [];
     currentLine = 0;
     isDone = false;
     translate = '';
-    postData:Part;
+    postData:Post;
 
     constructor(props:any) {
         super(props);
         this.render();
 
-        this.postData = findPartById(this.postId);
+        this.postData = postStorage.getPostById(this.postId);
         this.userData = storage.get(this.postId);
         this.fill();
     }
@@ -46,15 +46,15 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
     }
 
     getCurrentLineId() {
-        return this.postData.data[this.currentLine].id;
+        return this.postData.lines[this.currentLine].id;
     }
 
     getCurrentOrigin() {
-        return this.postData.data[this.currentLine].origin;
+        return this.postData.lines[this.currentLine].origin;
     }
 
     getCurrentTranslate() {
-        return this.postData.data[this.currentLine].translate;
+        return this.postData.lines[this.currentLine].translate;
     }
 
     fill() {
@@ -73,7 +73,7 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
     }
 
     setNextSentence() {
-        if (this.postData.data.length - 1 == this.currentLine) {
+        if (this.postData.lines.length - 1 == this.currentLine) {
             this.isDone = true;
         }
         else {
