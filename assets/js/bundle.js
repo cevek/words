@@ -53,8 +53,8 @@
 	var Component_1 = __webpack_require__(157);
 	var Router_1 = __webpack_require__(158);
 	var App_1 = __webpack_require__(159);
-	var List_1 = __webpack_require__(186);
-	var routes_1 = __webpack_require__(187);
+	var List_1 = __webpack_require__(188);
+	var routes_1 = __webpack_require__(189);
 	var Account_1 = __webpack_require__(168);
 	var WordProcessor_1 = __webpack_require__(162);
 	var Main = (function (_super) {
@@ -20758,7 +20758,7 @@
 	        this.inputErrorsCount = 0;
 	        this.showError = false;
 	        this.render();
-	        this.postData = posts_1.findPartById(this.postId);
+	        this.postData = posts_1.postStorage.getPostById(this.postId);
 	        this.userData = storage_1.storage.get(this.postId);
 	        this.fill();
 	    }
@@ -20770,13 +20770,13 @@
 	        return storage_1.storage.set(this.postId, this.userData);
 	    };
 	    App.prototype.getCurrentLineId = function () {
-	        return this.postData.data[this.currentLine].id;
+	        return this.postData.lines[this.currentLine].id;
 	    };
 	    App.prototype.getCurrentOrigin = function () {
-	        return this.postData.data[this.currentLine].origin;
+	        return this.postData.lines[this.currentLine].origin;
 	    };
 	    App.prototype.getCurrentTranslate = function () {
-	        return this.postData.data[this.currentLine].translate;
+	        return this.postData.lines[this.currentLine].translate;
 	    };
 	    App.prototype.fill = function () {
 	        this.sentences = [];
@@ -20793,7 +20793,7 @@
 	        this.translate = this.getCurrentTranslate();
 	    };
 	    App.prototype.setNextSentence = function () {
-	        if (this.postData.data.length - 1 == this.currentLine) {
+	        if (this.postData.lines.length - 1 == this.currentLine) {
 	            this.isDone = true;
 	        }
 	        else {
@@ -21619,7 +21619,7 @@
 	var http_1 = __webpack_require__(165);
 	var vk_1 = __webpack_require__(166);
 	var Account_1 = __webpack_require__(168);
-	var Post_1 = __webpack_require__(169);
+	var UserPost_1 = __webpack_require__(169);
 	var posts_1 = __webpack_require__(170);
 	var assign = Object.assign;
 	var prefix = 'post-';
@@ -21629,6 +21629,8 @@
 	        this.id = id;
 	        this.textId = textId;
 	        this.text = text;
+	        this.postLine = posts_1.postLineStorage.getPostLineById(textId);
+	        this.postId = this.postLine.postId;
 	        shardStore.getShard(id).addUserText(this);
 	    }
 	    UserInput.prototype.save = function () {
@@ -21654,20 +21656,53 @@
 	        }
 	        return Promise.all(queue);
 	    };
+	    class_1.prototype.getByPostLineId = function (id) {
+	        return this.userInputs.filter(function (ui) { return ui.textId == id; });
+	    };
+	    class_1.prototype.getLastInPost = function (postId) {
+	        return this.userInputs.filter(function (ui) { return ui.postId == postId; }).pop();
+	    };
 	    return class_1;
 	})();
+	var shardPrefix = 'shard-';
 	var shardStore = new (function () {
 	    function class_2() {
 	    }
 	    class_2.prototype.getShard = function (userInputId) {
-	        var id = userInputId / 30 | 0;
+	        var id = userInputId / 20 | 0;
 	        var shard = this.shards.filter(function (shard) { return shard.id == id; }).pop();
 	        if (!shard) {
 	            shard = new Shard(id);
 	        }
 	        return shard;
 	    };
-	    class_2.prototype.findAll = function () {
+	    class_2.prototype.checkKey = function (key) {
+	        return key.substr(0, shardPrefix.length) == prefix;
+	    };
+	    class_2.prototype.getIdFromKey = function (key) {
+	        return +key.substr(shardPrefix.length);
+	    };
+	    class_2.prototype.fetchAll = function () {
+	        var _this = this;
+	        //console.log("FetchAll");
+	        //this.data = {};
+	        for (var key in localStorage) {
+	            if (this.checkKey(key)) {
+	                var data = JSON.parse(localStorage[key] || "{}");
+	                new Shard(this.getIdFromKey(key)).fromJson(data);
+	            }
+	        }
+	        if (Account_1.account.isAuthorized) {
+	            return vk_1.vk.getAllData().then(function (vkData) {
+	                for (var key in vkData) {
+	                    if (_this.checkKey(key)) {
+	                        var shard = new Shard(_this.getIdFromKey(key));
+	                        shard.fromJson(vkData[key]);
+	                    }
+	                }
+	            });
+	        }
+	        return Promise.resolve();
 	    };
 	    return class_2;
 	})();
@@ -21681,7 +21716,7 @@
 	        return this;
 	    };
 	    Shard.prototype.getKey = function () {
-	        return 'shard-' + this.id;
+	        return shardPrefix + this.id;
 	    };
 	    Shard.prototype.update = function () {
 	        localStorage[this.getKey()] = JSON.stringify(this);
@@ -21700,6 +21735,7 @@
 	            this.texts = serverData.texts.map(function (json) { return new UserInput(json[0], json[1], json[2]); });
 	            this.update();
 	        }
+	        return this;
 	    };
 	    Shard.prototype.save = function () {
 	        var _this = this;
@@ -21736,10 +21772,10 @@
 	        this.data = {};
 	    }
 	    /*
-	        save(id)
-	            shard = getShard(id)
-	            shard.save()
-	            get(id)
+	     save(id)
+	     shard = getShard(id)
+	     shard.save()
+	     get(id)
 	
 	
 	
@@ -21756,7 +21792,7 @@
 	        var key = prefix + postId;
 	        var data = this.data[key];
 	        if (!data) {
-	            this.data[key] = data = new Post_1.Post(postId);
+	            this.data[key] = data = new UserPost_1.UserPost(postId);
 	        }
 	        return data;
 	    };
@@ -21840,41 +21876,11 @@
 	        return Promise.resolve(this.data);
 	    };
 	    Storage.prototype.migrate = function (key, data) {
-	        var postId = this.getPostIdFromKey(key);
-	        if (!data.version) {
-	            data = migrations[0].up(key, postId, data);
-	            this.save(key, data);
-	        }
 	        return data;
 	    };
 	    return Storage;
 	})();
-	var postsIds = {};
-	for (var i = 0; i < posts_1.posts.length; i++) {
-	    var post = posts_1.posts[i];
-	    for (var j = 0; j < post.parts.length; j++) {
-	        var part = post.parts[j];
-	        postsIds[part.id] = part;
-	    }
-	}
-	var migrations = [
-	    {
-	        version: 1,
-	        up: function (key, postId, data) {
-	            data.version = 1;
-	            data.revision++;
-	            data.postId = postId;
-	            for (var i = 0; i < data.lines.length; i++) {
-	                var line = data.lines[i];
-	                data.lines[i] = {
-	                    id: postsIds[postId].data[i].id,
-	                    items: line
-	                };
-	            }
-	            return data;
-	        }
-	    }
-	];
+	var migrations = [];
 	exports.storage = new Storage();
 	window.stor = exports.storage;
 	setInterval(function () {
@@ -22115,85 +22121,131 @@
 /* 169 */
 /***/ function(module, exports) {
 
-	var Post = (function () {
-	    function Post(postId) {
+	var UserPost = (function () {
+	    function UserPost(postId) {
 	        this.postId = postId;
 	        this.revision = 0;
 	        this.serverRevision = 0;
 	        this.currentLine = 0;
 	        this.lines = [];
 	    }
-	    return Post;
+	    return UserPost;
 	})();
-	exports.Post = Post;
+	exports.UserPost = UserPost;
 
 
 /***/ },
 /* 170 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var PostLine_1 = __webpack_require__(171);
+	var Post = (function () {
+	    function Post(rawPost, isTop) {
+	        var _this = this;
+	        this.isTop = isTop;
+	        this.id = rawPost.id;
+	        this.title = rawPost.title;
+	        if (rawPost.rawData) {
+	            this.lines = rawPost.rawData.map(function (item) { return new PostLine_1.PostLine(item[0], _this.id, item[1], item[2]); });
+	        }
+	        if (rawPost.parts) {
+	            this.parts = rawPost.parts.map(function (rawPost) { return new Post(rawPost, false); });
+	        }
+	    }
+	    return Post;
+	})();
+	exports.Post = Post;
 	var nextId = 352;
-	exports.posts = [
+	var posts = [
 	    {
 	        "id": "alissa",
 	        "title": "Alissa",
 	        "parts": [
-	            { "id": "alissa-1", "title": "Part1", "data": null, "rawData": __webpack_require__(171) },
-	            { "id": "alissa-2", "title": "Part2", "data": null, "rawData": __webpack_require__(172) },
-	            { "id": "alissa-3", "title": "Part3", "data": null, "rawData": __webpack_require__(173) },
-	            { "id": "alissa-4", "title": "Part4", "data": null, "rawData": __webpack_require__(174) },
-	            { "id": "alissa-5", "title": "Part5", "data": null, "rawData": __webpack_require__(175) },
+	            { "id": "alissa-1", "title": "Part1", "rawData": __webpack_require__(172) },
+	            { "id": "alissa-2", "title": "Part2", "rawData": __webpack_require__(173) },
+	            { "id": "alissa-3", "title": "Part3", "rawData": __webpack_require__(174) },
+	            { "id": "alissa-4", "title": "Part4", "rawData": __webpack_require__(175) },
+	            { "id": "alissa-5", "title": "Part5", "rawData": __webpack_require__(176) },
 	        ],
 	    },
 	    {
 	        "id": "sara",
 	        "title": "Sara",
 	        "parts": [
-	            { "id": "sara-1", "title": "Part1", "data": null, "rawData": __webpack_require__(176) },
-	            { "id": "sara-2", "title": "Part2", "data": null, "rawData": __webpack_require__(177) },
-	            { "id": "sara-3", "title": "Part3", "data": null, "rawData": __webpack_require__(178) },
-	            { "id": "sara-4", "title": "Part4", "data": null, "rawData": __webpack_require__(179) },
-	            { "id": "sara-5", "title": "Part5", "data": null, "rawData": __webpack_require__(180) },
-	            { "id": "sara-6", "title": "Part6", "data": null, "rawData": __webpack_require__(181) },
-	            { "id": "sara-7", "title": "Part7", "data": null, "rawData": __webpack_require__(182) },
+	            { "id": "sara-1", "title": "Part1", "rawData": __webpack_require__(177) },
+	            { "id": "sara-2", "title": "Part2", "rawData": __webpack_require__(178) },
+	            { "id": "sara-3", "title": "Part3", "rawData": __webpack_require__(179) },
+	            { "id": "sara-4", "title": "Part4", "rawData": __webpack_require__(180) },
+	            { "id": "sara-5", "title": "Part5", "rawData": __webpack_require__(181) },
+	            { "id": "sara-6", "title": "Part6", "rawData": __webpack_require__(182) },
+	            { "id": "sara-7", "title": "Part7", "rawData": __webpack_require__(183) },
+	        ]
+	    },
+	    {
+	        "id": "luckynumber",
+	        "title": "Lucky Number",
+	        "parts": [
+	            { "id": "luckynumber-1", "title": "Part1", "rawData": __webpack_require__(184) },
 	        ]
 	    },
 	    {
 	        "id": "animal",
 	        "title": "Animal Life Cycles",
 	        "parts": [
-	            { "id": "animal-1", "title": "Part1", "data": null, "rawData": __webpack_require__(183) },
-	            { "id": "animal-2", "title": "Part2", "data": null, "rawData": __webpack_require__(184) },
-	            { "id": "animal-3", "title": "Part3", "data": null, "rawData": __webpack_require__(185) },
+	            { "id": "animal-1", "title": "Part1", "rawData": __webpack_require__(185) },
+	            { "id": "animal-2", "title": "Part2", "rawData": __webpack_require__(186) },
+	            { "id": "animal-3", "title": "Part3", "rawData": __webpack_require__(187) },
 	        ]
 	    },
 	];
-	//var id = 1; posts.forEach(item => item.parts.forEach(part => part.data.forEach(line => line.unshift(id++))));
-	exports.posts.forEach(function (item) { return item.parts.forEach(function (part) {
-	    part.data = part.rawData.map(function (rawData) { return ({
-	        id: rawData[0],
-	        partId: part.id,
-	        origin: rawData[1],
-	        translate: rawData[2],
-	    }); });
-	}); });
-	//console.log(posts);
-	function findPartById(id) {
-	    for (var _i = 0; _i < exports.posts.length; _i++) {
-	        var post = exports.posts[_i];
-	        for (var _a = 0, _b = post.parts; _a < _b.length; _a++) {
-	            var part = _b[_a];
-	            if (part.id == id) {
-	                return part;
-	            }
-	        }
+	exports.postStorage = new ((function () {
+	    function class_1() {
+	        this.posts = [];
 	    }
-	}
-	exports.findPartById = findPartById;
+	    class_1.prototype.addRawPosts = function (rawPosts) {
+	        var _this = this;
+	        rawPosts.map(function (rawPost) {
+	            var post = new Post(rawPost, true);
+	            _this.posts.push(post);
+	            (_a = _this.posts).push.apply(_a, post.parts);
+	            var _a;
+	        });
+	    };
+	    class_1.prototype.getPostById = function (id) {
+	        return this.posts.filter(function (post) { return post.id == id; }).pop();
+	    };
+	    return class_1;
+	})());
+	exports.postStorage.addRawPosts(posts);
+	var PostLineStorage = (function () {
+	    function PostLineStorage() {
+	    }
+	    PostLineStorage.prototype.getPostLineById = function (id) {
+	        return this.lines.filter(function (line) { return line.id == id; }).pop();
+	    };
+	    return PostLineStorage;
+	})();
+	exports.postLineStorage = new PostLineStorage;
 
 
 /***/ },
 /* 171 */
+/***/ function(module, exports) {
+
+	var PostLine = (function () {
+	    function PostLine(id, postId, origin, translate) {
+	        this.id = id;
+	        this.postId = postId;
+	        this.origin = origin;
+	        this.translate = translate;
+	    }
+	    return PostLine;
+	})();
+	exports.PostLine = PostLine;
+
+
+/***/ },
+/* 172 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22345,7 +22397,7 @@
 	];
 
 /***/ },
-/* 172 */
+/* 173 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22452,7 +22504,7 @@
 	];
 
 /***/ },
-/* 173 */
+/* 174 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22584,7 +22636,7 @@
 	];
 
 /***/ },
-/* 174 */
+/* 175 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22706,7 +22758,7 @@
 	];
 
 /***/ },
-/* 175 */
+/* 176 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22843,7 +22895,7 @@
 	];
 
 /***/ },
-/* 176 */
+/* 177 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22940,7 +22992,7 @@
 	];
 
 /***/ },
-/* 177 */
+/* 178 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23042,7 +23094,7 @@
 	];
 
 /***/ },
-/* 178 */
+/* 179 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23169,7 +23221,7 @@
 	];
 
 /***/ },
-/* 179 */
+/* 180 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23286,7 +23338,7 @@
 	];
 
 /***/ },
-/* 180 */
+/* 181 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23428,7 +23480,7 @@
 	];
 
 /***/ },
-/* 181 */
+/* 182 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23550,7 +23602,7 @@
 	];
 
 /***/ },
-/* 182 */
+/* 183 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23622,7 +23674,124 @@
 	];
 
 /***/ },
-/* 183 */
+/* 184 */
+/***/ function(module, exports) {
+
+	module.exports = [
+		[
+			352,
+			"Cafe Colombo is always busy. ",
+			"Кафе Коломбо всегда оживленный. "
+		],
+		[
+			353,
+			"There are always people sitting at the tables in Cafe Colombo. ",
+			"Есть всегда люди, ~сидящие за столиками в кафе Коломбо. "
+		],
+		[
+			354,
+			"The men and women are all well-dressed. ",
+			"Мужчины и женщины все хорошо одеты. "
+		],
+		[
+			355,
+			"They drink coffee.",
+			"Они пьют кофе. "
+		],
+		[
+			356,
+			"They eat ice-cream. ",
+			"Они едят мороженое. "
+		],
+		[
+			357,
+			"They read newspapers.\t",
+			"Они читают газеты."
+		],
+		[
+			358,
+			"Charlie does not sit in Cafe Colombo.",
+			"Чарли не сидит в кафе Коломбо. "
+		],
+		[
+			359,
+			"Charlie is not well-dressed. ",
+			"Чарли не хорошо одет. "
+		],
+		[
+			360,
+			"He sits on the pavement outside Cafe Colombo.",
+			"Он сидит на тротуаре снаружи кафе Коломбо. "
+		],
+		[
+			361,
+			"He sits on a small box.",
+			"Он сидит на маленькой коробке. "
+		],
+		[
+			362,
+			"Charlie is a shoeshine boy. ",
+			"Чарли мальчик-чистильщик обуви. "
+		],
+		[
+			363,
+			"Charlie shines shoes. ",
+			"Чарли чистит обувь. "
+		],
+		[
+			364,
+			"He does not go to school.",
+			"Он не ходит в школу. "
+		],
+		[
+			365,
+			"He works all day.",
+			"Он работает весь день."
+		],
+		[
+			366,
+			"Charlie shines men’s shoes. ",
+			"Чарли чистит мужскую обувь. "
+		],
+		[
+			367,
+			"He shines ladies’ shoes. ",
+			"Он чистит женскую обувь. "
+		],
+		[
+			368,
+			"He shines black shoes. ",
+			"Он чистит черные ботинки. "
+		],
+		[
+			369,
+			"He shines brown shoes. ",
+			"Он чистит коричневые ботинки. "
+		],
+		[
+			370,
+			"He shines blue shoes.",
+			"Он чистит синие ботинки."
+		],
+		[
+			371,
+			"- Shoeshine! Shoeshine!",
+			"Чистка обуви! Чистка обуви! "
+		],
+		[
+			372,
+			"Ten cents! Ten cents!",
+			"Десять центов! Десять центов! "
+		],
+		[
+			373,
+			"Ten cents a shine!",
+			"Десять центов чистка!"
+		]
+	];
+
+/***/ },
+/* 185 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23774,7 +23943,7 @@
 	];
 
 /***/ },
-/* 184 */
+/* 186 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23916,7 +24085,7 @@
 	];
 
 /***/ },
-/* 185 */
+/* 187 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -24053,7 +24222,7 @@
 	];
 
 /***/ },
-/* 186 */
+/* 188 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __extends = (this && this.__extends) || function (d, b) {
@@ -24063,7 +24232,7 @@
 	};
 	var React = __webpack_require__(1);
 	var posts_1 = __webpack_require__(170);
-	var routes_1 = __webpack_require__(187);
+	var routes_1 = __webpack_require__(189);
 	var Component_1 = __webpack_require__(157);
 	var List = (function (_super) {
 	    __extends(List, _super);
@@ -24071,8 +24240,7 @@
 	        _super.apply(this, arguments);
 	    }
 	    List.prototype.render = function () {
-	        console.log(posts_1.posts);
-	        return React.createElement("div", {"className": "posts"}, posts_1.posts.map(function (post) {
+	        return React.createElement("div", {"className": "posts"}, posts_1.postStorage.posts.filter(function (post) { return post.isTop; }).map(function (post) {
 	            return React.createElement("div", {"className": "post"}, React.createElement("h1", null, post.title), post.parts.map(function (part) {
 	                return React.createElement("div", {"className": "part"}, React.createElement("div", {"className": "part-link", "onClick": function () { return routes_1.routes.post.goto({ id: part.id }); }}, part.title));
 	            }));
@@ -24084,7 +24252,7 @@
 
 
 /***/ },
-/* 187 */
+/* 189 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Router_1 = __webpack_require__(158);

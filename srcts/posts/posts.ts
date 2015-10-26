@@ -1,21 +1,23 @@
 import {PostLine} from "../PostLine";
 import {UserPost} from "../UserPost";
-type RawData = [string, string, string][];
+type RawData = [number, string, string][];
 type RawPost = {id: string; title: string; rawData?: RawData, parts?: RawPost[]};
 export class Post {
     id:string;
     title:string;
     parts:Post[];
     lines:PostLine[];
+    isTop:boolean;
 
-    constructor(rawPost:RawPost) {
+    constructor(rawPost:RawPost, isTop:boolean) {
+        this.isTop = isTop;
         this.id = rawPost.id;
         this.title = rawPost.title;
         if (rawPost.rawData) {
             this.lines = rawPost.rawData.map(item => new PostLine(item[0], this.id, item[1], item[2]));
         }
         if (rawPost.parts) {
-            this.parts = rawPost.parts.map(rawPost => new Post(rawPost));
+            this.parts = rawPost.parts.map(rawPost => new Post(rawPost, false));
         }
     }
 }
@@ -79,7 +81,7 @@ export const postStorage = new (class {
 
     addRawPosts(rawPosts:RawPost[]) {
         rawPosts.map(rawPost => {
-            const post = new Post(rawPost);
+            const post = new Post(rawPost, true);
             this.posts.push(post);
             this.posts.push(...post.parts);
         });
@@ -92,11 +94,10 @@ export const postStorage = new (class {
 
 postStorage.addRawPosts(posts);
 
-
 class PostLineStorage {
     lines:PostLine[];
 
-    getPostLineById(id:string) {
+    getPostLineById(id:number):PostLine {
         return this.lines.filter(line => line.id == id).pop();
     }
 }

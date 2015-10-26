@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script type="text/javascript">
+
+
+    Array.prototype.get = function getter(field, value) {
+        return this.index[field][value];
+    };
+
+    function getter(array, field, value) {
+        return array.index[field][value];
+    }
+
+    var a = [];
+    a.index = {name: {0: "boom1", 1: "boom2", 2: "boom3"}};
+
+    var proto = [];
+    proto.getBy = function () {
+
+    };
+
+    var ggeyBy = {
+        enumerable: false,
+        configurable: false,
+        writable: false,
+        value: function () {}
+    };
+
+
+    var props = {
+        getBy: {
+            enumerable: false,
+            configurable: false,
+            writable: false,
+            value: function () {}
+        },
+        getAllBy: {
+            enumerable: false,
+            configurable: false,
+            writable: false,
+            value: function () {}
+        },
+        getIndexBy: {
+            enumerable: false,
+            configurable: false,
+            writable: false,
+            value: function () {}
+        }
+    };
+    var sym = Symbol('foo');
+
+    function arr(array) {
+
+//        Object.setPrototypeOf(array, proto);
+//        return (function () {
+//            return array;
+//
+//        })(array);
+//        Object.defineProperty(array, 'getBy', ggeyBy);
+//        array.index = {};
+/*
+        array.getBy = proto.getBy;
+        array.getAllBy = proto.getBy;
+        array.getIndexBy = proto.getBy;
+*/
+       /*
+
+        array.getBy1 = proto.getBy;
+        array.getAllBy1 = proto.getBy;
+        array.getIndexBy1 = proto.getBy;
+
+        array.getBy2 = proto.getBy;
+        array.getAllBy2 = proto.getBy;
+        array.getIndexBy2 = proto.getBy;
+
+        array.getBy3 = proto.getBy;
+        array.getAllBy3 = proto.getBy;
+        array.getIndexBy3 = proto.getBy;
+
+        array.getBy4 = proto.getBy;
+        array.getAllBy4 = proto.getBy;
+        array.getIndexBy4 = proto.getBy;
+
+        array.getBy5 = proto.getBy;
+        array.getAllBy5 = proto.getBy;
+        array.getIndexBy5 = proto.getBy;
+
+        array.getBy6 = proto.getBy;
+        array.getAllBy6 = proto.getBy;
+        array.getIndexBy6 = proto.getBy;
+
+        array.getBy7 = proto.getBy;
+        array.getAllBy7 = proto.getBy;
+        array.getIndexBy7 = proto.getBy;
+
+        array.getBy8 = proto.getBy;
+        array.getAllBy8 = proto.getBy;
+        array.getIndexBy8 = proto.getBy;
+
+        array.getBy9 = proto.getBy;
+        array.getAllBy9 = proto.getBy;
+        array.getIndexBy9 = proto.getBy;*/
+       // var index = 12;
+
+/*
+        array.getBy = function(){
+            return index;
+        };
+        array.getAllBy = function(){
+            return index;
+        };
+*/
+//        array[sym] = 123;
+        return array;
+    }
+
+    function iter() {
+        console.time('iter');
+        for (var i = 0; i < 1000000; i++) {
+            new arr([1, 2, 3, 4, 5, 6, 7, 8])
+//            a.get('name', i % 3 + +0);
+//            getter(a, 'name', 0);
+//            a.index.name[i % 3 + +0];
+//            a.index.name[0];
+
+        }
+        console.timeEnd('iter');
+    }
+
+    iter();
+
+</script>
+</body>
+</html>

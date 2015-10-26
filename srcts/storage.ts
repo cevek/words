@@ -2,9 +2,9 @@ import {HTTP} from './http';
 import {vk} from './vk';
 import {account} from './Account';
 import {UserPost} from './UserPost';
-import {postStorage} from './posts/posts';
-import {Post} from "./posts/posts";
+import {postStorage, postLineStorage} from './posts/posts';
 import {PostLine} from "./PostLine";
+import {Post} from "./posts/posts";
 
 const assign:(target:any, ...sources:any[])=>any = (<any>Object).assign;
 
@@ -12,7 +12,12 @@ const prefix = 'post-';
 const currentVersion = 1;
 
 class UserInput {
+    public postId:string;
+    public postLine:PostLine;
+
     constructor(public id:number, public textId:number, public text:string) {
+        this.postLine = postLineStorage.getPostLineById(textId);
+        this.postId = this.postLine.postId;
         shardStore.getShard(id).addUserText(this);
     }
 
@@ -44,17 +49,16 @@ var userInputStore = new class {
     }
 
     getLastInPost(postId:string) {
-        postStorage.getPostById(postId).lines.forEach(line => {
-
-        })
+        return this.userInputs.filter(ui => ui.postId == postId).pop();
     }
 };
 
+var shardPrefix = 'shard-';
 var shardStore = new class {
     shards:Shard[];
 
     getShard(userInputId:number):Shard {
-        var id = userInputId / 30 | 0;
+        var id = userInputId / 20 | 0;
         var shard = this.shards.filter(shard => shard.id == id).pop();
         if (!shard) {
             shard = new Shard(id);
@@ -62,8 +66,40 @@ var shardStore = new class {
         return shard;
     }
 
-    findAll() {
+    private checkKey(key:string) {
+        return key.substr(0, shardPrefix.length) == prefix;
+    }
 
+    private getIdFromKey(key:string):number {
+        return +key.substr(shardPrefix.length);
+    }
+
+    fetchAll() {
+        //console.log("FetchAll");
+        //this.data = {};
+        for (let key in localStorage) {
+            //todo: special parse from localhost
+            if (this.checkKey(key)) {
+                let data = JSON.parse(localStorage[key] || "{}");
+                var shard = new Shard(this.getIdFromKey(key));
+                shard.fromJson(data);
+                this.shards.push(shard);
+                //this.data[key] = this.migrate(key, data);
+            }
+        }
+        if (account.isAuthorized) {
+            return vk.getAllData().then(vkData => {
+                for (let key in vkData) {
+                    if (this.checkKey(key)) {
+                        // todo: check server revision
+                        var shard = new Shard(this.getIdFromKey(key));
+                        shard.fromJson(vkData[key]);
+                        this.shards.push(shard);
+                    }
+                }
+            })
+        }
+        return Promise.resolve();
     }
 };
 
@@ -83,7 +119,7 @@ class Shard {
     }
 
     getKey() {
-        return 'shard-' + this.id;
+        return shardPrefix + this.id;
     }
 
     update() {
@@ -105,6 +141,7 @@ class Shard {
             this.texts = serverData.texts.map((json:[number, number, string]) => new UserInput(json[0], json[1], json[2]));
             this.update();
         }
+        return this;
     }
 
     save() {
