@@ -2,29 +2,23 @@ import {Component} from "./Component";
 import * as React from "react";
 import {HTTP} from './http';
 import {Sentence} from './Sentence';
-import {storage} from './storage';
+import {storage, UserInput, userInputStore} from './storage';
 import {UserPost} from "./UserPost";
 import {RealPost} from "./RealPost";
-import {Post, postStorage} from "./posts/posts";
+import {Post, postStorage, postLineStorage} from "./posts/posts";
 import {WordProcessor} from "./WordProcessor";
-
-// todo: the same keys => ..s, his-him-her, at-to-into, 1 sym mistake,
-// todo: last the a is must be separatly
+import {PostLine} from "./PostLine";
 
 interface WordSentence {
-    origin:string;
-    originTranslate:string;
-    userTranslate:string[];
+    postLine: PostLine;
+    userTranslate:UserInput[];
     key?:string;
 }
 
 export class App extends Component<{params: {id: string}; resolved: {postData:RealPost}}> {
-    userData:UserPost;
     postId = this.props.params.id;
     sentences:WordSentence[] = [];
-    currentLine = 0;
     isDone = false;
-    translate = '';
     postData:Post;
 
     constructor(props:any) {
@@ -32,58 +26,52 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
         this.render();
 
         this.postData = postStorage.getPostById(this.postId);
-        this.userData = storage.get(this.postId);
         this.fill();
     }
 
     componentWillReceiveProps() {
-        this.userData = storage.get(this.postId);
         this.fill();
     }
 
     saveUserData() {
-        return storage.set(this.postId, this.userData);
+        //todo: return promise
     }
 
-    getCurrentLineId() {
-        return this.postData.lines[this.currentLine].id;
+    getCurrentLine() {
+        var lastLineN = userInputStore.getNextLineInPost(this.postId);
+        return this.postData.lines[lastLineN];
     }
 
-    getCurrentOrigin() {
-        return this.postData.lines[this.currentLine].origin;
-    }
-
-    getCurrentTranslate() {
-        return this.postData.lines[this.currentLine].translate;
+    addSentence(postLine:PostLine) {
+        this.sentences.push({
+            postLine: postLine,
+            userTranslate: userInputStore.getByLineId(postLine.id)
+        });
+        if (userInputStore.isLastInPost(this.postId)) {
+            this.isDone = true;
+        }
     }
 
     fill() {
         this.sentences = [];
-        this.currentLine = 0;
-        for (let i = 0; i < this.userData.currentLine; i++) {
-            const line = this.userData.lines[i];
-            this.sentences.push({
-                origin: this.getCurrentOrigin(),
-                originTranslate: this.getCurrentTranslate(),
-                userTranslate: line.items
-            });
-            this.setNextSentence();
+
+        var post = postStorage.getPostById(this.postId);
+        var max = userInputStore.getNextLineInPost(this.postId);
+        for (var i = 0; i < max; i++) {
+            var postLine = post.lines[i];
+            this.addSentence(postLine);
         }
-        this.translate = this.getCurrentTranslate();
     }
 
     setNextSentence() {
-        if (this.postData.lines.length - 1 == this.currentLine) {
+        if (userInputStore.isLastInPost(this.postId)) {
             this.isDone = true;
-        }
-        else {
-            this.currentLine++;
         }
     }
 
     onSubmit = () => {
         const input = React.findDOMNode(this.refs['userText']) as HTMLInputElement;
-        const wordProcessor = new WordProcessor(this.getCurrentOrigin(), input.value);
+        const wordProcessor = new WordProcessor(this.getCurrentLine().origin, input.value);
         this.inputErrorsCount = wordProcessor.errorsCount;
         if (!this.showError && this.inputErrorsCount > 0) {
             this.showError = true;
@@ -91,32 +79,20 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
             return false;
         }
         this.showError = false;
-
-        const line = this.userData.lines[this.currentLine] || (this.userData.lines[this.currentLine] = {id: this.getCurrentLineId(), items: []});
-        this.userData.currentLine += 1;
-        line.items.push(input.value);
+        userInputStore.create(this.getCurrentLine().id, input.value);
         input.value = '';
         window.scrollTo(0, 100000);
         this.saveUserData();
+        this.addSentence(this.getCurrentLine());
 
-        this.sentences.push({
-            origin: this.getCurrentOrigin(),
-            originTranslate: this.getCurrentTranslate(),
-            userTranslate: this.userData.lines[this.currentLine].items
-        });
-        this.setNextSentence();
-        this.translate = this.getCurrentTranslate();
         this.forceUpdate();
         return false;
     };
 
     onRestart = () => {
-        this.currentLine = 0;
-        this.userData.currentLine = 0;
         this.saveUserData();
         this.sentences = [];
         this.isDone = false;
-        this.translate = this.getCurrentTranslate();
         this.forceUpdate();
     };
 
@@ -146,7 +122,7 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
                 </div>
                     :
                 <form onSubmit={this.onSubmit}>
-                    <div className="translate">{this.translate}</div>
+                    <div className="translate">{this.getCurrentLine().translate}</div>
                     <input ref="userText" onInput={this.onInput} className="text" type="text" required/>
                     {
                         this.showError

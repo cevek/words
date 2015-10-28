@@ -11,7 +11,7 @@ const assign:(target:any, ...sources:any[])=>any = (<any>Object).assign;
 const prefix = 'post-';
 
 type UserInputJSON = [number, number, string, number, number];
-class UserInput {
+export class UserInput {
     public postId:string;
     public postLine:PostLine;
     public duration:number;
@@ -39,7 +39,7 @@ class UserInput {
     }
 }
 
-var userInputStore = new class {
+export var userInputStore = new class {
     userInputs:UserInput[] = [];
     autoIncrementId = 1;
 
@@ -63,14 +63,18 @@ var userInputStore = new class {
         return post.lines.indexOf(lastUI.postLine) + 1;
     }
 
+    getByLineId(lineId:number) {
+        return this.userInputs.filter(ui => ui.textId == lineId);
+    }
+
     isLastInPost(postId:string) {
         return postStorage.getPostById(postId).lines.length == this.getNextLineInPost(postId);
     }
 };
 
 var shardPrefix = 'shard-';
-var shardStore = new class {
-    shards:Shard[];
+var shardStore = new (class {
+    shards:Shard[] = [];
 
     getShard(userInputId:number):Shard {
         var id = userInputId / 20 | 0;
@@ -96,6 +100,8 @@ var shardStore = new class {
     }
 
     saveAll() {
+        console.log("shardStore saveAll");
+
         var promises:Promise<void>[] = [];
         for (var i = 0; i < this.shards.length; i++) {
             var shard = this.shards[i];
@@ -105,6 +111,7 @@ var shardStore = new class {
     }
 
     fetchAll() {
+        console.log("shardStore fetchAll");
         //console.log("FetchAll");
         //this.data = {};
         for (let key in localStorage) {
@@ -128,7 +135,7 @@ var shardStore = new class {
         }
         return Promise.resolve();
     }
-};
+});
 
 const currentVersion = 1;
 type ShardServerData = {revision: number; serverRevision?:number; version: number; texts: UserInputJSON[]};
@@ -336,9 +343,11 @@ export const storage = new Storage();
 (<any>window).stor = storage;
 
 setInterval(() => {
+    shardStore.saveAll();
     storage.saveAll();
-}, 15000);
+}, 5000);
 
 setInterval(() => {
-    storage.fetchAll();
-}, 20000);
+    shardStore.fetchAll();
+    //storage.fetchAll();
+}, 5000);

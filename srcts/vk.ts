@@ -16,7 +16,7 @@ export class VKManager {
         return new Promise((resolve, reject)=> {
             if (vkDefined) {
                 VK.Api.call(method, params, (r:any) => {
-                    if (r.error && r.error_code == 6) {
+                    if (r.error && r.error.error_code == 6) {
                         setTimeout(()=> {
                             resolve(this.apiCall(method, params, timeout * 1.5));
                         }, timeout);
