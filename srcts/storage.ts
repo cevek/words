@@ -9,11 +9,13 @@ import {Post} from "./posts/posts";
 const assign:(target:any, ...sources:any[])=>any = (<any>Object).assign;
 
 const prefix = 'post-';
-const currentVersion = 1;
 
+type UserInputJSON = [number, number, string, number, number];
 class UserInput {
     public postId:string;
     public postLine:PostLine;
+    public duration:number;
+    public addedAt:Date;
 
     constructor(public id:number, public textId:number, public text:string) {
         this.postLine = postLineStorage.getPostLineById(textId);
@@ -23,6 +25,17 @@ class UserInput {
 
     save() {
         return shardStore.getShard(this.id).save();
+    }
+
+    toJson():UserInputJSON {
+        return [this.id, this.textId, this.text, this.duration, this.addedAt.getTime() / 1000];
+    }
+
+    static fromJson(json:UserInputJSON) {
+        var userInput = new UserInput(json[0], json[1], json[2]);
+        userInput.duration = json[3];
+        userInput.addedAt = new Date(json[4] * 1000);
+        return userInput;
     }
 }
 
@@ -44,12 +57,14 @@ var userInputStore = new class {
         return Promise.all(queue);
     }
 
-    getByPostLineId(id:number) {
-        return this.userInputs.filter(ui => ui.textId == id);
+    getNextLineInPost(postId:string) {
+        var post = postStorage.getPostById(postId);
+        var lastUI = this.userInputs.filter(ui => ui.postId == postId).pop();
+        return post.lines.indexOf(lastUI.postLine) + 1;
     }
 
-    getLastInPost(postId:string) {
-        return this.userInputs.filter(ui => ui.postId == postId).pop();
+    isLastInPost(postId:string) {
+        return postStorage.getPostById(postId).lines.length == this.getNextLineInPost(postId);
     }
 };
 
@@ -66,6 +81,12 @@ var shardStore = new class {
         return shard;
     }
 
+    addShard(shard:Shard) {
+        if (this.shards.filter(sh => sh.id == shard.id).length == 0) {
+            this.shards.push(shard);
+        }
+    }
+
     private checkKey(key:string) {
         return key.substr(0, shardPrefix.length) == prefix;
     }
@@ -74,27 +95,33 @@ var shardStore = new class {
         return +key.substr(shardPrefix.length);
     }
 
+    saveAll() {
+        var promises:Promise<void>[] = [];
+        for (var i = 0; i < this.shards.length; i++) {
+            var shard = this.shards[i];
+            promises.push(shard.save());
+        }
+        return Promise.all(promises);
+    }
+
     fetchAll() {
         //console.log("FetchAll");
         //this.data = {};
         for (let key in localStorage) {
-            //todo: special parse from localhost
             if (this.checkKey(key)) {
                 let data = JSON.parse(localStorage[key] || "{}");
                 var shard = new Shard(this.getIdFromKey(key));
                 shard.fromJson(data);
-                this.shards.push(shard);
-                //this.data[key] = this.migrate(key, data);
+                this.addShard(shard);
             }
         }
         if (account.isAuthorized) {
             return vk.getAllData().then(vkData => {
                 for (let key in vkData) {
                     if (this.checkKey(key)) {
-                        // todo: check server revision
                         var shard = new Shard(this.getIdFromKey(key));
                         shard.fromJson(vkData[key]);
-                        this.shards.push(shard);
+                        this.addShard(shard);
                     }
                 }
             })
@@ -103,10 +130,12 @@ var shardStore = new class {
     }
 };
 
+const currentVersion = 1;
+type ShardServerData = {revision: number; serverRevision?:number; version: number; texts: UserInputJSON[]};
 class Shard {
-    serverRevision:number;
-    revision:number;
-    version:number;
+    serverRevision = 0;
+    revision = 0;
+    version = currentVersion;
     texts:UserInput[] = [];
     savingPromise:Promise<void>;
 
@@ -130,15 +159,16 @@ class Shard {
         return {
             revision: this.revision,
             version: this.version,
-            texts: this.texts.map(userInput => [userInput.id, userInput.textId, userInput.text])
+            texts: this.texts.map(userInput => userInput.toJson())
         };
     }
 
-    fromJson(serverData:any) {
+    fromJson(serverData:ShardServerData) {
         if (this.revision < serverData.revision) {
             this.revision = serverData.revision;
+            this.serverRevision = serverData.serverRevision || this.revision;
             this.version = serverData.version;
-            this.texts = serverData.texts.map((json:[number, number, string]) => new UserInput(json[0], json[1], json[2]));
+            this.texts = serverData.texts.map(json => UserInput.fromJson(json));
             this.update();
         }
         return this;
