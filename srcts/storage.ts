@@ -72,7 +72,7 @@ export var userInputStore = new (class {
     }
 });
 
-var shardPrefix = 'shard-';
+var shardPrefix = 'temp-shard-';
 var shardStore = new (class {
     shards:Shard[] = [];
 

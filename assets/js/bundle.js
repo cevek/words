@@ -20744,9 +20744,9 @@
 	        };
 	        this.inputErrorsCount = 0;
 	        this.showError = false;
-	        this.render();
 	        this.postData = posts_1.postStorage.getPostById(this.postId);
 	        this.fill();
+	        this.render();
 	    }
 	    App.prototype.saveUserData = function () {
 	        //todo: return promise
@@ -21625,7 +21625,7 @@
 	    return UserInput;
 	})();
 	exports.UserInput = UserInput;
-	exports.userInputStore = new (function () {
+	exports.userInputStore = new ((function () {
 	    function class_1() {
 	        this.userInputs = [];
 	        this.autoIncrementId = 1;
@@ -21646,7 +21646,7 @@
 	    class_1.prototype.getNextLineInPost = function (postId) {
 	        var post = posts_1.postStorage.getPostById(postId);
 	        var lastUI = this.userInputs.filter(function (ui) { return ui.postId == postId; }).pop();
-	        return post.lines.indexOf(lastUI.postLine) + 1;
+	        return lastUI ? post.lines.indexOf(lastUI.postLine) + 1 : 0;
 	    };
 	    class_1.prototype.getByLineId = function (lineId) {
 	        return this.userInputs.filter(function (ui) { return ui.textId == lineId; });
@@ -21655,8 +21655,8 @@
 	        return posts_1.postStorage.getPostById(postId).lines.length == this.getNextLineInPost(postId);
 	    };
 	    return class_1;
-	})();
-	var shardPrefix = 'shard-';
+	})());
+	var shardPrefix = 'temp-shard-';
 	var shardStore = new ((function () {
 	    function class_2() {
 	        this.shards = [];
@@ -22157,6 +22157,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var PostLine_1 = __webpack_require__(171);
+	var utils_1 = __webpack_require__(190);
 	var Post = (function () {
 	    function Post(rawPost, isTop) {
 	        var _this = this;
@@ -22170,6 +22171,7 @@
 	            this.parts = rawPost.parts.map(function (rawPost) { return new Post(rawPost, false); });
 	        }
 	    }
+	    Post.id = 'id';
 	    return Post;
 	})();
 	exports.Post = Post;
@@ -22218,32 +22220,49 @@
 	];
 	exports.postStorage = new ((function () {
 	    function class_1() {
-	        this.posts = [];
 	    }
-	    class_1.prototype.addRawPosts = function (rawPosts) {
-	        var _this = this;
-	        rawPosts.map(function (rawPost) {
-	            var post = new Post(rawPost, true);
-	            _this.posts.push(post);
-	            (_a = _this.posts).push.apply(_a, post.parts);
-	            var _a;
-	        });
-	    };
+	    Object.defineProperty(class_1.prototype, "posts", {
+	        get: function () {
+	            var _this = this;
+	            if (!this._posts) {
+	                this._posts = new utils_1.Store();
+	                posts.map(function (rawPost) {
+	                    var post = new Post(rawPost, true);
+	                    _this._posts.push(post);
+	                    (_a = _this._posts).push.apply(_a, post.parts);
+	                    var _a;
+	                });
+	            }
+	            return this._posts;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
 	    class_1.prototype.getPostById = function (id) {
-	        return this.posts.filter(function (post) { return post.id == id; }).pop();
+	        return this.posts.getById(id);
 	    };
 	    return class_1;
 	})());
-	exports.postStorage.addRawPosts(posts);
-	var PostLineStorage = (function () {
-	    function PostLineStorage() {
+	exports.postLineStorage = new ((function () {
+	    function class_2() {
 	    }
-	    PostLineStorage.prototype.getPostLineById = function (id) {
-	        return this.lines.filter(function (line) { return line.id == id; }).pop();
+	    Object.defineProperty(class_2.prototype, "lines", {
+	        get: function () {
+	            var _this = this;
+	            if (!this._lines) {
+	                this._lines = new utils_1.Store();
+	                exports.postStorage.posts.forEach(function (post) { return _this._lines = _this._lines.concat(post.lines); });
+	            }
+	            return this._lines;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    class_2.prototype.getPostLineById = function (id) {
+	        return this.lines.getById(id);
 	    };
-	    return PostLineStorage;
-	})();
-	exports.postLineStorage = new PostLineStorage;
+	    return class_2;
+	})());
 
 
 /***/ },
@@ -24278,6 +24297,114 @@
 	    index: new Router_1.Route('/'),
 	    post: new Router_1.Route('/post/:id')
 	};
+
+
+/***/ },
+/* 190 */
+/***/ function(module, exports) {
+
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	function getFieldName(fn) {
+	    var matches = fn.toString().replace(/\s+/g, '').match(/\.([^.]+);}$/);
+	    if (!matches) {
+	        throw 'fn does not return a field';
+	    }
+	    return matches[1];
+	}
+	exports.getFieldName = getFieldName;
+	var Store = (function (_super) {
+	    __extends(Store, _super);
+	    function Store(array) {
+	        if (array === void 0) { array = []; }
+	        if (false) {
+	            _super.call(this);
+	        }
+	        if (array && !Array.isArray(array)) {
+	            throw new Error('Store argument type is not Array: ' + JSON.stringify(array));
+	        }
+	        Object.setPrototypeOf(array, Store.prototype);
+	        return array;
+	    }
+	    Store.prototype.createIndex = function (field, isUnique) {
+	        var index;
+	        if (isUnique) {
+	            if (!this.indexUnique) {
+	                Object.defineProperty(this, 'indexUnique', { value: {} });
+	            }
+	            index = this.indexUnique;
+	        }
+	        else {
+	            if (!this.index) {
+	                Object.defineProperty(this, 'index', { value: {} });
+	            }
+	            index = this.index;
+	        }
+	        if (typeof index[field] == 'undefined') {
+	            index[field] = { $keys: [] };
+	        }
+	        var indexKeys = index[field].$keys;
+	        var indexFieldMap = index[field];
+	        for (var i = 0; i < this.length; i++) {
+	            var item = this[i];
+	            if (typeof item == 'undefined' || typeof item[field] == 'undefined') {
+	                throw new Error("Array[" + i + "]." + field + " value is undefined. Array item: " + JSON.stringify(item));
+	            }
+	            var value = item[field];
+	            if (typeof indexFieldMap[value] == 'undefined') {
+	                indexFieldMap[value] = isUnique ? item : new Store();
+	                indexKeys.push(value);
+	            }
+	            if (!isUnique) {
+	                indexFieldMap[value].push(item);
+	            }
+	        }
+	    };
+	    Store.prototype.getBy = function (field, value) {
+	        if (typeof this.indexUnique == 'undefined' || typeof this.indexUnique[field] == 'undefined') {
+	            this.createIndex(field, true);
+	        }
+	        return this.indexUnique[field][value] || null;
+	    };
+	    Store.prototype.getById = function (value) {
+	        if (typeof this.indexUnique == 'undefined' || typeof this.indexUnique['id'] == 'undefined') {
+	            this.createIndex('id', true);
+	        }
+	        return this.indexUnique['id'][value] || null;
+	    };
+	    Store.prototype.getAllBy = function (field, value) {
+	        if (typeof this.index == 'undefined' || typeof this.index[field] == 'undefined') {
+	            this.createIndex(field, false);
+	        }
+	        return this.index[field][value] || [];
+	    };
+	    Store.prototype.getIndexMap = function (field) {
+	        if (typeof this.index != 'undefined' && typeof this.index[field] != 'undefined') {
+	            return this.index[field].$keys;
+	        }
+	        if (typeof this.indexUnique == 'undefined' || typeof this.indexUnique[field] == 'undefined') {
+	            this.createIndex(field, true);
+	        }
+	        return this.indexUnique[field].$keys;
+	    };
+	    Store.prototype.map = function () {
+	        return new Store(_super.prototype.map.apply(this, arguments));
+	    };
+	    Store.prototype.filter = function () {
+	        return new Store(_super.prototype.filter.apply(this, arguments));
+	    };
+	    Store.prototype.concat = function () {
+	        return new Store(_super.prototype.concat.apply(this, arguments));
+	    };
+	    Store.prototype.slice = function () {
+	        return new Store(_super.prototype.slice.apply(this, arguments));
+	    };
+	    return Store;
+	})(Array);
+	exports.Store = Store;
 
 
 /***/ }

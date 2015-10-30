@@ -1,5 +1,6 @@
 import {PostLine} from "../PostLine";
 import {UserPost} from "../UserPost";
+import {Store} from "../utils";
 type RawData = [number, string, string][];
 type RawPost = {id: string; title: string; rawData?: RawData, parts?: RawPost[]};
 export class Post {
@@ -77,28 +78,35 @@ const posts:RawPost[] = [
 ];
 
 export const postStorage = new (class {
-    posts:Post[] = [];
-
-    addRawPosts(rawPosts:RawPost[]) {
-        rawPosts.map(rawPost => {
-            const post = new Post(rawPost, true);
-            this.posts.push(post);
-            this.posts.push(...post.parts);
-        });
+    private _posts:Store<Post>;
+    get posts() {
+        if (!this._posts) {
+            this._posts = new Store<Post>();
+            posts.map(rawPost => {
+                const post = new Post(rawPost, true);
+                this._posts.push(post);
+                this._posts.push(...post.parts);
+            });
+        }
+        return this._posts;
     }
 
     getPostById(id:string):Post {
-        return this.posts.filter(post => post.id == id).pop();
+        return this.posts.getById(id);
     }
 });
 
-postStorage.addRawPosts(posts);
-
-class PostLineStorage {
-    lines:PostLine[];
-
-    getPostLineById(id:number):PostLine {
-        return this.lines.filter(line => line.id == id).pop();
+export const postLineStorage = new (class {
+    private _lines:Store<PostLine>;
+    get lines() {
+        if (!this._lines) {
+            this._lines = new Store<PostLine>();
+            postStorage.posts.forEach(post => this._lines = this._lines.concat(post.lines));
+        }
+        return this._lines;
     }
-}
-export const postLineStorage = new PostLineStorage;
+
+    getPostLineById(id:number) {
+        return this.lines.getById(id);
+    }
+});
