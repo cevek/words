@@ -12,7 +12,7 @@ import {PostLine} from "./PostLine";
 interface WordSentence {
     postLine: PostLine;
     userTranslate:UserInput[];
-    key?:string;
+    key?:number | string;
 }
 
 export class App extends Component<{params: {id: string}; resolved: {postData:RealPost}}> {
@@ -23,14 +23,9 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
 
     constructor(props:any) {
         super(props);
-        this.render();
-
         this.postData = postStorage.getPostById(this.postId);
         this.fill();
-    }
-
-    componentWillReceiveProps() {
-        this.fill();
+        this.render();
     }
 
     saveUserData() {
@@ -110,8 +105,7 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
             <svg/>
             <div className="items">
                 {this.sentences.map(sentence =>
-                <SentenceBlock key={sentence.originTranslate} origin={sentence.origin}
-                               originTranslate={sentence.originTranslate}
+                <SentenceBlock key={sentence.postLine.id} postLine={sentence.postLine}
                                userTranslate={sentence.userTranslate}/>)}
             </div>
             {
@@ -138,13 +132,12 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
         </div>
     }
 }
-
 class SentenceBlock extends Component<WordSentence> {
     render() {
         return <div className="sentence-block">
-            <div className="origin-translate">{this.props.originTranslate}</div>
+            <div className="origin-translate">{this.props.postLine.translate}</div>
             {this.props.userTranslate.map(userText =>
-            <Sentence key={userText} origin={this.props.origin} userText={userText}/>)}
+            <Sentence key={userText.id} postLine={this.props.postLine} userText={userText}/>)}
         </div>
     }
 }

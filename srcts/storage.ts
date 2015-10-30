@@ -39,7 +39,7 @@ export class UserInput {
     }
 }
 
-export var userInputStore = new class {
+export var userInputStore = new (class {
     userInputs:UserInput[] = [];
     autoIncrementId = 1;
 
@@ -60,7 +60,7 @@ export var userInputStore = new class {
     getNextLineInPost(postId:string) {
         var post = postStorage.getPostById(postId);
         var lastUI = this.userInputs.filter(ui => ui.postId == postId).pop();
-        return post.lines.indexOf(lastUI.postLine) + 1;
+        return lastUI ? post.lines.indexOf(lastUI.postLine) + 1 : 0;
     }
 
     getByLineId(lineId:number) {
@@ -70,7 +70,7 @@ export var userInputStore = new class {
     isLastInPost(postId:string) {
         return postStorage.getPostById(postId).lines.length == this.getNextLineInPost(postId);
     }
-};
+});
 
 var shardPrefix = 'shard-';
 var shardStore = new (class {

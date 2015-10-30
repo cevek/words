@@ -20713,12 +20713,10 @@
 	        _super.call(this, props);
 	        this.postId = this.props.params.id;
 	        this.sentences = [];
-	        this.currentLine = 0;
 	        this.isDone = false;
-	        this.translate = '';
 	        this.onSubmit = function () {
 	            var input = React.findDOMNode(_this.refs['userText']);
-	            var wordProcessor = new WordProcessor_1.WordProcessor(_this.getCurrentOrigin(), input.value);
+	            var wordProcessor = new WordProcessor_1.WordProcessor(_this.getCurrentLine().origin, input.value);
 	            _this.inputErrorsCount = wordProcessor.errorsCount;
 	            if (!_this.showError && _this.inputErrorsCount > 0) {
 	                _this.showError = true;
@@ -20726,29 +20724,18 @@
 	                return false;
 	            }
 	            _this.showError = false;
-	            var line = _this.userData.lines[_this.currentLine] || (_this.userData.lines[_this.currentLine] = { id: _this.getCurrentLineId(), items: [] });
-	            _this.userData.currentLine += 1;
-	            line.items.push(input.value);
+	            storage_1.userInputStore.create(_this.getCurrentLine().id, input.value);
 	            input.value = '';
 	            window.scrollTo(0, 100000);
 	            _this.saveUserData();
-	            _this.sentences.push({
-	                origin: _this.getCurrentOrigin(),
-	                originTranslate: _this.getCurrentTranslate(),
-	                userTranslate: _this.userData.lines[_this.currentLine].items
-	            });
-	            _this.setNextSentence();
-	            _this.translate = _this.getCurrentTranslate();
+	            _this.addSentence(_this.getCurrentLine());
 	            _this.forceUpdate();
 	            return false;
 	        };
 	        this.onRestart = function () {
-	            _this.currentLine = 0;
-	            _this.userData.currentLine = 0;
 	            _this.saveUserData();
 	            _this.sentences = [];
 	            _this.isDone = false;
-	            _this.translate = _this.getCurrentTranslate();
 	            _this.forceUpdate();
 	        };
 	        this.onInput = function () {
@@ -20759,54 +20746,45 @@
 	        this.showError = false;
 	        this.render();
 	        this.postData = posts_1.postStorage.getPostById(this.postId);
-	        this.userData = storage_1.storage.get(this.postId);
 	        this.fill();
 	    }
-	    App.prototype.componentWillReceiveProps = function () {
-	        this.userData = storage_1.storage.get(this.postId);
-	        this.fill();
-	    };
 	    App.prototype.saveUserData = function () {
-	        return storage_1.storage.set(this.postId, this.userData);
+	        //todo: return promise
 	    };
-	    App.prototype.getCurrentLineId = function () {
-	        return this.postData.lines[this.currentLine].id;
+	    App.prototype.getCurrentLine = function () {
+	        var lastLineN = storage_1.userInputStore.getNextLineInPost(this.postId);
+	        return this.postData.lines[lastLineN];
 	    };
-	    App.prototype.getCurrentOrigin = function () {
-	        return this.postData.lines[this.currentLine].origin;
-	    };
-	    App.prototype.getCurrentTranslate = function () {
-	        return this.postData.lines[this.currentLine].translate;
+	    App.prototype.addSentence = function (postLine) {
+	        this.sentences.push({
+	            postLine: postLine,
+	            userTranslate: storage_1.userInputStore.getByLineId(postLine.id)
+	        });
+	        if (storage_1.userInputStore.isLastInPost(this.postId)) {
+	            this.isDone = true;
+	        }
 	    };
 	    App.prototype.fill = function () {
 	        this.sentences = [];
-	        this.currentLine = 0;
-	        for (var i = 0; i < this.userData.currentLine; i++) {
-	            var line = this.userData.lines[i];
-	            this.sentences.push({
-	                origin: this.getCurrentOrigin(),
-	                originTranslate: this.getCurrentTranslate(),
-	                userTranslate: line.items
-	            });
-	            this.setNextSentence();
+	        var post = posts_1.postStorage.getPostById(this.postId);
+	        var max = storage_1.userInputStore.getNextLineInPost(this.postId);
+	        for (var i = 0; i < max; i++) {
+	            var postLine = post.lines[i];
+	            this.addSentence(postLine);
 	        }
-	        this.translate = this.getCurrentTranslate();
 	    };
 	    App.prototype.setNextSentence = function () {
-	        if (this.postData.lines.length - 1 == this.currentLine) {
+	        if (storage_1.userInputStore.isLastInPost(this.postId)) {
 	            this.isDone = true;
-	        }
-	        else {
-	            this.currentLine++;
 	        }
 	    };
 	    App.prototype.render = function () {
 	        return React.createElement("div", {"className": "app"}, React.createElement("a", {"href": "#/"}, "To main page"), React.createElement("svg", null), React.createElement("div", {"className": "items"}, this.sentences.map(function (sentence) {
-	            return React.createElement(SentenceBlock, {"key": sentence.originTranslate, "origin": sentence.origin, "originTranslate": sentence.originTranslate, "userTranslate": sentence.userTranslate});
+	            return React.createElement(SentenceBlock, {"key": sentence.postLine.id, "postLine": sentence.postLine, "userTranslate": sentence.userTranslate});
 	        })), this.isDone ?
 	            React.createElement("div", {"className": "done"}, React.createElement("h1", null, "Well Done!"), React.createElement("button", {"onClick": this.onRestart}, "Restart"))
 	            :
-	                React.createElement("form", {"onSubmit": this.onSubmit}, React.createElement("div", {"className": "translate"}, this.translate), React.createElement("input", {"ref": "userText", "onInput": this.onInput, "className": "text", "type": "text", "required": true}), this.showError
+	                React.createElement("form", {"onSubmit": this.onSubmit}, React.createElement("div", {"className": "translate"}, this.getCurrentLine().translate), React.createElement("input", {"ref": "userText", "onInput": this.onInput, "className": "text", "type": "text", "required": true}), this.showError
 	                    ?
 	                        React.createElement("div", {"className": "errors-count"}, "There ", this.inputErrorsCount == 1 ? "is 1 error" : "are " + this.inputErrorsCount + " errors", ", press Enter to continue")
 	                    : null));
@@ -20821,8 +20799,8 @@
 	    }
 	    SentenceBlock.prototype.render = function () {
 	        var _this = this;
-	        return React.createElement("div", {"className": "sentence-block"}, React.createElement("div", {"className": "origin-translate"}, this.props.originTranslate), this.props.userTranslate.map(function (userText) {
-	            return React.createElement(Sentence_1.Sentence, {"key": userText, "origin": _this.props.origin, "userText": userText});
+	        return React.createElement("div", {"className": "sentence-block"}, React.createElement("div", {"className": "origin-translate"}, this.props.postLine.translate), this.props.userTranslate.map(function (userText) {
+	            return React.createElement(Sentence_1.Sentence, {"key": userText.id, "postLine": _this.props.postLine, "userText": userText});
 	        }));
 	    };
 	    return SentenceBlock;
@@ -20889,7 +20867,7 @@
 	        //});
 	    }*/
 	    Sentence.prototype.render = function () {
-	        var wordProcessor = new WordProcessor_1.WordProcessor(this.props.origin, this.props.userText);
+	        var wordProcessor = new WordProcessor_1.WordProcessor(this.props.postLine.origin, this.props.userText.text);
 	        wordProcessor.print();
 	        this.words = wordProcessor.words;
 	        return React.createElement("div", {"className": "line"}, this.words.map(function (word) {
@@ -21623,7 +21601,6 @@
 	var posts_1 = __webpack_require__(170);
 	var assign = Object.assign;
 	var prefix = 'post-';
-	var currentVersion = 1;
 	var UserInput = (function () {
 	    function UserInput(id, textId, text) {
 	        this.id = id;
@@ -21636,9 +21613,19 @@
 	    UserInput.prototype.save = function () {
 	        return shardStore.getShard(this.id).save();
 	    };
+	    UserInput.prototype.toJson = function () {
+	        return [this.id, this.textId, this.text, this.duration, this.addedAt.getTime() / 1000];
+	    };
+	    UserInput.fromJson = function (json) {
+	        var userInput = new UserInput(json[0], json[1], json[2]);
+	        userInput.duration = json[3];
+	        userInput.addedAt = new Date(json[4] * 1000);
+	        return userInput;
+	    };
 	    return UserInput;
 	})();
-	var userInputStore = new (function () {
+	exports.UserInput = UserInput;
+	exports.userInputStore = new (function () {
 	    function class_1() {
 	        this.userInputs = [];
 	        this.autoIncrementId = 1;
@@ -21656,17 +21643,23 @@
 	        }
 	        return Promise.all(queue);
 	    };
-	    class_1.prototype.getByPostLineId = function (id) {
-	        return this.userInputs.filter(function (ui) { return ui.textId == id; });
+	    class_1.prototype.getNextLineInPost = function (postId) {
+	        var post = posts_1.postStorage.getPostById(postId);
+	        var lastUI = this.userInputs.filter(function (ui) { return ui.postId == postId; }).pop();
+	        return post.lines.indexOf(lastUI.postLine) + 1;
 	    };
-	    class_1.prototype.getLastInPost = function (postId) {
-	        return this.userInputs.filter(function (ui) { return ui.postId == postId; }).pop();
+	    class_1.prototype.getByLineId = function (lineId) {
+	        return this.userInputs.filter(function (ui) { return ui.textId == lineId; });
+	    };
+	    class_1.prototype.isLastInPost = function (postId) {
+	        return posts_1.postStorage.getPostById(postId).lines.length == this.getNextLineInPost(postId);
 	    };
 	    return class_1;
 	})();
 	var shardPrefix = 'shard-';
-	var shardStore = new (function () {
+	var shardStore = new ((function () {
 	    function class_2() {
+	        this.shards = [];
 	    }
 	    class_2.prototype.getShard = function (userInputId) {
 	        var id = userInputId / 20 | 0;
@@ -21676,20 +21669,37 @@
 	        }
 	        return shard;
 	    };
+	    class_2.prototype.addShard = function (shard) {
+	        if (this.shards.filter(function (sh) { return sh.id == shard.id; }).length == 0) {
+	            this.shards.push(shard);
+	        }
+	    };
 	    class_2.prototype.checkKey = function (key) {
 	        return key.substr(0, shardPrefix.length) == prefix;
 	    };
 	    class_2.prototype.getIdFromKey = function (key) {
 	        return +key.substr(shardPrefix.length);
 	    };
+	    class_2.prototype.saveAll = function () {
+	        console.log("shardStore saveAll");
+	        var promises = [];
+	        for (var i = 0; i < this.shards.length; i++) {
+	            var shard = this.shards[i];
+	            promises.push(shard.save());
+	        }
+	        return Promise.all(promises);
+	    };
 	    class_2.prototype.fetchAll = function () {
 	        var _this = this;
+	        console.log("shardStore fetchAll");
 	        //console.log("FetchAll");
 	        //this.data = {};
 	        for (var key in localStorage) {
 	            if (this.checkKey(key)) {
 	                var data = JSON.parse(localStorage[key] || "{}");
-	                new Shard(this.getIdFromKey(key)).fromJson(data);
+	                var shard = new Shard(this.getIdFromKey(key));
+	                shard.fromJson(data);
+	                this.addShard(shard);
 	            }
 	        }
 	        if (Account_1.account.isAuthorized) {
@@ -21698,6 +21708,7 @@
 	                    if (_this.checkKey(key)) {
 	                        var shard = new Shard(_this.getIdFromKey(key));
 	                        shard.fromJson(vkData[key]);
+	                        _this.addShard(shard);
 	                    }
 	                }
 	            });
@@ -21705,10 +21716,14 @@
 	        return Promise.resolve();
 	    };
 	    return class_2;
-	})();
+	})());
+	var currentVersion = 1;
 	var Shard = (function () {
 	    function Shard(id) {
 	        this.id = id;
+	        this.serverRevision = 0;
+	        this.revision = 0;
+	        this.version = currentVersion;
 	        this.texts = [];
 	    }
 	    Shard.prototype.addUserText = function (userInput) {
@@ -21725,14 +21740,15 @@
 	        return {
 	            revision: this.revision,
 	            version: this.version,
-	            texts: this.texts.map(function (userInput) { return [userInput.id, userInput.textId, userInput.text]; })
+	            texts: this.texts.map(function (userInput) { return userInput.toJson(); })
 	        };
 	    };
 	    Shard.prototype.fromJson = function (serverData) {
 	        if (this.revision < serverData.revision) {
 	            this.revision = serverData.revision;
+	            this.serverRevision = serverData.serverRevision || this.revision;
 	            this.version = serverData.version;
-	            this.texts = serverData.texts.map(function (json) { return new UserInput(json[0], json[1], json[2]); });
+	            this.texts = serverData.texts.map(function (json) { return UserInput.fromJson(json); });
 	            this.update();
 	        }
 	        return this;
@@ -21884,11 +21900,13 @@
 	exports.storage = new Storage();
 	window.stor = exports.storage;
 	setInterval(function () {
+	    shardStore.saveAll();
 	    exports.storage.saveAll();
-	}, 15000);
+	}, 5000);
 	setInterval(function () {
-	    exports.storage.fetchAll();
-	}, 20000);
+	    shardStore.fetchAll();
+	    //storage.fetchAll();
+	}, 5000);
 
 
 /***/ },
@@ -21991,7 +22009,7 @@
 	        return new Promise(function (resolve, reject) {
 	            if (vkDefined) {
 	                VK.Api.call(method, params, function (r) {
-	                    if (r.error && r.error_code == 6) {
+	                    if (r.error && r.error.error_code == 6) {
 	                        setTimeout(function () {
 	                            resolve(_this.apiCall(method, params, timeout * 1.5));
 	                        }, timeout);

@@ -4,8 +4,10 @@ import * as classNames from 'classnames';
 import {WordProcessor} from './WordProcessor';
 import {Component} from "./Component";
 import {Word} from "./WordProcessor";
+import {UserInput} from "./storage";
+import {PostLine} from "./PostLine";
 
-export class Sentence extends Component<{origin: string; userText: string; key?:string}> {
+export class Sentence extends Component<{postLine: PostLine; userText: UserInput; key?:string | number}> {
     /*constructor(parentNode, svgNode, originText, userText) {
      this.originText = originText;
      this.parentNode = parentNode;
@@ -60,7 +62,7 @@ export class Sentence extends Component<{origin: string; userText: string; key?:
     }*/
 
     render() {
-        const wordProcessor = new WordProcessor(this.props.origin, this.props.userText);
+        const wordProcessor = new WordProcessor(this.props.postLine.origin, this.props.userText.text);
         wordProcessor.print();
         this.words = wordProcessor.words;
 
