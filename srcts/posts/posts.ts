@@ -1,6 +1,6 @@
 import {PostLine} from "../PostLine";
 import {UserPost} from "../UserPost";
-import {Store} from "../utils";
+import {Store} from "../Store";
 type RawData = [number, string, string][];
 type RawPost = {id: string; title: string; rawData?: RawData, parts?: RawPost[]};
 export class Post {
@@ -100,8 +100,7 @@ export const postLineStorage = new (class {
     private _lines:Store<PostLine>;
     get lines() {
         if (!this._lines) {
-            this._lines = new Store<PostLine>();
-            postStorage.posts.forEach(post => this._lines = this._lines.concat(post.lines));
+            this._lines = new Store([].concat(...postStorage.posts.map(post => post.lines)));
         }
         return this._lines;
     }

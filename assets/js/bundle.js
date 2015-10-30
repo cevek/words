@@ -20758,7 +20758,7 @@
 	    App.prototype.addSentence = function (postLine) {
 	        this.sentences.push({
 	            postLine: postLine,
-	            userTranslate: storage_1.userInputStore.getByLineId(postLine.id)
+	            userTranslate: storage_1.userInputStore.getAllByLineId(postLine.id)
 	        });
 	        if (storage_1.userInputStore.isLastInPost(this.postId)) {
 	            this.isDone = true;
@@ -21594,11 +21594,25 @@
 /* 164 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
+	    switch (arguments.length) {
+	        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
+	        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
+	        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
+	    }
+	};
 	var http_1 = __webpack_require__(165);
 	var vk_1 = __webpack_require__(166);
 	var Account_1 = __webpack_require__(168);
 	var UserPost_1 = __webpack_require__(169);
 	var posts_1 = __webpack_require__(170);
+	var Store_1 = __webpack_require__(191);
 	var assign = Object.assign;
 	var prefix = 'post-';
 	var UserInput = (function () {
@@ -21622,65 +21636,80 @@
 	        userInput.addedAt = new Date(json[4] * 1000);
 	        return userInput;
 	    };
+	    UserInput.postId = 'postId';
+	    UserInput.textId = 'textId';
 	    return UserInput;
 	})();
 	exports.UserInput = UserInput;
-	exports.userInputStore = new ((function () {
-	    function class_1() {
-	        this.userInputs = [];
+	var UserInputStore = (function (_super) {
+	    __extends(UserInputStore, _super);
+	    function UserInputStore() {
+	        _super.apply(this, arguments);
 	        this.autoIncrementId = 1;
 	    }
-	    class_1.prototype.create = function (textId, text) {
+	    UserInputStore.prototype.create = function (textId, text) {
 	        var userInput = new UserInput(this.autoIncrementId++, textId, text);
-	        this.userInputs.push(userInput);
+	        this.push(userInput);
 	        return userInput;
 	    };
-	    class_1.prototype.saveAll = function () {
+	    UserInputStore.prototype.getByPostId = function (postId) {
+	        return this.getBy(function (it) { return postId; }, postId);
+	    };
+	    UserInputStore.prototype.saveAll = function () {
 	        var queue = [];
-	        for (var _i = 0, _a = this.userInputs; _i < _a.length; _i++) {
+	        for (var _i = 0, _a = this.items; _i < _a.length; _i++) {
 	            var userInput = _a[_i];
 	            queue.push(userInput.save());
 	        }
 	        return Promise.all(queue);
 	    };
-	    class_1.prototype.getNextLineInPost = function (postId) {
+	    UserInputStore.prototype.getNextLineInPost = function (postId) {
 	        var post = posts_1.postStorage.getPostById(postId);
-	        var lastUI = this.userInputs.filter(function (ui) { return ui.postId == postId; }).pop();
+	        var lastUI = this.getByPostId(postId);
 	        return lastUI ? post.lines.indexOf(lastUI.postLine) + 1 : 0;
 	    };
-	    class_1.prototype.getByLineId = function (lineId) {
-	        return this.userInputs.filter(function (ui) { return ui.textId == lineId; });
+	    UserInputStore.prototype.getAllByLineId = function (lineId) {
+	        return this.getAllBy(function (it) { return it.textId; }, lineId);
 	    };
-	    class_1.prototype.isLastInPost = function (postId) {
+	    UserInputStore.prototype.isLastInPost = function (postId) {
 	        return posts_1.postStorage.getPostById(postId).lines.length == this.getNextLineInPost(postId);
 	    };
-	    return class_1;
-	})());
+	    Object.defineProperty(UserInputStore.prototype, "getByPostId",
+	        __decorate([
+	            Store_1.Store.inline
+	        ], UserInputStore.prototype, "getByPostId", Object.getOwnPropertyDescriptor(UserInputStore.prototype, "getByPostId")));
+	    Object.defineProperty(UserInputStore.prototype, "getAllByLineId",
+	        __decorate([
+	            Store_1.Store.inline
+	        ], UserInputStore.prototype, "getAllByLineId", Object.getOwnPropertyDescriptor(UserInputStore.prototype, "getAllByLineId")));
+	    return UserInputStore;
+	})(Store_1.Store);
+	exports.userInputStore = new UserInputStore();
 	var shardPrefix = 'temp-shard-';
 	var shardStore = new ((function () {
-	    function class_2() {
-	        this.shards = [];
+	    function class_1() {
+	        this.shards = new Store_1.Store();
 	    }
-	    class_2.prototype.getShard = function (userInputId) {
+	    class_1.prototype.getShard = function (userInputId) {
 	        var id = userInputId / 20 | 0;
-	        var shard = this.shards.filter(function (shard) { return shard.id == id; }).pop();
+	        var shard = this.shards.getById(id);
 	        if (!shard) {
 	            shard = new Shard(id);
 	        }
 	        return shard;
 	    };
-	    class_2.prototype.addShard = function (shard) {
-	        if (this.shards.filter(function (sh) { return sh.id == shard.id; }).length == 0) {
+	    class_1.prototype.addShard = function (shard) {
+	        if (!this.shards.getById(shard.id)) {
 	            this.shards.push(shard);
 	        }
 	    };
-	    class_2.prototype.checkKey = function (key) {
+	    class_1.prototype.checkKey = function (key) {
 	        return key.substr(0, shardPrefix.length) == prefix;
 	    };
-	    class_2.prototype.getIdFromKey = function (key) {
+	    class_1.prototype.getIdFromKey = function (key) {
 	        return +key.substr(shardPrefix.length);
 	    };
-	    class_2.prototype.saveAll = function () {
+	    class_1.prototype.saveAll = function () {
 	        console.log("shardStore saveAll");
 	        var promises = [];
 	        for (var i = 0; i < this.shards.length; i++) {
@@ -21689,7 +21718,7 @@
 	        }
 	        return Promise.all(promises);
 	    };
-	    class_2.prototype.fetchAll = function () {
+	    class_1.prototype.fetchAll = function () {
 	        var _this = this;
 	        console.log("shardStore fetchAll");
 	        //console.log("FetchAll");
@@ -21715,7 +21744,7 @@
 	        }
 	        return Promise.resolve();
 	    };
-	    return class_2;
+	    return class_1;
 	})());
 	var currentVersion = 1;
 	var Shard = (function () {
@@ -22157,7 +22186,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var PostLine_1 = __webpack_require__(171);
-	var utils_1 = __webpack_require__(190);
+	var Store_1 = __webpack_require__(191);
 	var Post = (function () {
 	    function Post(rawPost, isTop) {
 	        var _this = this;
@@ -22171,7 +22200,6 @@
 	            this.parts = rawPost.parts.map(function (rawPost) { return new Post(rawPost, false); });
 	        }
 	    }
-	    Post.id = 'id';
 	    return Post;
 	})();
 	exports.Post = Post;
@@ -22225,7 +22253,7 @@
 	        get: function () {
 	            var _this = this;
 	            if (!this._posts) {
-	                this._posts = new utils_1.Store();
+	                this._posts = new Store_1.Store();
 	                posts.map(function (rawPost) {
 	                    var post = new Post(rawPost, true);
 	                    _this._posts.push(post);
@@ -22248,12 +22276,11 @@
 	    }
 	    Object.defineProperty(class_2.prototype, "lines", {
 	        get: function () {
-	            var _this = this;
 	            if (!this._lines) {
-	                this._lines = new utils_1.Store();
-	                exports.postStorage.posts.forEach(function (post) { return _this._lines = _this._lines.concat(post.lines); });
+	                this._lines = new Store_1.Store((_a = []).concat.apply(_a, exports.postStorage.posts.map(function (post) { return post.lines; })));
 	            }
 	            return this._lines;
+	            var _a;
 	        },
 	        enumerable: true,
 	        configurable: true
@@ -24300,13 +24327,22 @@
 
 
 /***/ },
-/* 190 */
+/* 190 */,
+/* 191 */
 /***/ function(module, exports) {
 
 	var __extends = (this && this.__extends) || function (d, b) {
 	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
+	    switch (arguments.length) {
+	        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
+	        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
+	        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
+	    }
 	};
 	function getFieldName(fn) {
 	    var matches = fn.toString().replace(/\s+/g, '').match(/\.([^.]+);}$/);
@@ -24315,7 +24351,6 @@
 	    }
 	    return matches[1];
 	}
-	exports.getFieldName = getFieldName;
 	var Store = (function (_super) {
 	    __extends(Store, _super);
 	    function Store(array) {
@@ -24329,6 +24364,8 @@
 	        Object.setPrototypeOf(array, Store.prototype);
 	        return array;
 	    }
+	    Store.inline = function (p, da) {
+	    };
 	    Store.prototype.createIndex = function (field, isUnique) {
 	        var index;
 	        if (isUnique) {
@@ -24363,19 +24400,18 @@
 	            }
 	        }
 	    };
-	    Store.prototype.getBy = function (field, value) {
+	    Store.prototype.getById = function (value) {
+	        return this.getBy(function (it) { return it.id; }, value);
+	    };
+	    Store.prototype.getBy = function (fn, value) {
+	        var field = getFieldName(fn);
 	        if (typeof this.indexUnique == 'undefined' || typeof this.indexUnique[field] == 'undefined') {
 	            this.createIndex(field, true);
 	        }
 	        return this.indexUnique[field][value] || null;
 	    };
-	    Store.prototype.getById = function (value) {
-	        if (typeof this.indexUnique == 'undefined' || typeof this.indexUnique['id'] == 'undefined') {
-	            this.createIndex('id', true);
-	        }
-	        return this.indexUnique['id'][value] || null;
-	    };
-	    Store.prototype.getAllBy = function (field, value) {
+	    Store.prototype.getAllBy = function (fn, value) {
+	        var field = getFieldName(fn);
 	        if (typeof this.index == 'undefined' || typeof this.index[field] == 'undefined') {
 	            this.createIndex(field, false);
 	        }
@@ -24390,18 +24426,50 @@
 	        }
 	        return this.indexUnique[field].$keys;
 	    };
-	    Store.prototype.map = function () {
-	        return new Store(_super.prototype.map.apply(this, arguments));
+	    Store.prototype.map = function (callbackfn, thisArg) { return new Store(this.items.map(callbackfn, thisArg)); };
+	    Store.prototype.filter = function (callbackfn, thisArg) { return new Store(this.items.filter(callbackfn, thisArg)); };
+	    Store.prototype.slice = function (start, end) { return new Store(this.items.slice(start, end)); };
+	    Store.prototype.forEach = function (callbackfn, thisArg) { return this.items.forEach(callbackfn, thisArg); };
+	    Store.prototype.push = function () {
+	        var items = [];
+	        for (var _i = 0; _i < arguments.length; _i++) {
+	            items[_i - 0] = arguments[_i];
+	        }
+	        return (_a = this.items).push.apply(_a, items);
+	        var _a;
 	    };
-	    Store.prototype.filter = function () {
-	        return new Store(_super.prototype.filter.apply(this, arguments));
+	    Store.prototype.pop = function () { return this.items.pop(); };
+	    Store.prototype.join = function (separator) { return this.items.join(separator); };
+	    Store.prototype.reverse = function () { return this.items.reverse(); };
+	    Store.prototype.shift = function () { return this.items.shift(); };
+	    Store.prototype.sort = function (compareFn) { return this.items.sort(compareFn); };
+	    Store.prototype.splice = function (start, deleteCount) {
+	        var items = [];
+	        for (var _i = 2; _i < arguments.length; _i++) {
+	            items[_i - 2] = arguments[_i];
+	        }
+	        return (_a = this.items).splice.apply(_a, [start, deleteCount].concat(items));
+	        var _a;
 	    };
-	    Store.prototype.concat = function () {
-	        return new Store(_super.prototype.concat.apply(this, arguments));
+	    Store.prototype.unshift = function () {
+	        var items = [];
+	        for (var _i = 0; _i < arguments.length; _i++) {
+	            items[_i - 0] = arguments[_i];
+	        }
+	        return (_a = this.items).unshift.apply(_a, items);
+	        var _a;
 	    };
-	    Store.prototype.slice = function () {
-	        return new Store(_super.prototype.slice.apply(this, arguments));
-	    };
+	    Store.prototype.indexOf = function (searchElement, fromIndex) { return this.items.indexOf(searchElement, fromIndex); };
+	    Store.prototype.lastIndexOf = function (searchElement, fromIndex) { return this.items.lastIndexOf(searchElement, fromIndex); };
+	    ;
+	    Store.prototype.every = function (callbackfn, thisArg) { return this.items.every(callbackfn, thisArg); };
+	    Store.prototype.some = function (callbackfn, thisArg) { return this.items.some(callbackfn, thisArg); };
+	    Store.prototype.reduce = function (callbackfn, initialValue) { return this.items.reduce(callbackfn, initialValue); };
+	    Store.prototype.reduceRight = function (callbackfn, initialValue) { return this.items.reduceRight(callbackfn, initialValue); };
+	    Object.defineProperty(Store.prototype, "getById",
+	        __decorate([
+	            Store.inline
+	        ], Store.prototype, "getById", Object.getOwnPropertyDescriptor(Store.prototype, "getById")));
 	    return Store;
 	})(Array);
 	exports.Store = Store;

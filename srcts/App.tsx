@@ -40,7 +40,7 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
     addSentence(postLine:PostLine) {
         this.sentences.push({
             postLine: postLine,
-            userTranslate: userInputStore.getByLineId(postLine.id)
+            userTranslate: userInputStore.getAllByLineId(postLine.id)
         });
         if (userInputStore.isLastInPost(this.postId)) {
             this.isDone = true;

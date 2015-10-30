@@ -5,6 +5,7 @@ import {UserPost} from './UserPost';
 import {postStorage, postLineStorage} from './posts/posts';
 import {PostLine} from "./PostLine";
 import {Post} from "./posts/posts";
+import {Store} from "./Store";
 
 const assign:(target:any, ...sources:any[])=>any = (<any>Object).assign;
 
@@ -12,10 +13,13 @@ const prefix = 'post-';
 
 type UserInputJSON = [number, number, string, number, number];
 export class UserInput {
+    static postId = 'postId';
     public postId:string;
     public postLine:PostLine;
     public duration:number;
     public addedAt:Date;
+
+    static textId = 'textId';
 
     constructor(public id:number, public textId:number, public text:string) {
         this.postLine = postLineStorage.getPostLineById(textId);
@@ -39,19 +43,26 @@ export class UserInput {
     }
 }
 
-export var userInputStore = new (class {
-    userInputs:UserInput[] = [];
+class UserInputStore extends Store<UserInput> {
     autoIncrementId = 1;
 
     create(textId:number, text:string) {
         var userInput = new UserInput(this.autoIncrementId++, textId, text);
-        this.userInputs.push(userInput);
+        this.push(userInput);
         return userInput;
+    }
+
+
+    param: string;
+
+    @Store.inline
+    getByPostId(postId:string) {
+        return this.getBy(it=>postId, postId);
     }
 
     saveAll() {
         var queue:Promise<void>[] = [];
-        for (var userInput of this.userInputs) {
+        for (var userInput of this.items) {
             queue.push(userInput.save());
         }
         return Promise.all(queue);
@@ -59,26 +70,29 @@ export var userInputStore = new (class {
 
     getNextLineInPost(postId:string) {
         var post = postStorage.getPostById(postId);
-        var lastUI = this.userInputs.filter(ui => ui.postId == postId).pop();
+        var lastUI = this.getByPostId(postId);
         return lastUI ? post.lines.indexOf(lastUI.postLine) + 1 : 0;
     }
 
-    getByLineId(lineId:number) {
-        return this.userInputs.filter(ui => ui.textId == lineId);
+    @Store.inline
+    getAllByLineId(lineId:number) {
+        return this.getAllBy(it => it.textId, lineId);
     }
 
     isLastInPost(postId:string) {
         return postStorage.getPostById(postId).lines.length == this.getNextLineInPost(postId);
     }
-});
+}
+export var userInputStore = new UserInputStore();
+
 
 var shardPrefix = 'temp-shard-';
 var shardStore = new (class {
-    shards:Shard[] = [];
+    shards = new Store<Shard>();
 
     getShard(userInputId:number):Shard {
         var id = userInputId / 20 | 0;
-        var shard = this.shards.filter(shard => shard.id == id).pop();
+        var shard = this.shards.getById(id);
         if (!shard) {
             shard = new Shard(id);
         }
@@ -86,7 +100,7 @@ var shardStore = new (class {
     }
 
     addShard(shard:Shard) {
-        if (this.shards.filter(sh => sh.id == shard.id).length == 0) {
+        if (!this.shards.getById(shard.id)) {
             this.shards.push(shard);
         }
     }
