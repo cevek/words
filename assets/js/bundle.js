@@ -53,8 +53,8 @@
 	var Component_1 = __webpack_require__(157);
 	var Router_1 = __webpack_require__(158);
 	var App_1 = __webpack_require__(159);
-	var List_1 = __webpack_require__(188);
-	var routes_1 = __webpack_require__(189);
+	var List_1 = __webpack_require__(189);
+	var routes_1 = __webpack_require__(190);
 	var Account_1 = __webpack_require__(168);
 	var WordProcessor_1 = __webpack_require__(162);
 	var Main = (function (_super) {
@@ -21612,7 +21612,7 @@
 	var Account_1 = __webpack_require__(168);
 	var UserPost_1 = __webpack_require__(169);
 	var posts_1 = __webpack_require__(170);
-	var Store_1 = __webpack_require__(191);
+	var Store_1 = __webpack_require__(172);
 	var assign = Object.assign;
 	var prefix = 'post-';
 	var UserInput = (function () {
@@ -22193,7 +22193,7 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var PostLine_1 = __webpack_require__(171);
-	var Store_1 = __webpack_require__(191);
+	var Store_1 = __webpack_require__(172);
 	var Post = (function () {
 	    function Post(rawPost, isTop) {
 	        var _this = this;
@@ -22216,40 +22216,40 @@
 	        "id": "alissa",
 	        "title": "Alissa",
 	        "parts": [
-	            { "id": "alissa-1", "title": "Part1", "rawData": __webpack_require__(172) },
-	            { "id": "alissa-2", "title": "Part2", "rawData": __webpack_require__(173) },
-	            { "id": "alissa-3", "title": "Part3", "rawData": __webpack_require__(174) },
-	            { "id": "alissa-4", "title": "Part4", "rawData": __webpack_require__(175) },
-	            { "id": "alissa-5", "title": "Part5", "rawData": __webpack_require__(176) },
+	            { "id": "alissa-1", "title": "Part1", "rawData": __webpack_require__(173) },
+	            { "id": "alissa-2", "title": "Part2", "rawData": __webpack_require__(174) },
+	            { "id": "alissa-3", "title": "Part3", "rawData": __webpack_require__(175) },
+	            { "id": "alissa-4", "title": "Part4", "rawData": __webpack_require__(176) },
+	            { "id": "alissa-5", "title": "Part5", "rawData": __webpack_require__(177) },
 	        ],
 	    },
 	    {
 	        "id": "sara",
 	        "title": "Sara",
 	        "parts": [
-	            { "id": "sara-1", "title": "Part1", "rawData": __webpack_require__(177) },
-	            { "id": "sara-2", "title": "Part2", "rawData": __webpack_require__(178) },
-	            { "id": "sara-3", "title": "Part3", "rawData": __webpack_require__(179) },
-	            { "id": "sara-4", "title": "Part4", "rawData": __webpack_require__(180) },
-	            { "id": "sara-5", "title": "Part5", "rawData": __webpack_require__(181) },
-	            { "id": "sara-6", "title": "Part6", "rawData": __webpack_require__(182) },
-	            { "id": "sara-7", "title": "Part7", "rawData": __webpack_require__(183) },
+	            { "id": "sara-1", "title": "Part1", "rawData": __webpack_require__(178) },
+	            { "id": "sara-2", "title": "Part2", "rawData": __webpack_require__(179) },
+	            { "id": "sara-3", "title": "Part3", "rawData": __webpack_require__(180) },
+	            { "id": "sara-4", "title": "Part4", "rawData": __webpack_require__(181) },
+	            { "id": "sara-5", "title": "Part5", "rawData": __webpack_require__(182) },
+	            { "id": "sara-6", "title": "Part6", "rawData": __webpack_require__(183) },
+	            { "id": "sara-7", "title": "Part7", "rawData": __webpack_require__(184) },
 	        ]
 	    },
 	    {
 	        "id": "luckynumber",
 	        "title": "Lucky Number",
 	        "parts": [
-	            { "id": "luckynumber-1", "title": "Part1", "rawData": __webpack_require__(184) },
+	            { "id": "luckynumber-1", "title": "Part1", "rawData": __webpack_require__(185) },
 	        ]
 	    },
 	    {
 	        "id": "animal",
 	        "title": "Animal Life Cycles",
 	        "parts": [
-	            { "id": "animal-1", "title": "Part1", "rawData": __webpack_require__(185) },
-	            { "id": "animal-2", "title": "Part2", "rawData": __webpack_require__(186) },
-	            { "id": "animal-3", "title": "Part3", "rawData": __webpack_require__(187) },
+	            { "id": "animal-1", "title": "Part1", "rawData": __webpack_require__(186) },
+	            { "id": "animal-2", "title": "Part2", "rawData": __webpack_require__(187) },
+	            { "id": "animal-3", "title": "Part3", "rawData": __webpack_require__(188) },
 	        ]
 	    },
 	];
@@ -22319,6 +22319,147 @@
 
 /***/ },
 /* 172 */
+/***/ function(module, exports) {
+
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
+	    switch (arguments.length) {
+	        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
+	        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
+	        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
+	    }
+	};
+	function getFieldName(fn) {
+	    var matches = fn.toString().replace(/\s+/g, '').match(/\.([^.]+);}$/);
+	    if (!matches) {
+	        throw 'fn does not return a field';
+	    }
+	    return matches[1];
+	}
+	var Store = (function () {
+	    function Store(array) {
+	        if (array === void 0) { array = []; }
+	        this.items = array;
+	        if (array && !Array.isArray(array)) {
+	            throw new Error('Store argument type is not Array: ' + JSON.stringify(array));
+	        }
+	    }
+	    Store.inline = function (target, methodName) {
+	        console.log(target, methodName);
+	        var fn = target[methodName];
+	        var code = fn.toString();
+	        var matches = code.match(/^function\s*\(\w+\)\s*\{\s*return this.get(All)?By\(function\s*\(\w+\)\s*\{\s*return \w+\.(\w+);\s*\},\s*\w+\);\s*\}$/);
+	        if (!matches) {
+	            throw 'Incorrect method';
+	        }
+	        var isUnique = !matches[1];
+	        var indexName = isUnique ? 'indexUnique' : 'index';
+	        var field = matches[2];
+	        target[methodName] = eval("\n            (function(value){\n                if (typeof this." + indexName + " == \"undefined\" || typeof this." + indexName + "." + field + " == \"undefined\") {\n                    this.createIndex(" + field + ", " + isUnique + ");\n                }\n                return this." + indexName + "." + field + "[value] || null;\n            })");
+	    };
+	    Store.prototype.createIndex = function (field, isUnique) {
+	        var index;
+	        if (isUnique) {
+	            if (!this.indexUnique) {
+	                Object.defineProperty(this, 'indexUnique', { value: {} });
+	            }
+	            index = this.indexUnique;
+	        }
+	        else {
+	            if (!this.index) {
+	                Object.defineProperty(this, 'index', { value: {} });
+	            }
+	            index = this.index;
+	        }
+	        if (typeof index[field] == 'undefined') {
+	            index[field] = { $keys: [] };
+	        }
+	        var indexKeys = index[field].$keys;
+	        var indexFieldMap = index[field];
+	        for (var i = 0; i < this.items.length; i++) {
+	            var item = this.items[i];
+	            if (typeof item == 'undefined' || typeof item[field] == 'undefined') {
+	                throw new Error("Array[" + i + "]." + field + " value is undefined. Array item: " + JSON.stringify(item));
+	            }
+	            var value = item[field];
+	            if (typeof indexFieldMap[value] == 'undefined') {
+	                indexFieldMap[value] = isUnique ? item : new Store();
+	                indexKeys.push(value);
+	            }
+	            if (!isUnique) {
+	                indexFieldMap[value].push(item);
+	            }
+	        }
+	    };
+	    Store.prototype.getById = function (value) {
+	        return this.getBy(function (it) { return it.id; }, value);
+	    };
+	    Store.prototype.getBy = function (fn, value) {
+	        throw new Error('Method is not inline');
+	    };
+	    Store.prototype.getAllBy = function (fn, value) {
+	        throw new Error('Method is not inline');
+	    };
+	    Store.prototype.getIndexMap = function (field) {
+	        if (typeof this.index != 'undefined' && typeof this.index[field] != 'undefined') {
+	            return this.index[field].$keys;
+	        }
+	        if (typeof this.indexUnique == 'undefined' || typeof this.indexUnique[field] == 'undefined') {
+	            this.createIndex(field, true);
+	        }
+	        return this.indexUnique[field].$keys;
+	    };
+	    Store.prototype.map = function (cb, thisArg) { return this.items.map(cb, thisArg); };
+	    Store.prototype.filter = function (cb, thisArg) { return this.items.filter(cb, thisArg); };
+	    Store.prototype.slice = function (start, end) { return this.items.slice(start, end); };
+	    Store.prototype.forEach = function (cb, thisArg) { return this.items.forEach(cb, thisArg); };
+	    Store.prototype.push = function () {
+	        var items = [];
+	        for (var _i = 0; _i < arguments.length; _i++) {
+	            items[_i - 0] = arguments[_i];
+	        }
+	        return (_a = this.items).push.apply(_a, items);
+	        var _a;
+	    };
+	    Store.prototype.pop = function () { return this.items.pop(); };
+	    Store.prototype.join = function (separator) { return this.items.join(separator); };
+	    Store.prototype.reverse = function () { return this.items.reverse(); };
+	    Store.prototype.shift = function () { return this.items.shift(); };
+	    Store.prototype.sort = function (compareFn) { return this.items.sort(compareFn); };
+	    Store.prototype.splice = function (start, deleteCount) {
+	        var items = [];
+	        for (var _i = 2; _i < arguments.length; _i++) {
+	            items[_i - 2] = arguments[_i];
+	        }
+	        return (_a = this.items).splice.apply(_a, [start, deleteCount].concat(items));
+	        var _a;
+	    };
+	    Store.prototype.unshift = function () {
+	        var items = [];
+	        for (var _i = 0; _i < arguments.length; _i++) {
+	            items[_i - 0] = arguments[_i];
+	        }
+	        return (_a = this.items).unshift.apply(_a, items);
+	        var _a;
+	    };
+	    Store.prototype.indexOf = function (searchElement, fromIndex) { return this.items.indexOf(searchElement, fromIndex); };
+	    Store.prototype.lastIndexOf = function (searchElement, fromIndex) { return this.items.lastIndexOf(searchElement, fromIndex); };
+	    ;
+	    Store.prototype.every = function (cb, thisArg) { return this.items.every(cb, thisArg); };
+	    Store.prototype.some = function (cb, thisArg) { return this.items.some(cb, thisArg); };
+	    Store.prototype.reduce = function (cb, init) { return this.items.reduce(cb, init); };
+	    Store.prototype.reduceRight = function (cb, init) { return this.items.reduceRight(cb, init); };
+	    Object.defineProperty(Store.prototype, "getById",
+	        __decorate([
+	            Store.inline
+	        ], Store.prototype, "getById", Object.getOwnPropertyDescriptor(Store.prototype, "getById")));
+	    return Store;
+	})();
+	exports.Store = Store;
+
+
+/***/ },
+/* 173 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22470,7 +22611,7 @@
 	];
 
 /***/ },
-/* 173 */
+/* 174 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22577,7 +22718,7 @@
 	];
 
 /***/ },
-/* 174 */
+/* 175 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22709,7 +22850,7 @@
 	];
 
 /***/ },
-/* 175 */
+/* 176 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22831,7 +22972,7 @@
 	];
 
 /***/ },
-/* 176 */
+/* 177 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22968,7 +23109,7 @@
 	];
 
 /***/ },
-/* 177 */
+/* 178 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23065,7 +23206,7 @@
 	];
 
 /***/ },
-/* 178 */
+/* 179 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23167,7 +23308,7 @@
 	];
 
 /***/ },
-/* 179 */
+/* 180 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23294,7 +23435,7 @@
 	];
 
 /***/ },
-/* 180 */
+/* 181 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23411,7 +23552,7 @@
 	];
 
 /***/ },
-/* 181 */
+/* 182 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23553,7 +23694,7 @@
 	];
 
 /***/ },
-/* 182 */
+/* 183 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23675,7 +23816,7 @@
 	];
 
 /***/ },
-/* 183 */
+/* 184 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23747,7 +23888,7 @@
 	];
 
 /***/ },
-/* 184 */
+/* 185 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23864,7 +24005,7 @@
 	];
 
 /***/ },
-/* 185 */
+/* 186 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -24016,7 +24157,7 @@
 	];
 
 /***/ },
-/* 186 */
+/* 187 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -24158,7 +24299,7 @@
 	];
 
 /***/ },
-/* 187 */
+/* 188 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -24295,7 +24436,7 @@
 	];
 
 /***/ },
-/* 188 */
+/* 189 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __extends = (this && this.__extends) || function (d, b) {
@@ -24305,7 +24446,7 @@
 	};
 	var React = __webpack_require__(1);
 	var posts_1 = __webpack_require__(170);
-	var routes_1 = __webpack_require__(189);
+	var routes_1 = __webpack_require__(190);
 	var Component_1 = __webpack_require__(157);
 	var List = (function (_super) {
 	    __extends(List, _super);
@@ -24325,7 +24466,7 @@
 
 
 /***/ },
-/* 189 */
+/* 190 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Router_1 = __webpack_require__(158);
@@ -24333,148 +24474,6 @@
 	    index: new Router_1.Route('/'),
 	    post: new Router_1.Route('/post/:id')
 	};
-
-
-/***/ },
-/* 190 */,
-/* 191 */
-/***/ function(module, exports) {
-
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-	    switch (arguments.length) {
-	        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-	        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-	        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-	    }
-	};
-	function getFieldName(fn) {
-	    var matches = fn.toString().replace(/\s+/g, '').match(/\.([^.]+);}$/);
-	    if (!matches) {
-	        throw 'fn does not return a field';
-	    }
-	    return matches[1];
-	}
-	var Store = (function () {
-	    function Store(array) {
-	        if (array === void 0) { array = []; }
-	        this.items = array;
-	        if (array && !Array.isArray(array)) {
-	            throw new Error('Store argument type is not Array: ' + JSON.stringify(array));
-	        }
-	    }
-	    Store.inline = function (target, methodName) {
-	        console.log(target, methodName);
-	        var fn = target[methodName];
-	        var code = fn.toString();
-	        var matches = code.match(/^function\s*\(\w+\)\s*\{\s*return this.get(All)?By\(function\s*\(\w+\)\s*\{\s*return \w+\.(\w+);\s*\},\s*\w+\);\s*\}$/);
-	        if (!matches) {
-	            throw 'Incorrect method';
-	        }
-	        var isUnique = !matches[1];
-	        var indexName = isUnique ? 'indexUnique' : 'index';
-	        var field = matches[2];
-	        target[methodName] = eval("\n            (function(value){\n                if (typeof this." + indexName + " == \"undefined\" || typeof this." + indexName + "." + field + " == \"undefined\") {\n                    this.createIndex(" + field + ", " + isUnique + ");\n                }\n                return this." + indexName + "." + field + "[value] || null;\n            })");
-	    };
-	    Store.prototype.createIndex = function (field, isUnique) {
-	        var index;
-	        if (isUnique) {
-	            if (!this.indexUnique) {
-	                Object.defineProperty(this, 'indexUnique', { value: {} });
-	            }
-	            index = this.indexUnique;
-	        }
-	        else {
-	            if (!this.index) {
-	                Object.defineProperty(this, 'index', { value: {} });
-	            }
-	            index = this.index;
-	        }
-	        if (typeof index[field] == 'undefined') {
-	            index[field] = { $keys: [] };
-	        }
-	        var indexKeys = index[field].$keys;
-	        var indexFieldMap = index[field];
-	        for (var i = 0; i < this.items.length; i++) {
-	            var item = this.items[i];
-	            if (typeof item == 'undefined' || typeof item[field] == 'undefined') {
-	                throw new Error("Array[" + i + "]." + field + " value is undefined. Array item: " + JSON.stringify(item));
-	            }
-	            var value = item[field];
-	            if (typeof indexFieldMap[value] == 'undefined') {
-	                indexFieldMap[value] = isUnique ? item : new Store();
-	                indexKeys.push(value);
-	            }
-	            if (!isUnique) {
-	                indexFieldMap[value].push(item);
-	            }
-	        }
-	    };
-	    Store.prototype.getById = function (value) {
-	        return this.getBy(function (it) { return it.id; }, value);
-	    };
-	    Store.prototype.getBy = function (fn, value) {
-	        throw new Error('Method is not inline');
-	    };
-	    Store.prototype.getAllBy = function (fn, value) {
-	        throw new Error('Method is not inline');
-	    };
-	    Store.prototype.getIndexMap = function (field) {
-	        if (typeof this.index != 'undefined' && typeof this.index[field] != 'undefined') {
-	            return this.index[field].$keys;
-	        }
-	        if (typeof this.indexUnique == 'undefined' || typeof this.indexUnique[field] == 'undefined') {
-	            this.createIndex(field, true);
-	        }
-	        return this.indexUnique[field].$keys;
-	    };
-	    Store.prototype.map = function (cb, thisArg) { return this.items.map(cb, thisArg); };
-	    Store.prototype.filter = function (cb, thisArg) { return this.items.filter(cb, thisArg); };
-	    Store.prototype.slice = function (start, end) { return this.items.slice(start, end); };
-	    Store.prototype.forEach = function (cb, thisArg) { return this.items.forEach(cb, thisArg); };
-	    Store.prototype.push = function () {
-	        var items = [];
-	        for (var _i = 0; _i < arguments.length; _i++) {
-	            items[_i - 0] = arguments[_i];
-	        }
-	        return (_a = this.items).push.apply(_a, items);
-	        var _a;
-	    };
-	    Store.prototype.pop = function () { return this.items.pop(); };
-	    Store.prototype.join = function (separator) { return this.items.join(separator); };
-	    Store.prototype.reverse = function () { return this.items.reverse(); };
-	    Store.prototype.shift = function () { return this.items.shift(); };
-	    Store.prototype.sort = function (compareFn) { return this.items.sort(compareFn); };
-	    Store.prototype.splice = function (start, deleteCount) {
-	        var items = [];
-	        for (var _i = 2; _i < arguments.length; _i++) {
-	            items[_i - 2] = arguments[_i];
-	        }
-	        return (_a = this.items).splice.apply(_a, [start, deleteCount].concat(items));
-	        var _a;
-	    };
-	    Store.prototype.unshift = function () {
-	        var items = [];
-	        for (var _i = 0; _i < arguments.length; _i++) {
-	            items[_i - 0] = arguments[_i];
-	        }
-	        return (_a = this.items).unshift.apply(_a, items);
-	        var _a;
-	    };
-	    Store.prototype.indexOf = function (searchElement, fromIndex) { return this.items.indexOf(searchElement, fromIndex); };
-	    Store.prototype.lastIndexOf = function (searchElement, fromIndex) { return this.items.lastIndexOf(searchElement, fromIndex); };
-	    ;
-	    Store.prototype.every = function (cb, thisArg) { return this.items.every(cb, thisArg); };
-	    Store.prototype.some = function (cb, thisArg) { return this.items.some(cb, thisArg); };
-	    Store.prototype.reduce = function (cb, init) { return this.items.reduce(cb, init); };
-	    Store.prototype.reduceRight = function (cb, init) { return this.items.reduceRight(cb, init); };
-	    Object.defineProperty(Store.prototype, "getById",
-	        __decorate([
-	            Store.inline
-	        ], Store.prototype, "getById", Object.getOwnPropertyDescriptor(Store.prototype, "getById")));
-	    return Store;
-	})();
-	exports.Store = Store;
 
 
 /***/ }

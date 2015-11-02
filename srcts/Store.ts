@@ -1,20 +1,38 @@
-function getFieldName(fn:(_:any)=>any):string {
-    const matches = fn.toString().replace(/\s+/g, '').match(/\.([^.]+);}$/);
-    if (!matches) {
-        throw 'fn does not return a field';
-    }
-    return matches[1];
-}
+import {Observable, Listener} from "./Observable";
 interface Index<T> {
     [index: string]: {
         [index: string]: any;
         $keys: string[]
     }
 }
+new Observable();
 export class Store<T> {
     private index:Index<T>;
     private indexUnique:Index<T>;
-    public items:T[];
+
+    private items:T[];
+    observable = new Observable();
+
+    getItems(){
+        return this.items;
+    }
+    replaceItems(items:T[]) {
+        this.items = items;
+        this.notify();
+        return this;
+    }
+
+    listen(listener:Listener) {
+        return this.observable.listen(listener);
+    }
+
+    unlisten(listener:Listener) {
+        return this.observable.unlisten(listener);
+    }
+
+    notify() {
+        return this.observable.notify();
+    }
 
     constructor(array:T[] = []) {
         this.items = array;
@@ -103,29 +121,37 @@ export class Store<T> {
         return this.indexUnique[field].$keys;
     }
 
+    private mutate<T>(val:T):T {
+        this.observable.notify();
+        return val;
+    }
+
+    //---------- array mutate methods ----------
+    push(...items:T[]) {return this.mutate(this.items.push(...items))}
+
+    pop() {return this.mutate(this.items.pop())}
+
+    reverse() {return this.mutate(this.items.reverse())}
+
+    shift() {return this.mutate(this.items.shift())}
+
+    sort(compareFn?:(a:T, b:T) => number) {return this.mutate(this.items.sort(compareFn))}
+
+    splice(start:number, del?:number, ...items:T[]) {return this.mutate(this.items.splice(start, del, ...items))}
+
+    unshift(...items:T[]) {return this.mutate(this.items.unshift(...items))}
+
+    //---------- return new array methods ----------
     map<U>(cb:(value:T, index:number, array:T[]) => U, thisArg?:any) {return this.items.map(cb, thisArg)}
 
     filter(cb:(value:T, index:number, array:T[]) => boolean, thisArg?:any) {return this.items.filter(cb, thisArg)}
 
     slice(start?:number, end?:number) {return this.items.slice(start, end)}
 
-    forEach(cb:(value:T, index:number, array:T[]) => void, thisArg?:any) {return this.items.forEach(cb, thisArg)}
-
-    push(...items:T[]) {return this.items.push(...items)}
-
-    pop() {return this.items.pop()}
-
+    //---------- other ----------
     join(separator?:string) {return this.items.join(separator)}
 
-    reverse() {return this.items.reverse()}
-
-    shift() {return this.items.shift()}
-
-    sort(compareFn?:(a:T, b:T) => number) {return this.items.sort(compareFn)}
-
-    splice(start:number, deleteCount?:number, ...items:T[]) {return this.items.splice(start, deleteCount, ...items)}
-
-    unshift(...items:T[]) {return this.items.unshift(...items)}
+    forEach(cb:(value:T, index:number, array:T[]) => void, thisArg?:any) {return this.items.forEach(cb, thisArg)}
 
     indexOf(searchElement:T, fromIndex?:number) {return this.items.indexOf(searchElement, fromIndex)}
 

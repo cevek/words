@@ -23,7 +23,7 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
 
     constructor(props:any) {
         super(props);
-        this.postData = postStorage.getPostById(this.postId);
+        this.postData = postStorage.getById(this.postId);
         this.fill();
         this.render();
     }
@@ -50,7 +50,7 @@ export class App extends Component<{params: {id: string}; resolved: {postData:Re
     fill() {
         this.sentences = [];
 
-        var post = postStorage.getPostById(this.postId);
+        var post = postStorage.getById(this.postId);
         var max = userInputStore.getNextLineInPost(this.postId);
         for (var i = 0; i < max; i++) {
             var postLine = post.lines[i];

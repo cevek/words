@@ -22,7 +22,7 @@ export class UserInput {
     static textId = 'textId';
 
     constructor(public id:number, public textId:number, public text:string) {
-        this.postLine = postLineStorage.getPostLineById(textId);
+        this.postLine = postLineStorage.getById(textId);
         this.postId = this.postLine.postId;
         shardStore.getShard(id).addUserText(this);
     }
@@ -61,14 +61,14 @@ class UserInputStore extends Store<UserInput> {
 
     saveAll() {
         var queue:Promise<void>[] = [];
-        for (var userInput of this.items) {
+        for (var userInput of this.getItems()) {
             queue.push(userInput.save());
         }
         return Promise.all(queue);
     }
 
     getNextLineInPost(postId:string) {
-        var post = postStorage.getPostById(postId);
+        var post = postStorage.getById(postId);
         var lastUI = this.getByPostId(postId);
         return lastUI ? post.lines.indexOf(lastUI.postLine) + 1 : 0;
     }
@@ -79,7 +79,7 @@ class UserInputStore extends Store<UserInput> {
     }
 
     isLastInPost(postId:string) {
-        return postStorage.getPostById(postId).lines.length == this.getNextLineInPost(postId);
+        return postStorage.getById(postId).lines.length == this.getNextLineInPost(postId);
     }
 }
 export var userInputStore = new UserInputStore();
@@ -115,8 +115,8 @@ var shardStore = new (class extends Store<Shard> {
         console.log("shardStore saveAll");
 
         var promises:Promise<void>[] = [];
-        for (var i = 0; i < this.shards.items.length; i++) {
-            var shard = this.items[i];
+        for (var i = 0; i < this.shards.getItems().length; i++) {
+            var shard = this.getItems()[i];
             promises.push(shard.save());
         }
         return Promise.all(promises);

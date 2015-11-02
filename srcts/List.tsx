@@ -6,7 +6,7 @@ import {Component} from "./Component";
 export class List extends Component<any> {
     render() {
         return <div className="posts">
-            {postStorage.posts.filter(post => post.isTop).map(post =>
+            {postStorage.getItems().filter(post => post.isTop).map(post =>
                 <div key={post.id} className="post">
                     <h1>{post.title}</h1>
                     {post.parts.map(part =>

@@ -77,35 +77,27 @@ const posts:RawPost[] = [
     },
 ];
 
-export const postStorage = new (class extends Store<Post> {
-    private _posts:Store<Post>;
-    get posts() {
-        if (!this._posts) {
-            this._posts = new Store<Post>();
-            posts.map(rawPost => {
-                const post = new Post(rawPost, true);
-                this._posts.push(post);
-                this._posts.push(...post.parts);
-            });
-        }
-        return this._posts;
+class PostStorage extends Store<Post> {
+    constructor() {
+        super();
+        posts.map(rawPost => {
+            const post = new Post(rawPost, true);
+            this.push(post);
+            this.push(...post.parts);
+        });
+    }
+}
+export const postStorage = new PostStorage();
+
+class PostLineStorage extends Store<PostLine> {
+    constructor() {
+        super();
+        this.fillItems();
+        postStorage.listen(this.fillItems);
     }
 
-    getPostById(id:string):Post {
-        return this.posts.getById(id);
-    }
-});
-
-export const postLineStorage = new (class {
-    private _lines:Store<PostLine>;
-    get lines() {
-        if (!this._lines) {
-            this._lines = new Store([].concat(...postStorage.items.map(post => post.lines)));
-        }
-        return this._lines;
-    }
-
-    getPostLineById(id:number) {
-        return this.lines.getById(id);
-    }
-});
+    fillItems = () => {
+        this.replaceItems([].concat(...postStorage.getItems().map(post => post.lines)));
+    };
+}
+export const postLineStorage = new PostLineStorage();
