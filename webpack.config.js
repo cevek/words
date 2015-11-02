@@ -95,6 +95,9 @@ module.exports = {
         ]
     },
     resolve: {
+        alias: {
+
+        },
         extensions: ['', '.js', '.jsx', '.ts', '.tsx']
     },
     devtool: isProd ? null : 'source-map',

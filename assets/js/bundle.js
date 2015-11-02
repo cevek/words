@@ -21653,7 +21653,7 @@
 	        return userInput;
 	    };
 	    UserInputStore.prototype.getByPostId = function (postId) {
-	        return this.getBy(function (it) { return postId; }, postId);
+	        return this.getBy(function (it) { return it.postId; }, postId);
 	    };
 	    UserInputStore.prototype.saveAll = function () {
 	        var queue = [];
@@ -21686,8 +21686,10 @@
 	})(Store_1.Store);
 	exports.userInputStore = new UserInputStore();
 	var shardPrefix = 'temp-shard-';
-	var shardStore = new ((function () {
+	var shardStore = new ((function (_super) {
+	    __extends(class_1, _super);
 	    function class_1() {
+	        _super.apply(this, arguments);
 	        this.shards = new Store_1.Store();
 	    }
 	    class_1.prototype.getShard = function (userInputId) {
@@ -21712,8 +21714,8 @@
 	    class_1.prototype.saveAll = function () {
 	        console.log("shardStore saveAll");
 	        var promises = [];
-	        for (var i = 0; i < this.shards.length; i++) {
-	            var shard = this.shards[i];
+	        for (var i = 0; i < this.shards.items.length; i++) {
+	            var shard = this.items[i];
 	            promises.push(shard.save());
 	        }
 	        return Promise.all(promises);
@@ -21745,7 +21747,7 @@
 	        return Promise.resolve();
 	    };
 	    return class_1;
-	})());
+	})(Store_1.Store));
 	var currentVersion = 1;
 	var Shard = (function () {
 	    function Shard(id) {
@@ -22185,6 +22187,11 @@
 /* 170 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
 	var PostLine_1 = __webpack_require__(171);
 	var Store_1 = __webpack_require__(191);
 	var Post = (function () {
@@ -22246,8 +22253,10 @@
 	        ]
 	    },
 	];
-	exports.postStorage = new ((function () {
+	exports.postStorage = new ((function (_super) {
+	    __extends(class_1, _super);
 	    function class_1() {
+	        _super.apply(this, arguments);
 	    }
 	    Object.defineProperty(class_1.prototype, "posts", {
 	        get: function () {
@@ -22270,14 +22279,14 @@
 	        return this.posts.getById(id);
 	    };
 	    return class_1;
-	})());
+	})(Store_1.Store));
 	exports.postLineStorage = new ((function () {
 	    function class_2() {
 	    }
 	    Object.defineProperty(class_2.prototype, "lines", {
 	        get: function () {
 	            if (!this._lines) {
-	                this._lines = new Store_1.Store((_a = []).concat.apply(_a, exports.postStorage.posts.map(function (post) { return post.lines; })));
+	                this._lines = new Store_1.Store((_a = []).concat.apply(_a, exports.postStorage.items.map(function (post) { return post.lines; })));
 	            }
 	            return this._lines;
 	            var _a;
@@ -24305,8 +24314,8 @@
 	    }
 	    List.prototype.render = function () {
 	        return React.createElement("div", {"className": "posts"}, posts_1.postStorage.posts.filter(function (post) { return post.isTop; }).map(function (post) {
-	            return React.createElement("div", {"className": "post"}, React.createElement("h1", null, post.title), post.parts.map(function (part) {
-	                return React.createElement("div", {"className": "part"}, React.createElement("div", {"className": "part-link", "onClick": function () { return routes_1.routes.post.goto({ id: part.id }); }}, part.title));
+	            return React.createElement("div", {"key": post.id, "className": "post"}, React.createElement("h1", null, post.title), post.parts.map(function (part) {
+	                return React.createElement("div", {"key": part.id, "className": "part"}, React.createElement("div", {"className": "part-link", "onClick": function () { return routes_1.routes.post.goto({ id: part.id }); }}, part.title));
 	            }));
 	        }));
 	    };
@@ -24331,11 +24340,6 @@
 /* 191 */
 /***/ function(module, exports) {
 
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
 	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
 	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
 	    switch (arguments.length) {
@@ -24351,20 +24355,26 @@
 	    }
 	    return matches[1];
 	}
-	var Store = (function (_super) {
-	    __extends(Store, _super);
+	var Store = (function () {
 	    function Store(array) {
 	        if (array === void 0) { array = []; }
-	        if (false) {
-	            _super.call(this);
-	        }
+	        this.items = array;
 	        if (array && !Array.isArray(array)) {
 	            throw new Error('Store argument type is not Array: ' + JSON.stringify(array));
 	        }
-	        Object.setPrototypeOf(array, Store.prototype);
-	        return array;
 	    }
-	    Store.inline = function (p, da) {
+	    Store.inline = function (target, methodName) {
+	        console.log(target, methodName);
+	        var fn = target[methodName];
+	        var code = fn.toString();
+	        var matches = code.match(/^function\s*\(\w+\)\s*\{\s*return this.get(All)?By\(function\s*\(\w+\)\s*\{\s*return \w+\.(\w+);\s*\},\s*\w+\);\s*\}$/);
+	        if (!matches) {
+	            throw 'Incorrect method';
+	        }
+	        var isUnique = !matches[1];
+	        var indexName = isUnique ? 'indexUnique' : 'index';
+	        var field = matches[2];
+	        target[methodName] = eval("\n            (function(value){\n                if (typeof this." + indexName + " == \"undefined\" || typeof this." + indexName + "." + field + " == \"undefined\") {\n                    this.createIndex(" + field + ", " + isUnique + ");\n                }\n                return this." + indexName + "." + field + "[value] || null;\n            })");
 	    };
 	    Store.prototype.createIndex = function (field, isUnique) {
 	        var index;
@@ -24385,8 +24395,8 @@
 	        }
 	        var indexKeys = index[field].$keys;
 	        var indexFieldMap = index[field];
-	        for (var i = 0; i < this.length; i++) {
-	            var item = this[i];
+	        for (var i = 0; i < this.items.length; i++) {
+	            var item = this.items[i];
 	            if (typeof item == 'undefined' || typeof item[field] == 'undefined') {
 	                throw new Error("Array[" + i + "]." + field + " value is undefined. Array item: " + JSON.stringify(item));
 	            }
@@ -24404,18 +24414,10 @@
 	        return this.getBy(function (it) { return it.id; }, value);
 	    };
 	    Store.prototype.getBy = function (fn, value) {
-	        var field = getFieldName(fn);
-	        if (typeof this.indexUnique == 'undefined' || typeof this.indexUnique[field] == 'undefined') {
-	            this.createIndex(field, true);
-	        }
-	        return this.indexUnique[field][value] || null;
+	        throw new Error('Method is not inline');
 	    };
 	    Store.prototype.getAllBy = function (fn, value) {
-	        var field = getFieldName(fn);
-	        if (typeof this.index == 'undefined' || typeof this.index[field] == 'undefined') {
-	            this.createIndex(field, false);
-	        }
-	        return this.index[field][value] || [];
+	        throw new Error('Method is not inline');
 	    };
 	    Store.prototype.getIndexMap = function (field) {
 	        if (typeof this.index != 'undefined' && typeof this.index[field] != 'undefined') {
@@ -24426,10 +24428,10 @@
 	        }
 	        return this.indexUnique[field].$keys;
 	    };
-	    Store.prototype.map = function (callbackfn, thisArg) { return new Store(this.items.map(callbackfn, thisArg)); };
-	    Store.prototype.filter = function (callbackfn, thisArg) { return new Store(this.items.filter(callbackfn, thisArg)); };
-	    Store.prototype.slice = function (start, end) { return new Store(this.items.slice(start, end)); };
-	    Store.prototype.forEach = function (callbackfn, thisArg) { return this.items.forEach(callbackfn, thisArg); };
+	    Store.prototype.map = function (cb, thisArg) { return this.items.map(cb, thisArg); };
+	    Store.prototype.filter = function (cb, thisArg) { return this.items.filter(cb, thisArg); };
+	    Store.prototype.slice = function (start, end) { return this.items.slice(start, end); };
+	    Store.prototype.forEach = function (cb, thisArg) { return this.items.forEach(cb, thisArg); };
 	    Store.prototype.push = function () {
 	        var items = [];
 	        for (var _i = 0; _i < arguments.length; _i++) {
@@ -24462,16 +24464,16 @@
 	    Store.prototype.indexOf = function (searchElement, fromIndex) { return this.items.indexOf(searchElement, fromIndex); };
 	    Store.prototype.lastIndexOf = function (searchElement, fromIndex) { return this.items.lastIndexOf(searchElement, fromIndex); };
 	    ;
-	    Store.prototype.every = function (callbackfn, thisArg) { return this.items.every(callbackfn, thisArg); };
-	    Store.prototype.some = function (callbackfn, thisArg) { return this.items.some(callbackfn, thisArg); };
-	    Store.prototype.reduce = function (callbackfn, initialValue) { return this.items.reduce(callbackfn, initialValue); };
-	    Store.prototype.reduceRight = function (callbackfn, initialValue) { return this.items.reduceRight(callbackfn, initialValue); };
+	    Store.prototype.every = function (cb, thisArg) { return this.items.every(cb, thisArg); };
+	    Store.prototype.some = function (cb, thisArg) { return this.items.some(cb, thisArg); };
+	    Store.prototype.reduce = function (cb, init) { return this.items.reduce(cb, init); };
+	    Store.prototype.reduceRight = function (cb, init) { return this.items.reduceRight(cb, init); };
 	    Object.defineProperty(Store.prototype, "getById",
 	        __decorate([
 	            Store.inline
 	        ], Store.prototype, "getById", Object.getOwnPropertyDescriptor(Store.prototype, "getById")));
 	    return Store;
-	})(Array);
+	})();
 	exports.Store = Store;
 
 

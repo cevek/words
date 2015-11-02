@@ -52,12 +52,11 @@ class UserInputStore extends Store<UserInput> {
         return userInput;
     }
 
-
-    param: string;
+    param:string;
 
     @Store.inline
     getByPostId(postId:string) {
-        return this.getBy(it=>postId, postId);
+        return this.getBy(it=>it.postId, postId);
     }
 
     saveAll() {
@@ -85,9 +84,8 @@ class UserInputStore extends Store<UserInput> {
 }
 export var userInputStore = new UserInputStore();
 
-
 var shardPrefix = 'temp-shard-';
-var shardStore = new (class {
+var shardStore = new (class extends Store<Shard> {
     shards = new Store<Shard>();
 
     getShard(userInputId:number):Shard {
@@ -117,8 +115,8 @@ var shardStore = new (class {
         console.log("shardStore saveAll");
 
         var promises:Promise<void>[] = [];
-        for (var i = 0; i < this.shards.length; i++) {
-            var shard = this.shards[i];
+        for (var i = 0; i < this.shards.items.length; i++) {
+            var shard = this.items[i];
             promises.push(shard.save());
         }
         return Promise.all(promises);

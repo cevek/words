@@ -11,24 +11,37 @@ interface Index<T> {
         $keys: string[]
     }
 }
-export class Store<T> extends Array<T> {
+export class Store<T> {
     private index:Index<T>;
     private indexUnique:Index<T>;
     public items:T[];
 
     constructor(array:T[] = []) {
-        if (false) {
-            super();
-        }
+        this.items = array;
         if (array && !Array.isArray(array)) {
             throw new Error('Store argument type is not Array: ' + JSON.stringify(array));
         }
-        Object.setPrototypeOf(array, Store.prototype);
-        return <any>array;
     }
 
-    public static inline(p: any, da: any): any{
+    public static inline(target:any, methodName:string):any {
+        console.log(target, methodName);
+        var fn = target[methodName];
 
+        const code = fn.toString();
+        const matches = code.match(/^function\s*\(\w+\)\s*\{\s*return this.get(All)?By\(function\s*\(\w+\)\s*\{\s*return \w+\.(\w+);\s*\},\s*\w+\);\s*\}$/);
+        if (!matches) {
+            throw 'Incorrect method';
+        }
+        const isUnique = !matches[1];
+        const indexName = isUnique ? 'indexUnique' : 'index';
+        const field = matches[2];
+        target[methodName] = eval(`
+            (function(value){
+                if (typeof this.${indexName} == "undefined" || typeof this.${indexName}.${field} == "undefined") {
+                    this.createIndex(${field}, ${isUnique});
+                }
+                return this.${indexName}.${field}[value] || null;
+            })`);
     }
 
     private createIndex(field:string, isUnique:boolean) {
@@ -51,8 +64,8 @@ export class Store<T> extends Array<T> {
         const indexKeys = index[field].$keys;
         const indexFieldMap = index[field];
 
-        for (let i = 0; i < this.length; i++) {
-            const item:any = this[i];
+        for (let i = 0; i < this.items.length; i++) {
+            const item:any = this.items[i];
             if (typeof item == 'undefined' || typeof item[field] == 'undefined') {
                 throw new Error(`Array[${i}].${field} value is undefined. Array item: ${JSON.stringify(item)}`);
             }
@@ -72,20 +85,12 @@ export class Store<T> extends Array<T> {
         return this.getBy((it:any)=>it.id, value);
     }
 
-    protected getBy<V>(fn:(it:T)=>V, value:string | number):T {
-        var field = getFieldName(fn);
-        if (typeof this.indexUnique == 'undefined' || typeof this.indexUnique[field] == 'undefined') {
-            this.createIndex(field, true);
-        }
-        return this.indexUnique[field][value] || null;
+    protected getBy(fn:(it:T)=>string | number, value:string | number):T {
+        throw new Error('Method is not inline');
     }
 
-    protected getAllBy<V>(fn:(it:T)=>V, value:string | number):T[] {
-        var field = getFieldName(fn);
-        if (typeof this.index == 'undefined' || typeof this.index[field] == 'undefined') {
-            this.createIndex(field, false);
-        }
-        return this.index[field][value] || [];
+    protected getAllBy(fn:(it:T)=>string | number, value:string | number):T[] {
+        throw new Error('Method is not inline');
     }
 
     protected getIndexMap(field:string) {
@@ -98,16 +103,13 @@ export class Store<T> extends Array<T> {
         return this.indexUnique[field].$keys;
     }
 
-    map<U>(callbackfn:(value:T, index:number, array:T[]) => U,
-        thisArg?:any) {return new Store(this.items.map(callbackfn, thisArg))}
+    map<U>(cb:(value:T, index:number, array:T[]) => U, thisArg?:any) {return this.items.map(cb, thisArg)}
 
-    filter(callbackfn:(value:T, index:number, array:T[]) => boolean,
-        thisArg?:any) {return new Store(this.items.filter(callbackfn, thisArg))}
+    filter(cb:(value:T, index:number, array:T[]) => boolean, thisArg?:any) {return this.items.filter(cb, thisArg)}
 
-    slice(start?:number, end?:number) {return new Store(this.items.slice(start, end))}
+    slice(start?:number, end?:number) {return this.items.slice(start, end)}
 
-    forEach(callbackfn:(value:T, index:number, array:T[]) => void,
-        thisArg?:any) {return this.items.forEach(callbackfn, thisArg)}
+    forEach(cb:(value:T, index:number, array:T[]) => void, thisArg?:any) {return this.items.forEach(cb, thisArg)}
 
     push(...items:T[]) {return this.items.push(...items)}
 
@@ -129,17 +131,13 @@ export class Store<T> extends Array<T> {
 
     lastIndexOf(searchElement:T, fromIndex?:number) {return this.items.lastIndexOf(searchElement, fromIndex)};
 
-    every(callbackfn:(value:T, index:number, array:T[]) => boolean,
-        thisArg?:any) {return this.items.every(callbackfn, thisArg)}
+    every(cb:(value:T, index:number, array:T[]) => boolean, thisArg?:any) {return this.items.every(cb, thisArg)}
 
-    some(callbackfn:(value:T, index:number, array:T[]) => boolean,
-        thisArg?:any) {return this.items.some(callbackfn, thisArg)}
+    some(cb:(value:T, index:number, array:T[]) => boolean, thisArg?:any) {return this.items.some(cb, thisArg)}
 
-    reduce(callbackfn:(previousValue:T, currentValue:T, currentIndex:number, array:T[]) => T, initialValue?:T):T;
-    reduce<U>(callbackfn:(previousValue:U, currentValue:T, currentIndex:number, array:T[]) => U,
-        initialValue:U) {return this.items.reduce(callbackfn, initialValue)}
+    reduce(cb:(prev:T, cur:T, curIndex:number, array:T[]) => T, init?:T):T;
+    reduce<U>(cb:(prev:U, cur:T, curIndex:number, array:T[]) => U, init:U) {return this.items.reduce(cb, init)}
 
-    reduceRight(callbackfn:(previousValue:T, currentValue:T, currentIndex:number, array:T[]) => T, initialValue?:T):T;
-    reduceRight<U>(callbackfn:(previousValue:U, currentValue:T, currentIndex:number, array:T[]) => U,
-        initialValue:U) {return this.items.reduceRight(callbackfn, initialValue)}
+    reduceRight(cb:(prev:T, cur:T, curInd:number, array:T[]) => T, init?:T):T;
+    reduceRight<U>(cb:(prev:U, cur:T, curInd:number, array:T[]) => U, init:U) {return this.items.reduceRight(cb, init)}
 }

@@ -77,7 +77,7 @@ const posts:RawPost[] = [
     },
 ];
 
-export const postStorage = new (class {
+export const postStorage = new (class extends Store<Post> {
     private _posts:Store<Post>;
     get posts() {
         if (!this._posts) {
@@ -100,7 +100,7 @@ export const postLineStorage = new (class {
     private _lines:Store<PostLine>;
     get lines() {
         if (!this._lines) {
-            this._lines = new Store([].concat(...postStorage.posts.map(post => post.lines)));
+            this._lines = new Store([].concat(...postStorage.items.map(post => post.lines)));
         }
         return this._lines;
     }
