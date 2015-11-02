@@ -60,11 +60,7 @@ class UserInputStore extends Store<UserInput> {
     }
 
     saveAll() {
-        var queue:Promise<void>[] = [];
-        for (var userInput of this.getItems()) {
-            queue.push(userInput.save());
-        }
-        return Promise.all(queue);
+        return Promise.all(this.getItems().map(userInput => userInput.save()));
     }
 
     getNextLineInPost(postId:string) {
@@ -113,13 +109,7 @@ var shardStore = new (class extends Store<Shard> {
 
     saveAll() {
         console.log("shardStore saveAll");
-
-        var promises:Promise<void>[] = [];
-        for (var i = 0; i < this.shards.getItems().length; i++) {
-            var shard = this.getItems()[i];
-            promises.push(shard.save());
-        }
-        return Promise.all(promises);
+        return Promise.all(this.shards.getItems().map(shard => shard.save()));
     }
 
     fetchAll() {

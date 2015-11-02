@@ -13,11 +13,22 @@ export class Store<T> {
     private items:T[];
     observable = new Observable();
 
-    getItems(){
+    getItems() {
         return this.items;
     }
-    replaceItems(items:T[]) {
+
+    replaceAll(items:T[]) {
         this.items = items;
+        this.notify();
+        return this;
+    }
+
+    get(index:number) {
+        return this.items[index];
+    }
+
+    set(index:number, value:T) {
+        this.items[index] = value;
         this.notify();
         return this;
     }

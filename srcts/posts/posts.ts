@@ -97,7 +97,7 @@ class PostLineStorage extends Store<PostLine> {
     }
 
     fillItems = () => {
-        this.replaceItems([].concat(...postStorage.getItems().map(post => post.lines)));
+        this.replaceAll([].concat(...postStorage.getItems().map(post => post.lines)));
     };
 }
 export const postLineStorage = new PostLineStorage();
