@@ -57,20 +57,22 @@ export class Store<T> {
         var fn = target[methodName];
 
         const code = fn.toString();
-        const matches = code.match(/^function\s*\(\w+\)\s*\{\s*return this.get(All)?By\(function\s*\(\w+\)\s*\{\s*return \w+\.(\w+);\s*\},\s*\w+\);\s*\}$/);
+        const matches = code.match(/^function\s*\(\w+\)\s*\{\s*return _?this.get(All)?By\(function\s*\(\w+\)\s*\{\s*return \w+\.(\w+);\s*\},\s*\w+\);\s*\}$/);
         if (!matches) {
             throw 'Incorrect method';
         }
         const isUnique = !matches[1];
         const indexName = isUnique ? 'indexUnique' : 'index';
         const field = matches[2];
-        target[methodName] = eval(`
+        return {
+            value: eval(`
             (function(value){
                 if (typeof this.${indexName} == "undefined" || typeof this.${indexName}.${field} == "undefined") {
-                    this.createIndex(${field}, ${isUnique});
+                    this.createIndex("${field}", ${isUnique});
                 }
                 return this.${indexName}.${field}[value] || null;
-            })`);
+            })`)
+        };
     }
 
     private createIndex(field:string, isUnique:boolean) {

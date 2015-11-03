@@ -1,6 +1,16 @@
 'use strict';
 
-import {TOKEN} from './Token';
+export const enum TOKEN {
+    removed,
+    added,
+    moved,
+    movedTo,
+    movedFrom,
+    correct,
+    replacedWith,
+    misspelling
+}
+
 import {sync, SyncResult, levenshtein} from './lis';
 
 let SyncTypes = {

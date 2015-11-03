@@ -1,4 +1,4 @@
-import {Route} from './Router';
+import {Route} from './libs/Router';
 
 export const routes = {
     index: new Route('/'),

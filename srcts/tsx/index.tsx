@@ -1,12 +1,11 @@
 import * as React from 'react';
-import {Component} from './Component';
-import {Router, Route, RouterPage} from './Router';
+import {Component} from './../libs/Component';
+import {Router, Route, RouterPage} from './../libs/Router';
 import {App} from './App';
 import {List} from './List';
-import {routes} from './routes';
-import {account} from './Account';
-import {TOKEN} from './Token';
-import {WordProcessor} from './WordProcessor';
+import {routes} from './../routes';
+import {account} from './../models/Account';
+import {WordProcessor} from './../services/WordProcessor';
 
 class Main extends Component<{}> {
     login() {

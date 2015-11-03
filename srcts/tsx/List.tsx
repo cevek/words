@@ -1,7 +1,7 @@
 import * as React from 'react';
-import {postStorage} from './posts/posts';
-import {routes} from './routes';
-import {Component} from "./Component";
+import {routes} from './../routes';
+import {Component} from "./../libs/Component";
+import {postStorage} from "./../models/PostStore";
 
 export class List extends Component<any> {
     render() {

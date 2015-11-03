@@ -1,13 +1,15 @@
-import {Component} from "./Component";
+import {Component} from "./../libs/Component";
 import * as React from "react";
-import {HTTP} from './http';
+import {HTTP} from './../libs/HTTP';
 import {Sentence} from './Sentence';
-import {storage, UserInput, userInputStore} from './storage';
-import {UserPost} from "./UserPost";
-import {RealPost} from "./RealPost";
-import {Post, postStorage, postLineStorage} from "./posts/posts";
-import {WordProcessor} from "./WordProcessor";
-import {PostLine} from "./PostLine";
+import {storage} from './../services/storage';
+import {UserPost} from "./../models/UserPost";
+import {WordProcessor} from "./../services/WordProcessor";
+import {PostLine} from "./../models/PostLine";
+import {UserInput} from "./../models/UserInput";
+import {userInputStore} from "./../models/UserInputStore";
+import {Post} from "./../models/Post";
+import {postStorage} from "./../models/PostStore";
 
 interface WordSentence {
     postLine: PostLine;
@@ -15,7 +17,7 @@ interface WordSentence {
     key?:number | string;
 }
 
-export class App extends Component<{params: {id: string}; resolved: {postData:RealPost}}> {
+export class App extends Component<{params: {id: string}}> {
     postId = this.props.params.id;
     sentences:WordSentence[] = [];
     isDone = false;

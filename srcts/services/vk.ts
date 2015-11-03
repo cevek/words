@@ -1,6 +1,5 @@
-import {config} from './config';
-import {account} from './Account';
-import {global} from './globals';
+import {config} from './../config';
+import {account} from './../models/Account';
 
 declare let VK:any;
 var vkDefined = typeof VK == 'object';
@@ -11,7 +10,7 @@ if (vkDefined) {
     });
 }
 
-export class VKManager {
+export class VKService {
     apiCall(method:string, params:any, timeout = 100) {
         return new Promise((resolve, reject)=> {
             if (vkDefined) {
@@ -91,6 +90,6 @@ export class VKManager {
     }
 }
 
-export const vk = new VKManager();
-global.vk = vk;
+export const vk = new VKService();
+(<any>window).vk_ = vk;
 

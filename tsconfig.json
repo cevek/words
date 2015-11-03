@@ -15,7 +15,7 @@
     "typings/react/react.d.ts",
     "typings/classnames/classnames.d.ts",
     "typings/require/require.d.ts",
-    "srcts/index.tsx"
+    "srcts/tsx/index.tsx"
   ],
   "exclude": [
     "node_modules"

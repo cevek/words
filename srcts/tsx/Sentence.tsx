@@ -1,11 +1,10 @@
 import * as React from 'react';
-import {TOKEN} from './Token';
 import * as classNames from 'classnames';
-import {WordProcessor} from './WordProcessor';
-import {Component} from "./Component";
-import {Word} from "./WordProcessor";
-import {UserInput} from "./storage";
-import {PostLine} from "./PostLine";
+import {WordProcessor, TOKEN} from './../services/WordProcessor';
+import {Component} from "./../libs/Component";
+import {Word} from "./../services/WordProcessor";
+import {PostLine} from "./../models/PostLine";
+import {UserInput} from "./../models/UserInput";
 
 export class Sentence extends Component<{postLine: PostLine; userText: UserInput; key?:string | number}> {
     /*constructor(parentNode, svgNode, originText, userText) {

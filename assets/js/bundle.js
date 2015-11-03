@@ -53,9 +53,9 @@
 	var Component_1 = __webpack_require__(157);
 	var Router_1 = __webpack_require__(158);
 	var App_1 = __webpack_require__(159);
-	var List_1 = __webpack_require__(189);
-	var routes_1 = __webpack_require__(190);
-	var Account_1 = __webpack_require__(168);
+	var List_1 = __webpack_require__(196);
+	var routes_1 = __webpack_require__(197);
+	var Account_1 = __webpack_require__(169);
 	var WordProcessor_1 = __webpack_require__(162);
 	var Main = (function (_super) {
 	    __extends(Main, _super);
@@ -20703,9 +20703,9 @@
 	var Component_1 = __webpack_require__(157);
 	var React = __webpack_require__(1);
 	var Sentence_1 = __webpack_require__(160);
-	var storage_1 = __webpack_require__(164);
-	var posts_1 = __webpack_require__(170);
 	var WordProcessor_1 = __webpack_require__(162);
+	var UserInputStore_1 = __webpack_require__(164);
+	var PostStore_1 = __webpack_require__(176);
 	var App = (function (_super) {
 	    __extends(App, _super);
 	    function App(props) {
@@ -20724,7 +20724,7 @@
 	                return false;
 	            }
 	            _this.showError = false;
-	            storage_1.userInputStore.create(_this.getCurrentLine().id, input.value);
+	            UserInputStore_1.userInputStore.create(_this.getCurrentLine().id, input.value);
 	            input.value = '';
 	            window.scrollTo(0, 100000);
 	            _this.saveUserData();
@@ -20744,7 +20744,7 @@
 	        };
 	        this.inputErrorsCount = 0;
 	        this.showError = false;
-	        this.postData = posts_1.postStorage.getPostById(this.postId);
+	        this.postData = PostStore_1.postStorage.getById(this.postId);
 	        this.fill();
 	        this.render();
 	    }
@@ -20752,29 +20752,29 @@
 	        //todo: return promise
 	    };
 	    App.prototype.getCurrentLine = function () {
-	        var lastLineN = storage_1.userInputStore.getNextLineInPost(this.postId);
+	        var lastLineN = UserInputStore_1.userInputStore.getNextLineInPost(this.postId);
 	        return this.postData.lines[lastLineN];
 	    };
 	    App.prototype.addSentence = function (postLine) {
 	        this.sentences.push({
 	            postLine: postLine,
-	            userTranslate: storage_1.userInputStore.getAllByLineId(postLine.id)
+	            userTranslate: UserInputStore_1.userInputStore.getAllByLineId(postLine.id)
 	        });
-	        if (storage_1.userInputStore.isLastInPost(this.postId)) {
+	        if (UserInputStore_1.userInputStore.isLastInPost(this.postId)) {
 	            this.isDone = true;
 	        }
 	    };
 	    App.prototype.fill = function () {
 	        this.sentences = [];
-	        var post = posts_1.postStorage.getPostById(this.postId);
-	        var max = storage_1.userInputStore.getNextLineInPost(this.postId);
+	        var post = PostStore_1.postStorage.getById(this.postId);
+	        var max = UserInputStore_1.userInputStore.getNextLineInPost(this.postId);
 	        for (var i = 0; i < max; i++) {
 	            var postLine = post.lines[i];
 	            this.addSentence(postLine);
 	        }
 	    };
 	    App.prototype.setNextSentence = function () {
-	        if (storage_1.userInputStore.isLastInPost(this.postId)) {
+	        if (UserInputStore_1.userInputStore.isLastInPost(this.postId)) {
 	            this.isDone = true;
 	        }
 	    };
@@ -21607,40 +21607,9 @@
 	        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
 	    }
 	};
-	var http_1 = __webpack_require__(165);
-	var vk_1 = __webpack_require__(166);
-	var Account_1 = __webpack_require__(168);
-	var UserPost_1 = __webpack_require__(169);
-	var posts_1 = __webpack_require__(170);
-	var Store_1 = __webpack_require__(172);
-	var assign = Object.assign;
-	var prefix = 'post-';
-	var UserInput = (function () {
-	    function UserInput(id, textId, text) {
-	        this.id = id;
-	        this.textId = textId;
-	        this.text = text;
-	        this.postLine = posts_1.postLineStorage.getPostLineById(textId);
-	        this.postId = this.postLine.postId;
-	        shardStore.getShard(id).addUserText(this);
-	    }
-	    UserInput.prototype.save = function () {
-	        return shardStore.getShard(this.id).save();
-	    };
-	    UserInput.prototype.toJson = function () {
-	        return [this.id, this.textId, this.text, this.duration, this.addedAt.getTime() / 1000];
-	    };
-	    UserInput.fromJson = function (json) {
-	        var userInput = new UserInput(json[0], json[1], json[2]);
-	        userInput.duration = json[3];
-	        userInput.addedAt = new Date(json[4] * 1000);
-	        return userInput;
-	    };
-	    UserInput.postId = 'postId';
-	    UserInput.textId = 'textId';
-	    return UserInput;
-	})();
-	exports.UserInput = UserInput;
+	var Store_1 = __webpack_require__(165);
+	var UserInput_1 = __webpack_require__(167);
+	var PostStore_1 = __webpack_require__(176);
 	var UserInputStore = (function (_super) {
 	    __extends(UserInputStore, _super);
 	    function UserInputStore() {
@@ -21648,7 +21617,7 @@
 	        this.autoIncrementId = 1;
 	    }
 	    UserInputStore.prototype.create = function (textId, text) {
-	        var userInput = new UserInput(this.autoIncrementId++, textId, text);
+	        var userInput = new UserInput_1.UserInput(this.autoIncrementId++, textId, text);
 	        this.push(userInput);
 	        return userInput;
 	    };
@@ -21656,15 +21625,10 @@
 	        return this.getBy(function (it) { return it.postId; }, postId);
 	    };
 	    UserInputStore.prototype.saveAll = function () {
-	        var queue = [];
-	        for (var _i = 0, _a = this.items; _i < _a.length; _i++) {
-	            var userInput = _a[_i];
-	            queue.push(userInput.save());
-	        }
-	        return Promise.all(queue);
+	        return Promise.all(this.getItems().map(function (userInput) { return userInput.save(); }));
 	    };
 	    UserInputStore.prototype.getNextLineInPost = function (postId) {
-	        var post = posts_1.postStorage.getPostById(postId);
+	        var post = PostStore_1.postStorage.getById(postId);
 	        var lastUI = this.getByPostId(postId);
 	        return lastUI ? post.lines.indexOf(lastUI.postLine) + 1 : 0;
 	    };
@@ -21672,7 +21636,7 @@
 	        return this.getAllBy(function (it) { return it.textId; }, lineId);
 	    };
 	    UserInputStore.prototype.isLastInPost = function (postId) {
-	        return posts_1.postStorage.getPostById(postId).lines.length == this.getNextLineInPost(postId);
+	        return PostStore_1.postStorage.getById(postId).lines.length == this.getNextLineInPost(postId);
 	    };
 	    Object.defineProperty(UserInputStore.prototype, "getByPostId",
 	        __decorate([
@@ -21684,43 +21648,327 @@
 	        ], UserInputStore.prototype, "getAllByLineId", Object.getOwnPropertyDescriptor(UserInputStore.prototype, "getAllByLineId")));
 	    return UserInputStore;
 	})(Store_1.Store);
+	exports.UserInputStore = UserInputStore;
 	exports.userInputStore = new UserInputStore();
-	var shardPrefix = 'temp-shard-';
-	var shardStore = new ((function (_super) {
-	    __extends(class_1, _super);
-	    function class_1() {
-	        _super.apply(this, arguments);
-	        this.shards = new Store_1.Store();
+
+
+/***/ },
+/* 165 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
+	    switch (arguments.length) {
+	        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
+	        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
+	        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
 	    }
-	    class_1.prototype.getShard = function (userInputId) {
+	};
+	var Observable_1 = __webpack_require__(166);
+	new Observable_1.Observable();
+	var Store = (function () {
+	    function Store(array) {
+	        if (array === void 0) { array = []; }
+	        this.observable = new Observable_1.Observable();
+	        this.items = array;
+	        if (array && !Array.isArray(array)) {
+	            throw new Error('Store argument type is not Array: ' + JSON.stringify(array));
+	        }
+	    }
+	    Store.prototype.getItems = function () {
+	        return this.items;
+	    };
+	    Store.prototype.replaceAll = function (items) {
+	        this.items = items;
+	        this.notify();
+	        return this;
+	    };
+	    Store.prototype.get = function (index) {
+	        return this.items[index];
+	    };
+	    Store.prototype.set = function (index, value) {
+	        this.items[index] = value;
+	        this.notify();
+	        return this;
+	    };
+	    Store.prototype.listen = function (listener) {
+	        return this.observable.listen(listener);
+	    };
+	    Store.prototype.unlisten = function (listener) {
+	        return this.observable.unlisten(listener);
+	    };
+	    Store.prototype.notify = function () {
+	        return this.observable.notify();
+	    };
+	    Store.inline = function (target, methodName) {
+	        console.log(target, methodName);
+	        var fn = target[methodName];
+	        var code = fn.toString();
+	        var matches = code.match(/^function\s*\(\w+\)\s*\{\s*return _?this.get(All)?By\(function\s*\(\w+\)\s*\{\s*return \w+\.(\w+);\s*\},\s*\w+\);\s*\}$/);
+	        if (!matches) {
+	            throw 'Incorrect method';
+	        }
+	        var isUnique = !matches[1];
+	        var indexName = isUnique ? 'indexUnique' : 'index';
+	        var field = matches[2];
+	        return {
+	            value: eval("\n            (function(value){\n                if (typeof this." + indexName + " == \"undefined\" || typeof this." + indexName + "." + field + " == \"undefined\") {\n                    this.createIndex(\"" + field + "\", " + isUnique + ");\n                }\n                return this." + indexName + "." + field + "[value] || null;\n            })")
+	        };
+	    };
+	    Store.prototype.createIndex = function (field, isUnique) {
+	        var index;
+	        if (isUnique) {
+	            if (!this.indexUnique) {
+	                Object.defineProperty(this, 'indexUnique', { value: {} });
+	            }
+	            index = this.indexUnique;
+	        }
+	        else {
+	            if (!this.index) {
+	                Object.defineProperty(this, 'index', { value: {} });
+	            }
+	            index = this.index;
+	        }
+	        if (typeof index[field] == 'undefined') {
+	            index[field] = { $keys: [] };
+	        }
+	        var indexKeys = index[field].$keys;
+	        var indexFieldMap = index[field];
+	        for (var i = 0; i < this.items.length; i++) {
+	            var item = this.items[i];
+	            if (typeof item == 'undefined' || typeof item[field] == 'undefined') {
+	                throw new Error("Array[" + i + "]." + field + " value is undefined. Array item: " + JSON.stringify(item));
+	            }
+	            var value = item[field];
+	            if (typeof indexFieldMap[value] == 'undefined') {
+	                indexFieldMap[value] = isUnique ? item : new Store();
+	                indexKeys.push(value);
+	            }
+	            if (!isUnique) {
+	                indexFieldMap[value].push(item);
+	            }
+	        }
+	    };
+	    Store.prototype.getById = function (value) {
+	        return this.getBy(function (it) { return it.id; }, value);
+	    };
+	    Store.prototype.getBy = function (fn, value) {
+	        throw new Error('Method is not inline');
+	    };
+	    Store.prototype.getAllBy = function (fn, value) {
+	        throw new Error('Method is not inline');
+	    };
+	    Store.prototype.getIndexMap = function (field) {
+	        if (typeof this.index != 'undefined' && typeof this.index[field] != 'undefined') {
+	            return this.index[field].$keys;
+	        }
+	        if (typeof this.indexUnique == 'undefined' || typeof this.indexUnique[field] == 'undefined') {
+	            this.createIndex(field, true);
+	        }
+	        return this.indexUnique[field].$keys;
+	    };
+	    Store.prototype.mutate = function (val) {
+	        this.observable.notify();
+	        return val;
+	    };
+	    //---------- array mutate methods ----------
+	    Store.prototype.push = function () {
+	        var items = [];
+	        for (var _i = 0; _i < arguments.length; _i++) {
+	            items[_i - 0] = arguments[_i];
+	        }
+	        return this.mutate((_a = this.items).push.apply(_a, items));
+	        var _a;
+	    };
+	    Store.prototype.pop = function () { return this.mutate(this.items.pop()); };
+	    Store.prototype.reverse = function () { return this.mutate(this.items.reverse()); };
+	    Store.prototype.shift = function () { return this.mutate(this.items.shift()); };
+	    Store.prototype.sort = function (compareFn) { return this.mutate(this.items.sort(compareFn)); };
+	    Store.prototype.splice = function (start, del) {
+	        var items = [];
+	        for (var _i = 2; _i < arguments.length; _i++) {
+	            items[_i - 2] = arguments[_i];
+	        }
+	        return this.mutate((_a = this.items).splice.apply(_a, [start, del].concat(items)));
+	        var _a;
+	    };
+	    Store.prototype.unshift = function () {
+	        var items = [];
+	        for (var _i = 0; _i < arguments.length; _i++) {
+	            items[_i - 0] = arguments[_i];
+	        }
+	        return this.mutate((_a = this.items).unshift.apply(_a, items));
+	        var _a;
+	    };
+	    //---------- return new array methods ----------
+	    Store.prototype.map = function (cb, thisArg) { return this.items.map(cb, thisArg); };
+	    Store.prototype.filter = function (cb, thisArg) { return this.items.filter(cb, thisArg); };
+	    Store.prototype.slice = function (start, end) { return this.items.slice(start, end); };
+	    //---------- other ----------
+	    Store.prototype.join = function (separator) { return this.items.join(separator); };
+	    Store.prototype.forEach = function (cb, thisArg) { return this.items.forEach(cb, thisArg); };
+	    Store.prototype.indexOf = function (searchElement, fromIndex) { return this.items.indexOf(searchElement, fromIndex); };
+	    Store.prototype.lastIndexOf = function (searchElement, fromIndex) { return this.items.lastIndexOf(searchElement, fromIndex); };
+	    ;
+	    Store.prototype.every = function (cb, thisArg) { return this.items.every(cb, thisArg); };
+	    Store.prototype.some = function (cb, thisArg) { return this.items.some(cb, thisArg); };
+	    Store.prototype.reduce = function (cb, init) { return this.items.reduce(cb, init); };
+	    Store.prototype.reduceRight = function (cb, init) { return this.items.reduceRight(cb, init); };
+	    Object.defineProperty(Store.prototype, "getById",
+	        __decorate([
+	            Store.inline
+	        ], Store.prototype, "getById", Object.getOwnPropertyDescriptor(Store.prototype, "getById")));
+	    return Store;
+	})();
+	exports.Store = Store;
+
+
+/***/ },
+/* 166 */
+/***/ function(module, exports) {
+
+	var Observable = (function () {
+	    function Observable() {
+	        this.listeners = null;
+	        this.waitPromise = null;
+	        //lazy init
+	        this._listenersSignal = null;
+	    }
+	    Object.defineProperty(Observable.prototype, "listenersSignal", {
+	        get: function () {
+	            if (!this._listenersSignal) {
+	                this._listenersSignal = new Observable();
+	            }
+	            return this._listenersSignal;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Observable.prototype.getListeners = function () {
+	        return this.listeners.slice();
+	    };
+	    Observable.prototype.listen = function (listener) {
+	        if (!this.listeners) {
+	            this.listeners = [];
+	        }
+	        if (this.listeners.indexOf(listener) == -1) {
+	            this.listeners.push(listener);
+	        }
+	        if (this._listenersSignal) {
+	            this._listenersSignal.notify();
+	        }
+	        return this;
+	    };
+	    Observable.prototype.unlisten = function (listener) {
+	        var pos = this.listeners.indexOf(listener);
+	        if (pos == -1) {
+	            throw "Listener not found";
+	        }
+	        this.listeners.splice(pos, 1);
+	        if (this._listenersSignal) {
+	            this._listenersSignal.notify();
+	        }
+	        return this;
+	    };
+	    Observable.prototype.notify = function () {
+	        var _this = this;
+	        if (this.listeners && this.listeners.length && !this.waitPromise) {
+	            this.waitPromise = Promise.resolve().then(function () {
+	                _this.notifySync();
+	            });
+	        }
+	        return this.waitPromise;
+	    };
+	    Observable.prototype.notifySync = function () {
+	        this.waitPromise = null;
+	        if (this.listeners) {
+	            for (var i = 0; i < this.listeners.length; i++) {
+	                var listener = this.listeners[i];
+	                listener();
+	            }
+	        }
+	        return this;
+	    };
+	    return Observable;
+	})();
+	exports.Observable = Observable;
+
+
+/***/ },
+/* 167 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var ShardStore_1 = __webpack_require__(168);
+	var PostLineStore_1 = __webpack_require__(175);
+	var UserInput = (function () {
+	    function UserInput(id, textId, text) {
+	        this.id = id;
+	        this.textId = textId;
+	        this.text = text;
+	        this.postLine = PostLineStore_1.postLineStorage.getById(textId);
+	        this.postId = this.postLine.postId;
+	        ShardStore_1.shardStore.getShard(id).addUserText(this);
+	    }
+	    UserInput.prototype.save = function () {
+	        return ShardStore_1.shardStore.getShard(this.id).save();
+	    };
+	    UserInput.prototype.toJson = function () {
+	        return [this.id, this.textId, this.text, this.duration, this.addedAt.getTime() / 1000];
+	    };
+	    UserInput.fromJson = function (json) {
+	        var userInput = new UserInput(json[0], json[1], json[2]);
+	        userInput.duration = json[3];
+	        userInput.addedAt = new Date(json[4] * 1000);
+	        return userInput;
+	    };
+	    return UserInput;
+	})();
+	exports.UserInput = UserInput;
+
+
+/***/ },
+/* 168 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var Account_1 = __webpack_require__(169);
+	var vk_1 = __webpack_require__(170);
+	var Store_1 = __webpack_require__(165);
+	var Shard_1 = __webpack_require__(174);
+	var ShardStore = (function (_super) {
+	    __extends(ShardStore, _super);
+	    function ShardStore() {
+	        _super.apply(this, arguments);
+	    }
+	    ShardStore.prototype.getShard = function (userInputId) {
 	        var id = userInputId / 20 | 0;
-	        var shard = this.shards.getById(id);
+	        var shard = this.getById(id);
 	        if (!shard) {
-	            shard = new Shard(id);
+	            shard = new Shard_1.Shard(id);
+	            this.addShard(shard);
 	        }
 	        return shard;
 	    };
-	    class_1.prototype.addShard = function (shard) {
-	        if (!this.shards.getById(shard.id)) {
-	            this.shards.push(shard);
+	    ShardStore.prototype.addShard = function (shard) {
+	        if (!this.getById(shard.id)) {
+	            this.push(shard);
 	        }
 	    };
-	    class_1.prototype.checkKey = function (key) {
-	        return key.substr(0, shardPrefix.length) == prefix;
+	    ShardStore.prototype.checkKey = function (key) {
+	        return key.substr(0, Shard_1.shardPrefix.length) == Shard_1.shardPrefix;
 	    };
-	    class_1.prototype.getIdFromKey = function (key) {
-	        return +key.substr(shardPrefix.length);
+	    ShardStore.prototype.getIdFromKey = function (key) {
+	        return +key.substr(Shard_1.shardPrefix.length);
 	    };
-	    class_1.prototype.saveAll = function () {
+	    ShardStore.prototype.saveAll = function () {
 	        console.log("shardStore saveAll");
-	        var promises = [];
-	        for (var i = 0; i < this.shards.items.length; i++) {
-	            var shard = this.items[i];
-	            promises.push(shard.save());
-	        }
-	        return Promise.all(promises);
+	        return Promise.all(this.getItems().map(function (shard) { return shard.save(); }));
 	    };
-	    class_1.prototype.fetchAll = function () {
+	    ShardStore.prototype.fetchAll = function () {
 	        var _this = this;
 	        console.log("shardStore fetchAll");
 	        //console.log("FetchAll");
@@ -21728,7 +21976,7 @@
 	        for (var key in localStorage) {
 	            if (this.checkKey(key)) {
 	                var data = JSON.parse(localStorage[key] || "{}");
-	                var shard = new Shard(this.getIdFromKey(key));
+	                var shard = new Shard_1.Shard(this.getIdFromKey(key));
 	                shard.fromJson(data);
 	                this.addShard(shard);
 	            }
@@ -21737,7 +21985,7 @@
 	            return vk_1.vk.getAllData().then(function (vkData) {
 	                for (var key in vkData) {
 	                    if (_this.checkKey(key)) {
-	                        var shard = new Shard(_this.getIdFromKey(key));
+	                        var shard = new Shard_1.Shard(_this.getIdFromKey(key));
 	                        shard.fromJson(vkData[key]);
 	                        _this.addShard(shard);
 	                    }
@@ -21746,74 +21994,165 @@
 	        }
 	        return Promise.resolve();
 	    };
-	    return class_1;
-	})(Store_1.Store));
-	var currentVersion = 1;
-	var Shard = (function () {
-	    function Shard(id) {
-	        this.id = id;
-	        this.serverRevision = 0;
-	        this.revision = 0;
-	        this.version = currentVersion;
-	        this.texts = [];
+	    return ShardStore;
+	})(Store_1.Store);
+	exports.shardStore = new ShardStore();
+	setInterval(function () {
+	    exports.shardStore.saveAll();
+	}, 5000);
+	setInterval(function () {
+	    exports.shardStore.fetchAll();
+	}, 5000);
+
+
+/***/ },
+/* 169 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var vk_1 = __webpack_require__(170);
+	var storage_1 = __webpack_require__(171);
+	if (!localStorage['userId']) {
+	    localStorage['userId'] = Math.random().toString(33).substr(2, 20);
+	}
+	var userKey = 'userId';
+	var Account = (function () {
+	    function Account() {
+	        this.userId = localStorage[userKey];
+	        this.isAuthorized = false;
 	    }
-	    Shard.prototype.addUserText = function (userInput) {
-	        this.texts.push(userInput);
-	        return this;
-	    };
-	    Shard.prototype.getKey = function () {
-	        return shardPrefix + this.id;
-	    };
-	    Shard.prototype.update = function () {
-	        localStorage[this.getKey()] = JSON.stringify(this);
-	    };
-	    Shard.prototype.toJson = function () {
-	        return {
-	            revision: this.revision,
-	            version: this.version,
-	            texts: this.texts.map(function (userInput) { return userInput.toJson(); })
-	        };
-	    };
-	    Shard.prototype.fromJson = function (serverData) {
-	        if (this.revision < serverData.revision) {
-	            this.revision = serverData.revision;
-	            this.serverRevision = serverData.serverRevision || this.revision;
-	            this.version = serverData.version;
-	            this.texts = serverData.texts.map(function (json) { return UserInput.fromJson(json); });
-	            this.update();
-	        }
-	        return this;
-	    };
-	    Shard.prototype.save = function () {
+	    Account.prototype.onAuth = function (vkUserId) {
 	        var _this = this;
-	        if (this.savingPromise) {
-	            return this.savingPromise;
-	        }
-	        return this.savingPromise = Promise.resolve().then(function () {
-	            var key = _this.getKey();
-	            if (Account_1.account.isAuthorized) {
-	                if (_this.serverRevision < _this.revision) {
-	                    var revision = _this.revision;
-	                    _this.fetch().then(function () {
-	                        if (revision === _this.revision) {
-	                            return vk_1.vk.setKey(key, _this.toJson()).then(function () {
-	                                _this.serverRevision = revision;
-	                                _this.update();
-	                            });
-	                        }
-	                    });
-	                }
-	            }
-	        }).then(function () {
-	            _this.savingPromise = null;
+	        this.vkUserId = vkUserId;
+	        return vk_1.vk.fetchUserId(this.userId).then(function (userId) {
+	            _this.isAuthorized = true;
+	            localStorage[userKey] = _this.userId = userId;
 	        });
 	    };
-	    Shard.prototype.fetch = function () {
+	    Account.prototype.fetch = function () {
 	        var _this = this;
-	        return vk_1.vk.getKey(this.getKey()).then(function (serverData) { return _this.fromJson(serverData); });
+	        return vk_1.vk.login(true)
+	            .then(function (vkUserId) { return _this.onAuth(vkUserId); }, function () { return null; })
+	            .then(function () { return storage_1.storage.fetchAll(); });
 	    };
-	    return Shard;
+	    Account.prototype.login = function () {
+	        var _this = this;
+	        return vk_1.vk.login()
+	            .then(function (vkUserId) { return _this.onAuth(vkUserId); }, function () { return null; })
+	            .then(function () { return storage_1.storage.fetchAll(); });
+	    };
+	    return Account;
 	})();
+	exports.Account = Account;
+	exports.account = new Account();
+	window.acc = exports.account;
+
+
+/***/ },
+/* 170 */
+/***/ function(module, exports) {
+
+	var vkDefined = typeof VK == 'object';
+	if (vkDefined) {
+	    VK.init({
+	        apiId: 5068850
+	    });
+	}
+	var VKService = (function () {
+	    function VKService() {
+	    }
+	    VKService.prototype.apiCall = function (method, params, timeout) {
+	        var _this = this;
+	        if (timeout === void 0) { timeout = 100; }
+	        return new Promise(function (resolve, reject) {
+	            if (vkDefined) {
+	                VK.Api.call(method, params, function (r) {
+	                    if (r.error && r.error.error_code == 6) {
+	                        setTimeout(function () {
+	                            resolve(_this.apiCall(method, params, timeout * 1.5));
+	                        }, timeout);
+	                    }
+	                    else if (r.error) {
+	                        reject(r.error);
+	                    }
+	                    else if (r.response) {
+	                        resolve(r.response);
+	                    }
+	                    else {
+	                        reject(new Error(r));
+	                    }
+	                });
+	            }
+	            else {
+	                reject(new Error('vk is not defined'));
+	            }
+	        });
+	    };
+	    VKService.prototype.setKey = function (key, value) {
+	        return this.apiCall('storage.set', { key: key, value: JSON.stringify(value) });
+	    };
+	    VKService.prototype.getKeys = function (keys) {
+	        return this.apiCall('storage.get', { keys: keys }).then(function (items) {
+	            var obj = {};
+	            for (var i = 0; i < items.length; i++) {
+	                var item = items[i];
+	                obj[item.key] = item.value ? JSON.parse(item.value) : '';
+	            }
+	            return obj;
+	        });
+	    };
+	    VKService.prototype.getKey = function (key) {
+	        return this.getKeys([key]).then(function (obj) { return obj[key]; });
+	    };
+	    VKService.prototype.getAllData = function () {
+	        var _this = this;
+	        return this.apiCall('storage.getKeys', { count: 1000 }).then(function (keys) { return _this.getKeys(keys); });
+	    };
+	    VKService.prototype.login = function (hidden) {
+	        if (hidden === void 0) { hidden = false; }
+	        return new Promise(function (resolve, reject) {
+	            if (vkDefined) {
+	                var vkMethod = hidden ? VK.Auth.getLoginStatus : VK.Auth.login;
+	                vkMethod(function (response) {
+	                    if (response.session) {
+	                        resolve(response.session.mid);
+	                    }
+	                    else {
+	                        reject(response);
+	                    }
+	                });
+	            }
+	            else {
+	                reject(new Error('vk is not defined'));
+	            }
+	        });
+	    };
+	    VKService.prototype.fetchUserId = function (defaultUserId) {
+	        var _this = this;
+	        var userIdKey = 'userId';
+	        return this.getKey(userIdKey).then(function (userId) {
+	            if (!userId) {
+	                return _this.setKey(userIdKey, defaultUserId).then(function () { return defaultUserId; });
+	            }
+	            return userId;
+	        });
+	    };
+	    return VKService;
+	})();
+	exports.VKService = VKService;
+	exports.vk = new VKService();
+	window.vk_ = exports.vk;
+
+
+/***/ },
+/* 171 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var HTTP_1 = __webpack_require__(172);
+	var vk_1 = __webpack_require__(170);
+	var Account_1 = __webpack_require__(169);
+	var UserPost_1 = __webpack_require__(173);
+	var assign = Object.assign;
+	var prefix = 'post-';
 	var Storage = (function () {
 	    function Storage() {
 	        this.data = {};
@@ -21875,7 +22214,7 @@
 	        }
 	    };
 	    Storage.prototype.saveToFirebase = function (key, value) {
-	        var http = new http_1.HTTP();
+	        var http = new HTTP_1.HTTP();
 	        http.put('https://wordss.firebaseio.com/web/data/users/' + Account_1.account.userId + '/' + key + '.json', null, JSON.stringify(value));
 	    };
 	    Storage.prototype.saveToLocalStorage = function (key, data) {
@@ -21931,17 +22270,15 @@
 	exports.storage = new Storage();
 	window.stor = exports.storage;
 	setInterval(function () {
-	    shardStore.saveAll();
 	    exports.storage.saveAll();
 	}, 5000);
 	setInterval(function () {
-	    shardStore.fetchAll();
 	    //storage.fetchAll();
 	}, 5000);
 
 
 /***/ },
-/* 165 */
+/* 172 */
 /***/ function(module, exports) {
 
 	var HTTP = (function () {
@@ -22021,153 +22358,7 @@
 
 
 /***/ },
-/* 166 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var globals_1 = __webpack_require__(167);
-	var vkDefined = typeof VK == 'object';
-	if (vkDefined) {
-	    VK.init({
-	        apiId: 5068850
-	    });
-	}
-	var VKManager = (function () {
-	    function VKManager() {
-	    }
-	    VKManager.prototype.apiCall = function (method, params, timeout) {
-	        var _this = this;
-	        if (timeout === void 0) { timeout = 100; }
-	        return new Promise(function (resolve, reject) {
-	            if (vkDefined) {
-	                VK.Api.call(method, params, function (r) {
-	                    if (r.error && r.error.error_code == 6) {
-	                        setTimeout(function () {
-	                            resolve(_this.apiCall(method, params, timeout * 1.5));
-	                        }, timeout);
-	                    }
-	                    else if (r.error) {
-	                        reject(r.error);
-	                    }
-	                    else if (r.response) {
-	                        resolve(r.response);
-	                    }
-	                    else {
-	                        reject(new Error(r));
-	                    }
-	                });
-	            }
-	            else {
-	                reject(new Error('vk is not defined'));
-	            }
-	        });
-	    };
-	    VKManager.prototype.setKey = function (key, value) {
-	        return this.apiCall('storage.set', { key: key, value: JSON.stringify(value) });
-	    };
-	    VKManager.prototype.getKeys = function (keys) {
-	        return this.apiCall('storage.get', { keys: keys }).then(function (items) {
-	            var obj = {};
-	            for (var i = 0; i < items.length; i++) {
-	                var item = items[i];
-	                obj[item.key] = item.value ? JSON.parse(item.value) : '';
-	            }
-	            return obj;
-	        });
-	    };
-	    VKManager.prototype.getKey = function (key) {
-	        return this.getKeys([key]).then(function (obj) { return obj[key]; });
-	    };
-	    VKManager.prototype.getAllData = function () {
-	        var _this = this;
-	        return this.apiCall('storage.getKeys', { count: 1000 }).then(function (keys) { return _this.getKeys(keys); });
-	    };
-	    VKManager.prototype.login = function (hidden) {
-	        if (hidden === void 0) { hidden = false; }
-	        return new Promise(function (resolve, reject) {
-	            if (vkDefined) {
-	                var vkMethod = hidden ? VK.Auth.getLoginStatus : VK.Auth.login;
-	                vkMethod(function (response) {
-	                    if (response.session) {
-	                        resolve(response.session.mid);
-	                    }
-	                    else {
-	                        reject(response);
-	                    }
-	                });
-	            }
-	            else {
-	                reject(new Error('vk is not defined'));
-	            }
-	        });
-	    };
-	    VKManager.prototype.fetchUserId = function (defaultUserId) {
-	        var _this = this;
-	        var userIdKey = 'userId';
-	        return this.getKey(userIdKey).then(function (userId) {
-	            if (!userId) {
-	                return _this.setKey(userIdKey, defaultUserId).then(function () { return defaultUserId; });
-	            }
-	            return userId;
-	        });
-	    };
-	    return VKManager;
-	})();
-	exports.VKManager = VKManager;
-	exports.vk = new VKManager();
-	globals_1.global.vk = exports.vk;
-
-
-/***/ },
-/* 167 */
-/***/ function(module, exports) {
-
-	exports.global = window;
-
-
-/***/ },
-/* 168 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var vk_1 = __webpack_require__(166);
-	var storage_1 = __webpack_require__(164);
-	if (!localStorage['userId']) {
-	    localStorage['userId'] = Math.random().toString(33).substr(2, 20);
-	}
-	var userKey = 'userId';
-	var Account = (function () {
-	    function Account() {
-	        this.userId = localStorage[userKey];
-	        this.isAuthorized = false;
-	    }
-	    Account.prototype.onAuth = function (vkUserId) {
-	        var _this = this;
-	        this.vkUserId = vkUserId;
-	        return vk_1.vk.fetchUserId(this.userId).then(function (userId) {
-	            _this.isAuthorized = true;
-	            localStorage[userKey] = _this.userId = userId;
-	        });
-	    };
-	    Account.prototype.fetch = function () {
-	        var _this = this;
-	        return vk_1.vk.login(true)
-	            .then(function (vkUserId) { return _this.onAuth(vkUserId); }, function () { return null; })
-	            .then(function () { return storage_1.storage.fetchAll(); });
-	    };
-	    Account.prototype.login = function () {
-	        var _this = this;
-	        return vk_1.vk.login()
-	            .then(function (vkUserId) { return _this.onAuth(vkUserId); }, function () { return null; })
-	            .then(function () { return storage_1.storage.fetchAll(); });
-	    };
-	    return Account;
-	})();
-	exports.Account = Account;
-	exports.account = new Account();
-	window.acc = exports.account;
-
-
-/***/ },
-/* 169 */
+/* 173 */
 /***/ function(module, exports) {
 
 	var UserPost = (function () {
@@ -22184,7 +22375,84 @@
 
 
 /***/ },
-/* 170 */
+/* 174 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Account_1 = __webpack_require__(169);
+	var vk_1 = __webpack_require__(170);
+	var UserInput_1 = __webpack_require__(167);
+	exports.shardPrefix = 'temp-shard-';
+	var currentVersion = 1;
+	var Shard = (function () {
+	    function Shard(id) {
+	        this.id = id;
+	        this.serverRevision = 0;
+	        this.revision = 0;
+	        this.version = currentVersion;
+	        this.texts = [];
+	    }
+	    Shard.prototype.addUserText = function (userInput) {
+	        this.texts.push(userInput);
+	        return this;
+	    };
+	    Shard.prototype.getKey = function () {
+	        return exports.shardPrefix + this.id;
+	    };
+	    Shard.prototype.update = function () {
+	        localStorage[this.getKey()] = JSON.stringify(this);
+	    };
+	    Shard.prototype.toJson = function () {
+	        return {
+	            revision: this.revision,
+	            version: this.version,
+	            texts: this.texts.map(function (userInput) { return userInput.toJson(); })
+	        };
+	    };
+	    Shard.prototype.fromJson = function (serverData) {
+	        if (this.revision < serverData.revision) {
+	            this.revision = serverData.revision;
+	            this.serverRevision = serverData.serverRevision || this.revision;
+	            this.version = serverData.version;
+	            this.texts = serverData.texts.map(function (json) { return UserInput_1.UserInput.fromJson(json); });
+	            this.update();
+	        }
+	        return this;
+	    };
+	    Shard.prototype.save = function () {
+	        var _this = this;
+	        if (this.savingPromise) {
+	            return this.savingPromise;
+	        }
+	        return this.savingPromise = Promise.resolve().then(function () {
+	            var key = _this.getKey();
+	            if (Account_1.account.isAuthorized) {
+	                if (_this.serverRevision < _this.revision) {
+	                    var revision = _this.revision;
+	                    _this.fetch().then(function () {
+	                        if (revision === _this.revision) {
+	                            return vk_1.vk.setKey(key, _this.toJson()).then(function () {
+	                                _this.serverRevision = revision;
+	                                _this.update();
+	                            });
+	                        }
+	                    });
+	                }
+	            }
+	        }).then(function () {
+	            _this.savingPromise = null;
+	        });
+	    };
+	    Shard.prototype.fetch = function () {
+	        var _this = this;
+	        return vk_1.vk.getKey(this.getKey()).then(function (serverData) { return _this.fromJson(serverData); });
+	    };
+	    return Shard;
+	})();
+	exports.Shard = Shard;
+
+
+/***/ },
+/* 175 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __extends = (this && this.__extends) || function (d, b) {
@@ -22192,274 +22460,106 @@
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var PostLine_1 = __webpack_require__(171);
-	var Store_1 = __webpack_require__(172);
-	var Post = (function () {
-	    function Post(rawPost, isTop) {
+	var PostStore_1 = __webpack_require__(176);
+	var Store_1 = __webpack_require__(165);
+	var PostLineStorage = (function (_super) {
+	    __extends(PostLineStorage, _super);
+	    function PostLineStorage() {
 	        var _this = this;
-	        this.isTop = isTop;
-	        this.id = rawPost.id;
-	        this.title = rawPost.title;
-	        if (rawPost.rawData) {
-	            this.lines = rawPost.rawData.map(function (item) { return new PostLine_1.PostLine(item[0], _this.id, item[1], item[2]); });
-	        }
-	        if (rawPost.parts) {
-	            this.parts = rawPost.parts.map(function (rawPost) { return new Post(rawPost, false); });
-	        }
+	        _super.call(this);
+	        this.fillItems = function () {
+	            _this.replaceAll((_a = []).concat.apply(_a, PostStore_1.postStorage.getItems().map(function (post) { return post.lines; })));
+	            var _a;
+	        };
+	        this.fillItems();
+	        PostStore_1.postStorage.listen(this.fillItems);
 	    }
-	    return Post;
-	})();
-	exports.Post = Post;
+	    return PostLineStorage;
+	})(Store_1.Store);
+	exports.PostLineStorage = PostLineStorage;
+	exports.postLineStorage = new PostLineStorage();
+
+
+/***/ },
+/* 176 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var posts_1 = __webpack_require__(177);
+	var Post_1 = __webpack_require__(194);
+	var Store_1 = __webpack_require__(165);
+	var PostStorage = (function (_super) {
+	    __extends(PostStorage, _super);
+	    function PostStorage() {
+	        var _this = this;
+	        _super.call(this);
+	        posts_1.posts.map(function (rawPost) {
+	            var post = new Post_1.Post(rawPost, true);
+	            _this.push(post);
+	            _this.push.apply(_this, post.parts);
+	        });
+	    }
+	    return PostStorage;
+	})(Store_1.Store);
+	exports.PostStorage = PostStorage;
+	exports.postStorage = new PostStorage();
+
+
+/***/ },
+/* 177 */
+/***/ function(module, exports, __webpack_require__) {
+
 	var nextId = 352;
-	var posts = [
+	exports.posts = [
 	    {
 	        "id": "alissa",
 	        "title": "Alissa",
 	        "parts": [
-	            { "id": "alissa-1", "title": "Part1", "rawData": __webpack_require__(173) },
-	            { "id": "alissa-2", "title": "Part2", "rawData": __webpack_require__(174) },
-	            { "id": "alissa-3", "title": "Part3", "rawData": __webpack_require__(175) },
-	            { "id": "alissa-4", "title": "Part4", "rawData": __webpack_require__(176) },
-	            { "id": "alissa-5", "title": "Part5", "rawData": __webpack_require__(177) },
+	            { "id": "alissa-1", "title": "Part1", "rawData": __webpack_require__(178) },
+	            { "id": "alissa-2", "title": "Part2", "rawData": __webpack_require__(179) },
+	            { "id": "alissa-3", "title": "Part3", "rawData": __webpack_require__(180) },
+	            { "id": "alissa-4", "title": "Part4", "rawData": __webpack_require__(181) },
+	            { "id": "alissa-5", "title": "Part5", "rawData": __webpack_require__(182) },
 	        ],
 	    },
 	    {
 	        "id": "sara",
 	        "title": "Sara",
 	        "parts": [
-	            { "id": "sara-1", "title": "Part1", "rawData": __webpack_require__(178) },
-	            { "id": "sara-2", "title": "Part2", "rawData": __webpack_require__(179) },
-	            { "id": "sara-3", "title": "Part3", "rawData": __webpack_require__(180) },
-	            { "id": "sara-4", "title": "Part4", "rawData": __webpack_require__(181) },
-	            { "id": "sara-5", "title": "Part5", "rawData": __webpack_require__(182) },
-	            { "id": "sara-6", "title": "Part6", "rawData": __webpack_require__(183) },
-	            { "id": "sara-7", "title": "Part7", "rawData": __webpack_require__(184) },
+	            { "id": "sara-1", "title": "Part1", "rawData": __webpack_require__(183) },
+	            { "id": "sara-2", "title": "Part2", "rawData": __webpack_require__(184) },
+	            { "id": "sara-3", "title": "Part3", "rawData": __webpack_require__(185) },
+	            { "id": "sara-4", "title": "Part4", "rawData": __webpack_require__(186) },
+	            { "id": "sara-5", "title": "Part5", "rawData": __webpack_require__(187) },
+	            { "id": "sara-6", "title": "Part6", "rawData": __webpack_require__(188) },
+	            { "id": "sara-7", "title": "Part7", "rawData": __webpack_require__(189) },
 	        ]
 	    },
 	    {
 	        "id": "luckynumber",
 	        "title": "Lucky Number",
 	        "parts": [
-	            { "id": "luckynumber-1", "title": "Part1", "rawData": __webpack_require__(185) },
+	            { "id": "luckynumber-1", "title": "Part1", "rawData": __webpack_require__(190) },
 	        ]
 	    },
 	    {
 	        "id": "animal",
 	        "title": "Animal Life Cycles",
 	        "parts": [
-	            { "id": "animal-1", "title": "Part1", "rawData": __webpack_require__(186) },
-	            { "id": "animal-2", "title": "Part2", "rawData": __webpack_require__(187) },
-	            { "id": "animal-3", "title": "Part3", "rawData": __webpack_require__(188) },
+	            { "id": "animal-1", "title": "Part1", "rawData": __webpack_require__(191) },
+	            { "id": "animal-2", "title": "Part2", "rawData": __webpack_require__(192) },
+	            { "id": "animal-3", "title": "Part3", "rawData": __webpack_require__(193) },
 	        ]
 	    },
 	];
-	exports.postStorage = new ((function (_super) {
-	    __extends(class_1, _super);
-	    function class_1() {
-	        _super.apply(this, arguments);
-	    }
-	    Object.defineProperty(class_1.prototype, "posts", {
-	        get: function () {
-	            var _this = this;
-	            if (!this._posts) {
-	                this._posts = new Store_1.Store();
-	                posts.map(function (rawPost) {
-	                    var post = new Post(rawPost, true);
-	                    _this._posts.push(post);
-	                    (_a = _this._posts).push.apply(_a, post.parts);
-	                    var _a;
-	                });
-	            }
-	            return this._posts;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    class_1.prototype.getPostById = function (id) {
-	        return this.posts.getById(id);
-	    };
-	    return class_1;
-	})(Store_1.Store));
-	exports.postLineStorage = new ((function () {
-	    function class_2() {
-	    }
-	    Object.defineProperty(class_2.prototype, "lines", {
-	        get: function () {
-	            if (!this._lines) {
-	                this._lines = new Store_1.Store((_a = []).concat.apply(_a, exports.postStorage.items.map(function (post) { return post.lines; })));
-	            }
-	            return this._lines;
-	            var _a;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    class_2.prototype.getPostLineById = function (id) {
-	        return this.lines.getById(id);
-	    };
-	    return class_2;
-	})());
 
 
 /***/ },
-/* 171 */
-/***/ function(module, exports) {
-
-	var PostLine = (function () {
-	    function PostLine(id, postId, origin, translate) {
-	        this.id = id;
-	        this.postId = postId;
-	        this.origin = origin;
-	        this.translate = translate;
-	    }
-	    return PostLine;
-	})();
-	exports.PostLine = PostLine;
-
-
-/***/ },
-/* 172 */
-/***/ function(module, exports) {
-
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-	    switch (arguments.length) {
-	        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-	        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-	        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-	    }
-	};
-	function getFieldName(fn) {
-	    var matches = fn.toString().replace(/\s+/g, '').match(/\.([^.]+);}$/);
-	    if (!matches) {
-	        throw 'fn does not return a field';
-	    }
-	    return matches[1];
-	}
-	var Store = (function () {
-	    function Store(array) {
-	        if (array === void 0) { array = []; }
-	        this.items = array;
-	        if (array && !Array.isArray(array)) {
-	            throw new Error('Store argument type is not Array: ' + JSON.stringify(array));
-	        }
-	    }
-	    Store.inline = function (target, methodName) {
-	        console.log(target, methodName);
-	        var fn = target[methodName];
-	        var code = fn.toString();
-	        var matches = code.match(/^function\s*\(\w+\)\s*\{\s*return this.get(All)?By\(function\s*\(\w+\)\s*\{\s*return \w+\.(\w+);\s*\},\s*\w+\);\s*\}$/);
-	        if (!matches) {
-	            throw 'Incorrect method';
-	        }
-	        var isUnique = !matches[1];
-	        var indexName = isUnique ? 'indexUnique' : 'index';
-	        var field = matches[2];
-	        target[methodName] = eval("\n            (function(value){\n                if (typeof this." + indexName + " == \"undefined\" || typeof this." + indexName + "." + field + " == \"undefined\") {\n                    this.createIndex(" + field + ", " + isUnique + ");\n                }\n                return this." + indexName + "." + field + "[value] || null;\n            })");
-	    };
-	    Store.prototype.createIndex = function (field, isUnique) {
-	        var index;
-	        if (isUnique) {
-	            if (!this.indexUnique) {
-	                Object.defineProperty(this, 'indexUnique', { value: {} });
-	            }
-	            index = this.indexUnique;
-	        }
-	        else {
-	            if (!this.index) {
-	                Object.defineProperty(this, 'index', { value: {} });
-	            }
-	            index = this.index;
-	        }
-	        if (typeof index[field] == 'undefined') {
-	            index[field] = { $keys: [] };
-	        }
-	        var indexKeys = index[field].$keys;
-	        var indexFieldMap = index[field];
-	        for (var i = 0; i < this.items.length; i++) {
-	            var item = this.items[i];
-	            if (typeof item == 'undefined' || typeof item[field] == 'undefined') {
-	                throw new Error("Array[" + i + "]." + field + " value is undefined. Array item: " + JSON.stringify(item));
-	            }
-	            var value = item[field];
-	            if (typeof indexFieldMap[value] == 'undefined') {
-	                indexFieldMap[value] = isUnique ? item : new Store();
-	                indexKeys.push(value);
-	            }
-	            if (!isUnique) {
-	                indexFieldMap[value].push(item);
-	            }
-	        }
-	    };
-	    Store.prototype.getById = function (value) {
-	        return this.getBy(function (it) { return it.id; }, value);
-	    };
-	    Store.prototype.getBy = function (fn, value) {
-	        throw new Error('Method is not inline');
-	    };
-	    Store.prototype.getAllBy = function (fn, value) {
-	        throw new Error('Method is not inline');
-	    };
-	    Store.prototype.getIndexMap = function (field) {
-	        if (typeof this.index != 'undefined' && typeof this.index[field] != 'undefined') {
-	            return this.index[field].$keys;
-	        }
-	        if (typeof this.indexUnique == 'undefined' || typeof this.indexUnique[field] == 'undefined') {
-	            this.createIndex(field, true);
-	        }
-	        return this.indexUnique[field].$keys;
-	    };
-	    Store.prototype.map = function (cb, thisArg) { return this.items.map(cb, thisArg); };
-	    Store.prototype.filter = function (cb, thisArg) { return this.items.filter(cb, thisArg); };
-	    Store.prototype.slice = function (start, end) { return this.items.slice(start, end); };
-	    Store.prototype.forEach = function (cb, thisArg) { return this.items.forEach(cb, thisArg); };
-	    Store.prototype.push = function () {
-	        var items = [];
-	        for (var _i = 0; _i < arguments.length; _i++) {
-	            items[_i - 0] = arguments[_i];
-	        }
-	        return (_a = this.items).push.apply(_a, items);
-	        var _a;
-	    };
-	    Store.prototype.pop = function () { return this.items.pop(); };
-	    Store.prototype.join = function (separator) { return this.items.join(separator); };
-	    Store.prototype.reverse = function () { return this.items.reverse(); };
-	    Store.prototype.shift = function () { return this.items.shift(); };
-	    Store.prototype.sort = function (compareFn) { return this.items.sort(compareFn); };
-	    Store.prototype.splice = function (start, deleteCount) {
-	        var items = [];
-	        for (var _i = 2; _i < arguments.length; _i++) {
-	            items[_i - 2] = arguments[_i];
-	        }
-	        return (_a = this.items).splice.apply(_a, [start, deleteCount].concat(items));
-	        var _a;
-	    };
-	    Store.prototype.unshift = function () {
-	        var items = [];
-	        for (var _i = 0; _i < arguments.length; _i++) {
-	            items[_i - 0] = arguments[_i];
-	        }
-	        return (_a = this.items).unshift.apply(_a, items);
-	        var _a;
-	    };
-	    Store.prototype.indexOf = function (searchElement, fromIndex) { return this.items.indexOf(searchElement, fromIndex); };
-	    Store.prototype.lastIndexOf = function (searchElement, fromIndex) { return this.items.lastIndexOf(searchElement, fromIndex); };
-	    ;
-	    Store.prototype.every = function (cb, thisArg) { return this.items.every(cb, thisArg); };
-	    Store.prototype.some = function (cb, thisArg) { return this.items.some(cb, thisArg); };
-	    Store.prototype.reduce = function (cb, init) { return this.items.reduce(cb, init); };
-	    Store.prototype.reduceRight = function (cb, init) { return this.items.reduceRight(cb, init); };
-	    Object.defineProperty(Store.prototype, "getById",
-	        __decorate([
-	            Store.inline
-	        ], Store.prototype, "getById", Object.getOwnPropertyDescriptor(Store.prototype, "getById")));
-	    return Store;
-	})();
-	exports.Store = Store;
-
-
-/***/ },
-/* 173 */
+/* 178 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22611,7 +22711,7 @@
 	];
 
 /***/ },
-/* 174 */
+/* 179 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22718,7 +22818,7 @@
 	];
 
 /***/ },
-/* 175 */
+/* 180 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22850,7 +22950,7 @@
 	];
 
 /***/ },
-/* 176 */
+/* 181 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -22972,7 +23072,7 @@
 	];
 
 /***/ },
-/* 177 */
+/* 182 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23109,7 +23209,7 @@
 	];
 
 /***/ },
-/* 178 */
+/* 183 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23206,7 +23306,7 @@
 	];
 
 /***/ },
-/* 179 */
+/* 184 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23308,7 +23408,7 @@
 	];
 
 /***/ },
-/* 180 */
+/* 185 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23435,7 +23535,7 @@
 	];
 
 /***/ },
-/* 181 */
+/* 186 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23552,7 +23652,7 @@
 	];
 
 /***/ },
-/* 182 */
+/* 187 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23694,7 +23794,7 @@
 	];
 
 /***/ },
-/* 183 */
+/* 188 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23816,7 +23916,7 @@
 	];
 
 /***/ },
-/* 184 */
+/* 189 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -23888,7 +23988,7 @@
 	];
 
 /***/ },
-/* 185 */
+/* 190 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -24005,7 +24105,7 @@
 	];
 
 /***/ },
-/* 186 */
+/* 191 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -24157,7 +24257,7 @@
 	];
 
 /***/ },
-/* 187 */
+/* 192 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -24299,7 +24399,7 @@
 	];
 
 /***/ },
-/* 188 */
+/* 193 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -24436,7 +24536,46 @@
 	];
 
 /***/ },
-/* 189 */
+/* 194 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var PostLine_1 = __webpack_require__(195);
+	var Post = (function () {
+	    function Post(rawPost, isTop) {
+	        var _this = this;
+	        this.isTop = isTop;
+	        this.id = rawPost.id;
+	        this.title = rawPost.title;
+	        if (rawPost.rawData) {
+	            this.lines = rawPost.rawData.map(function (item) { return new PostLine_1.PostLine(item[0], _this.id, item[1], item[2]); });
+	        }
+	        if (rawPost.parts) {
+	            this.parts = rawPost.parts.map(function (rawPost) { return new Post(rawPost, false); });
+	        }
+	    }
+	    return Post;
+	})();
+	exports.Post = Post;
+
+
+/***/ },
+/* 195 */
+/***/ function(module, exports) {
+
+	var PostLine = (function () {
+	    function PostLine(id, postId, origin, translate) {
+	        this.id = id;
+	        this.postId = postId;
+	        this.origin = origin;
+	        this.translate = translate;
+	    }
+	    return PostLine;
+	})();
+	exports.PostLine = PostLine;
+
+
+/***/ },
+/* 196 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __extends = (this && this.__extends) || function (d, b) {
@@ -24445,16 +24584,16 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var React = __webpack_require__(1);
-	var posts_1 = __webpack_require__(170);
-	var routes_1 = __webpack_require__(190);
+	var routes_1 = __webpack_require__(197);
 	var Component_1 = __webpack_require__(157);
+	var PostStore_1 = __webpack_require__(176);
 	var List = (function (_super) {
 	    __extends(List, _super);
 	    function List() {
 	        _super.apply(this, arguments);
 	    }
 	    List.prototype.render = function () {
-	        return React.createElement("div", {"className": "posts"}, posts_1.postStorage.posts.filter(function (post) { return post.isTop; }).map(function (post) {
+	        return React.createElement("div", {"className": "posts"}, PostStore_1.postStorage.getItems().filter(function (post) { return post.isTop; }).map(function (post) {
 	            return React.createElement("div", {"key": post.id, "className": "post"}, React.createElement("h1", null, post.title), post.parts.map(function (part) {
 	                return React.createElement("div", {"key": part.id, "className": "part"}, React.createElement("div", {"className": "part-link", "onClick": function () { return routes_1.routes.post.goto({ id: part.id }); }}, part.title));
 	            }));
@@ -24466,7 +24605,7 @@
 
 
 /***/ },
-/* 190 */
+/* 197 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Router_1 = __webpack_require__(158);

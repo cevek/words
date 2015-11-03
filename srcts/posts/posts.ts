@@ -1,30 +1,12 @@
-import {PostLine} from "../PostLine";
-import {UserPost} from "../UserPost";
-import {Store} from "../Store";
-type RawData = [number, string, string][];
-type RawPost = {id: string; title: string; rawData?: RawData, parts?: RawPost[]};
-export class Post {
-    id:string;
-    title:string;
-    parts:Post[];
-    lines:PostLine[];
-    isTop:boolean;
+import {PostLine} from "../models/PostLine";
+import {UserPost} from "../models/UserPost";
+import {Store} from "../libs/Store";
+export type RawData = [number, string, string][];
+export type RawPost = {id: string; title: string; rawData?: RawData, parts?: RawPost[]};
 
-    constructor(rawPost:RawPost, isTop:boolean) {
-        this.isTop = isTop;
-        this.id = rawPost.id;
-        this.title = rawPost.title;
-        if (rawPost.rawData) {
-            this.lines = rawPost.rawData.map(item => new PostLine(item[0], this.id, item[1], item[2]));
-        }
-        if (rawPost.parts) {
-            this.parts = rawPost.parts.map(rawPost => new Post(rawPost, false));
-        }
-    }
-}
 const nextId = 352;
 
-const posts:RawPost[] = [
+export const posts:RawPost[] = [
     {
         "id": "alissa",
         "title": "Alissa",
@@ -77,27 +59,3 @@ const posts:RawPost[] = [
     },
 ];
 
-class PostStorage extends Store<Post> {
-    constructor() {
-        super();
-        posts.map(rawPost => {
-            const post = new Post(rawPost, true);
-            this.push(post);
-            this.push(...post.parts);
-        });
-    }
-}
-export const postStorage = new PostStorage();
-
-class PostLineStorage extends Store<PostLine> {
-    constructor() {
-        super();
-        this.fillItems();
-        postStorage.listen(this.fillItems);
-    }
-
-    fillItems = () => {
-        this.replaceAll([].concat(...postStorage.getItems().map(post => post.lines)));
-    };
-}
-export const postLineStorage = new PostLineStorage();

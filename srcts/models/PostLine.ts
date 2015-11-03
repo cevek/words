@@ -1,3 +1,4 @@
+import {Store} from "./../libs/Store";
 export class PostLine {
     id:number;
     partId:string;

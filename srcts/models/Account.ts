@@ -1,5 +1,5 @@
-import {vk} from './vk';
-import {storage} from './storage';
+import {vk} from './../services/vk';
+import {storage} from './../services/storage';
 
 if (!localStorage['userId']) {
     localStorage['userId'] = Math.random().toString(33).substr(2, 20);

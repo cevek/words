@@ -53,7 +53,7 @@ else {
 module.exports = {
     context: context,
     entry: {
-        app: './index.tsx',
+        app: './tsx/index.tsx',
         /*vendor: [
             //"react/dist/react.min.js"
             //"../vendor/react.min-0.13.3.js",
