@@ -1,5 +1,9 @@
 "use strict";
 
+var canvasw = document.createElement('canvas');
+document.body.appendChild(canvasw);
+var ctxw = canvasw.getContext('2d');
+
 var audio = document.createElement('audio');
 audio.src = '11.mp3';
 document.body.appendChild(audio);
@@ -12,6 +16,55 @@ input2.value = (Math.random() * 20 | 0) + '';
 input2.type = 'number';
 document.body.appendChild(input2);
 
+var fileInput = document.createElement('input');
+fileInput.type = 'file';
+document.body.appendChild(fileInput);
+function handleFileSelect(evt:Event) {
+    var files = fileInput.files; // FileList object
+    var file = files[0];
+    var reader = new FileReader();
+    reader.readAsArrayBuffer(file);
+    reader.onload = function () {
+        parseAudio(reader.result).then(buff => {
+            buffer = buff;
+            var fft = getFFT(buffer);
+            drawFFT(fft);
+            calc(fft);
+        });
+    };
+}
+
+function drawFFT(fft:Uint8Array[]) {
+    var width = Math.min(10000, fft.length);
+    var height = fft[0].length;
+    canvasw.setAttribute('width', width + '');
+    canvasw.setAttribute('height', height + '');
+    canvasw.style.cssText = `width: ${width / 2}px; height: ${height / 2}px`;
+    var imd = ctxw.getImageData(0, 0, width, height);
+    var imdd = imd.data;
+
+    for (var i = 0; i < width; i++) {
+        var item = fft[i];
+        for (var j = 0; j < item.length; j++) {
+            var val = item[j];
+            var pos = ((height - j) * width + i) * 4;
+            imdd[pos + 0] = val;
+            imdd[pos + 1] = val;
+            imdd[pos + 2] = val;
+            imdd[pos + 3] = 255;
+        }
+    }
+    ctxw.putImageData(imd, 0, 0);
+}
+
+function parseAudio(arraybuffer:ArrayBuffer) {
+    return new Promise<AudioBuffer>((resolve, reject) => {
+        context.decodeAudioData(arraybuffer, resolve, reject);
+    });
+}
+
+fileInput.onchange = handleFileSelect;
+
 var button = document.createElement('button');
 button.textContent = 'play';
 document.body.appendChild(button);
@@ -23,9 +76,11 @@ button2.onclick = ()=> {
     playSource.stop();
 };
 
+var fftSize = 1024;
 var playSource:AudioBufferSourceNode;
 button.onclick = ()=> {
-    var step = +input1.value / 50;
+    var freq = buffer.sampleRate / fftSize;
+    var step = +input1.value / freq;
     var offset = +input2.value;
     var start = offset * step;
     var end = (offset + 1) * step;
@@ -52,6 +107,9 @@ function loadSound(url:string) {
 var buffer:AudioBuffer;
 loadSound('11.mp3').then(bf => {
     buffer = bf;
+    var fft = getFFT(buffer);
+    drawFFT(fft);
+    calc(fft);
 });
 
 function play(buffer:AudioBuffer, start:number, end:number) {
@@ -85,13 +143,101 @@ img.src = 'spectrogram.png';
 var width = 0;
 var height = 0;
 
-class Peaks {
-    constructor(public count:number, public step:number, public shift:number) {
+//var context = new AudioContext();
 
+var globAnalizer:any;
+var data = new Int8Array(128);
+var ffds:any;
+
+var DFT:any;
+var FFT:any;
+function getFFT(buffer:AudioBuffer) {
+    var bufferSize = fftSize;
+    var bufferSignalSize = bufferSize;
+
+    var koef = 1;
+    var items:Uint8Array[] = [];
+    //var fft = new DFT(size, buffer.sampleRate);
+    var fft = new FFT(bufferSize, 0);
+    var signal:Float32Array = buffer.getChannelData(0);
+    var bufferSignal = new Float32Array(bufferSignalSize);
+    var k = 0;
+    while (k < signal.length) {
+        var i = 0;
+        while (i < bufferSignalSize) {
+            var smooth = 0;
+            for (var j = k; j < k + koef; j++) {
+                smooth += signal[j];
+            }
+            k += koef;
+            bufferSignal[i] = smooth / koef;
+            i++;
+        }
+        if (i < bufferSignalSize) {
+            break;
+        }
+        fft.forward(bufferSignal);
+        var spectrum = fft.spectrum;
+        var arr = new Uint8ClampedArray(spectrum.length);
+        for (var j = 0; j < spectrum.length; j++) {
+            // equalize, attenuates low freqs and boosts highs
+            //arr[j] = spectrum[j] * -1 * Math.log((bufferSize / 2 - j) * (0.5 / bufferSize / 2)) * bufferSize | 0;
+            arr[j] = spectrum[j] * 5000;
+        }
+        items.push(arr);
     }
+    //var spectrum = fft.spectrum;
+    console.log(items);
+    return items;
 }
 
-img.onload = function () {
+function getLine(fft:Uint8Array[]) {
+    var line = new Uint32Array(fft.length);
+    for (var i = 0; i < fft.length; i++) {
+        var sum = 0;
+        for (var j = 0; j < fft[i].length / 2; j++) {
+            sum += fft[i][j];
+        }
+        line[i] = sum;
+    }
+    return line;
+}
+
+function calc(fft:Uint8Array[]) {
+    var line = getLine(fft);
+    console.time('count');
+    var peaksData:number[] = [];
+    var width = fft.length;
+
+    for (var step = 100; step < 600; step++) {
+        var sum = 0;
+        var count = 0;
+        for (var i = 0; i < width - step; i += step) {
+            for (var p = i + step; p < width - step; p += step) {
+                for (var j = 0; j < step; j++) {
+                    var diff = line[i + j] - line[p + j];
+                    sum += diff > 0 ? diff : -diff;
+                    count++;
+                }
+            }
+        }
+        peaksData[step] = sum / count | 0;
+    }
+
+    var peaks:{diff:number; step: number}[] = [];
+    for (var i = 0; i < peaksData.length; i++) {
+        var obj = peaksData[i] || Infinity;
+        peaks.push({diff: obj, step: i});
+    }
+    peaks.sort((a, b)=> a.diff < b.diff ? -1 : 1);
+    console.log(peaks[0]);
+    console.log(peaks);
+
+    console.timeEnd('count');
+    return count;
+}
+
+img.onload1 = function () {
     width = img.width;
     height = img.height;
     canvas.setAttribute('width', width + '');
@@ -180,17 +326,3 @@ img.onload = function () {
     //input1.value = peaks[0] + '';
     console.log(peaksData);
 };
-
-var a = new Uint8Array(15000);
-function abc() {
-    console.time('abc');
-    for (var i = 0; i < 15000; i++) {
-        for (var j = i; j < i + 500; j++) {
-            for (var k = 0; k < 64; k++) {
-                a[i] === a[i];
-            }
-        }
-    }
-    console.timeEnd('abc');
-}
-//abc();
